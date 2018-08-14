@@ -1,0 +1,1 @@
+# VS2015For32QtProject
