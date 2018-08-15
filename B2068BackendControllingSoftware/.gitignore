@@ -1,2 +1,4 @@
 /ipch/
 /.vs/
+/Win32/
+*.VC.db
