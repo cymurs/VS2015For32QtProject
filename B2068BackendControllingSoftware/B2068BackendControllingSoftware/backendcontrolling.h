@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QtWidgets/QMainWindow>
+#include <QtWidgets/QDialog>
 #include "ui_backendcontrolling.h"
 
 class BackendControlling : public QMainWindow

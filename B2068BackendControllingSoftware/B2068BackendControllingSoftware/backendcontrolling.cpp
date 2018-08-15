@@ -4,5 +4,6 @@
 BackendControlling::BackendControlling(QWidget *parent)
 	: QMainWindow(parent)
 {
-	ui.setupUi(this);
+	//ui.setupUi(this);
+	resize(600, 400);
 }
