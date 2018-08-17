@@ -74,4 +74,75 @@ const QString QSS_TimesMainTabLabel =
 		"font: bold normal 104px \"times\";"
 	"}";
 
+/****************************************************************************************
+ ±º‰‘¥
+*****************************************************************************************/
+const QString QSS_YaHeiTimeSrcRadio =
+	"QRadioButton#%1 {"
+		"font: bold normal 20px \"Microsoft YaHei\";"
+	"}"
+	"QRadioButton#%1::indicator {"
+		"width: 20px;"
+		"height: 20px;"
+	"}"
+	"QRadioButton::indicator::checked {"
+		"image: url(:/BackendControlling/images/full.png);"
+	"}"
+	"QRadioButton::indicator::unchecked {"
+		"image: url(:/BackendControlling/images/empty.png);"
+	"}"
+	"QRadioButton#%1::indicator::unchecked:hover {"
+		"background: grey;"
+		"border-radius: 10px;"
+	"}"
 
+	"QRadioButton#%2 {"
+		"font: bold normal 15px \"Microsoft YaHei\";"
+	"}"
+	"QRadioButton#%2::indicator {"
+		"width: 16px;"
+		"height: 16px;"
+	"}"
+	"QRadioButton#%2::indicator::unchecked:hover {"
+		"background: grey;"
+		"border-radius: 8px;"
+	"}";
+
+const QString QSS_TimesTimeSrcRadio =
+	"QRadioButton#%1 {"
+		"font: bold normal 20px \"times\";"
+	"}"
+	"QRadioButton#%1::indicator {"
+		"width: 20px;"
+		"height: 20px;"
+	"}"
+	"QRadioButton::indicator::checked {"
+		"image: url(:/BackendControlling/images/full.png);"
+	"}"
+	"QRadioButton::indicator::unchecked {"
+		"image: url(:/BackendControlling/images/empty.png);"
+	"}"
+	"QRadioButton#%1::indicator::unchecked:hover {"
+		"background: grey;"
+		"border-radius: 10px;"
+	"}"
+
+	"QRadioButton#%2 {"
+		"font: bold normal 15px \"times\";"
+	"}"
+	"QRadioButton#%2::indicator {"
+		"width: 16px;"
+		"height: 16px;"
+	"}"
+	"QRadioButton#%2::indicator::unchecked:hover {"
+		"background: grey;"
+		"border-radius: 8px;"
+	"}";
+
+const QString QSS_TimeSrcLabel =
+	"QLabel#%1, QLineEdit, QComboBox {"
+		"font: 16px \"Microsoft YaHei\";"
+	"}"
+	"QLabel#%2, QPushButton {"
+		"font: bold normal 15px \"Microsoft YaHei\";"
+	"}";

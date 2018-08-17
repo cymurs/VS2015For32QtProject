@@ -10,5 +10,7 @@
         <file>images/timg (1).jpg</file>
         <file>images/lock_white_close.png</file>
         <file>images/lock_white_open.png</file>
+        <file>images/empty.png</file>
+        <file>images/full.png</file>
     </qresource>
 </RCC>
