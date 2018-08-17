@@ -1,11 +1,11 @@
 #include "stdafx.h"
-#include "backendcontrolling.h"
+#include "tabwidget.h"
 #include <QtWidgets/QApplication>
 
 int main(int argc, char *argv[])
 {
 	QApplication a(argc, argv);
-	BackendControlling w;
+	TabWidget w;
 	w.show();
 	return a.exec();
 }

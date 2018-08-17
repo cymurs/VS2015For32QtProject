@@ -1,4 +1,14 @@
 <RCC>
-    <qresource prefix="BackendControlling">
+    <qresource prefix="/BackendControlling">
+        <file>images/antenna0.png</file>
+        <file>images/antenna1.png</file>
+        <file>images/antenna2.png</file>
+        <file>images/antenna3.png</file>
+        <file>images/lock_black_close.png</file>
+        <file>images/lock_black_open.png</file>
+        <file>images/timg (1).png</file>
+        <file>images/timg (1).jpg</file>
+        <file>images/lock_white_close.png</file>
+        <file>images/lock_white_open.png</file>
     </qresource>
 </RCC>

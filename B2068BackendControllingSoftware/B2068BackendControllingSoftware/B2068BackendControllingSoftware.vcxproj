@@ -233,22 +233,48 @@
     <ClCompile Include="Protocol.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="qss.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="tabwidget.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="tabwidget.h">
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtConcurrent;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtSerialPort;$(QTDIR)\include\QtWebSockets;$(QTDIR)\include\QtWidgets</IncludePath>
+      <Define Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">UNICODE;WIN32;WIN64;QT_CONCURRENT_LIB;QT_CORE_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_SERIALPORT_LIB;QT_WEBSOCKETS_LIB;QT_WIDGETS_LIB;_MBCS</Define>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtConcurrent;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtSerialPort;$(QTDIR)\include\QtWebSockets;$(QTDIR)\include\QtWidgets</IncludePath>
+      <Define Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">UNICODE;WIN32;WIN64;QT_CONCURRENT_LIB;QT_CORE_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_SERIALPORT_LIB;QT_WEBSOCKETS_LIB;QT_WIDGETS_LIB</Define>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtConcurrent;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtSerialPort;$(QTDIR)\include\QtWebSockets;$(QTDIR)\include\QtWidgets</IncludePath>
+      <Define Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">UNICODE;WIN32;WIN64;QT_NO_DEBUG;NDEBUG;QT_CONCURRENT_LIB;QT_CORE_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_SERIALPORT_LIB;QT_WEBSOCKETS_LIB;QT_WIDGETS_LIB</Define>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtConcurrent;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtSerialPort;$(QTDIR)\include\QtWebSockets;$(QTDIR)\include\QtWidgets</IncludePath>
+      <Define Condition="'$(Configuration)|$(Platform)'=='Release|x64'">UNICODE;WIN32;WIN64;QT_NO_DEBUG;NDEBUG;QT_CONCURRENT_LIB;QT_CORE_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_SERIALPORT_LIB;QT_WEBSOCKETS_LIB;QT_WIDGETS_LIB</Define>
+    </QtMoc>
     <QtMoc Include="backendcontrolling.h" />
+    <ClInclude Include="common.h" />
     <ClInclude Include="Communicate.h" />
     <ClInclude Include="Libase.h" />
     <ClInclude Include="Protocol.h" />
+    <ClInclude Include="qss.h">
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtConcurrent;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtSerialPort;$(QTDIR)\include\QtWebSockets;$(QTDIR)\include\QtWidgets</IncludePath>
+      <Define Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">UNICODE;WIN32;WIN64;QT_CONCURRENT_LIB;QT_CORE_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_SERIALPORT_LIB;QT_WEBSOCKETS_LIB;QT_WIDGETS_LIB;_MBCS</Define>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtConcurrent;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtSerialPort;$(QTDIR)\include\QtWebSockets;$(QTDIR)\include\QtWidgets</IncludePath>
+      <Define Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">UNICODE;WIN32;WIN64;QT_CONCURRENT_LIB;QT_CORE_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_SERIALPORT_LIB;QT_WEBSOCKETS_LIB;QT_WIDGETS_LIB</Define>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtConcurrent;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtSerialPort;$(QTDIR)\include\QtWebSockets;$(QTDIR)\include\QtWidgets</IncludePath>
+      <Define Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">UNICODE;WIN32;WIN64;QT_NO_DEBUG;NDEBUG;QT_CONCURRENT_LIB;QT_CORE_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_SERIALPORT_LIB;QT_WEBSOCKETS_LIB;QT_WIDGETS_LIB</Define>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtConcurrent;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtSerialPort;$(QTDIR)\include\QtWebSockets;$(QTDIR)\include\QtWidgets</IncludePath>
+      <Define Condition="'$(Configuration)|$(Platform)'=='Release|x64'">UNICODE;WIN32;WIN64;QT_NO_DEBUG;NDEBUG;QT_CONCURRENT_LIB;QT_CORE_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_SERIALPORT_LIB;QT_WEBSOCKETS_LIB;QT_WIDGETS_LIB</Define>
+    </ClInclude>
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="backendcontrolling.ui" />
+    <QtUic Include="tabwidget.ui" />
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="backendcontrolling.qrc" />

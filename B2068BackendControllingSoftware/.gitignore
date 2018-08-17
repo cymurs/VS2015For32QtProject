@@ -2,3 +2,5 @@
 /.vs/
 /Win32/
 *.VC.db
+*.VC.VC.opendb
+/Debug/

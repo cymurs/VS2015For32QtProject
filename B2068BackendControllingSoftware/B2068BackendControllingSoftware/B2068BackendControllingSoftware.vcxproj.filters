@@ -48,6 +48,12 @@
     <ClCompile Include="Communicate.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tabwidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="qss.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -62,14 +68,26 @@
     <ClInclude Include="Communicate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="qss.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="backendcontrolling.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="tabwidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="backendcontrolling.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="tabwidget.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>
