@@ -188,6 +188,7 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 {
 		
 	const QSize LockSize(20, 20);
+	const int RowSpan(1), MinRowHeight(40);	
 
 	int frameStyle = QFrame::NoFrame;
 	QStringList priority;
@@ -229,6 +230,7 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	m_gpsLock = new QLabel(this);
 	m_gpsLock->setScaledContents(true);
 	m_gpsLock->setFixedSize(LockSize);
+	m_gpsLock->setPixmap(QPixmap(":/BackendControlling/images/lock_black_open.png", "PNG"));
 
 	m_gps = new QRadioButton(tr("GPS"), this);
 	m_gps->setObjectName(smallRadioQss);
@@ -296,6 +298,11 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	m_inputDateTime->setScaledContents(true);
 
 	m_inputSetting = new QLineEdit(tr("20180817113510"), this);
+	m_inputSetting->setAlignment(Qt::AlignCenter);
+	m_inputSetting->setPlaceholderText("YYYYMMDDhhmmss");
+	QRegExp rx("2\\d{3}(0[1-9]|1[0-2])(0[1-9]|[12]\\d|3[01])([01]\\d|2[0-3])([0-5]\\d){2}");
+	QValidator *validator = new QRegExpValidator(rx, this);
+	m_inputSetting->setValidator(validator);
 	
 
 	m_confirm = new QPushButton(tr("确认\n设置"), this);
@@ -311,61 +318,146 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	operatingGroup->addButton(m_auto);
 	m_manual->setChecked(true);
 
-	QButtonGroup *refSrcGroup = new QButtonGroup(this);
-	refSrcGroup->addButton(m_bds);
-	refSrcGroup->addButton(m_gps);
-	refSrcGroup->addButton(m_glo);
-	refSrcGroup->addButton(m_dcb);
-	refSrcGroup->addButton(m_acb);
-	refSrcGroup->addButton(m_input);
+	m_refSrcGroup = new QButtonGroup(this);
+	m_refSrcGroup->addButton(m_bds);
+	m_refSrcGroup->addButton(m_gps);
+	m_refSrcGroup->addButton(m_glo);
+	m_refSrcGroup->addButton(m_dcb);
+	m_refSrcGroup->addButton(m_acb);
+	m_refSrcGroup->addButton(m_input);
 	m_bds->setChecked(true);
+
+	m_priorityGroup[0] = m_bdsPriority;
+	m_priorityGroup[1] = m_gpsPriority;
+	m_priorityGroup[2] = m_gloPriority;
+	m_priorityGroup[3] = m_dcbPriority;
+	m_priorityGroup[4] = m_acbPriority;
 
 	auto topLayout = new QHBoxLayout;
 	topLayout->addStretch(1);
 	topLayout->addWidget(m_manual, 1);
-	topLayout->addStretch(1);
+	//topLayout->addStretch(1);
 	topLayout->addWidget(m_auto, 1);
-	topLayout->addStretch(2);
+	topLayout->addStretch(1);
 
 	auto mainLayout = new QGridLayout;
-	mainLayout->addWidget(priorityLabel, 0, 4);
-	mainLayout->addWidget(m_bdsLock, 1, 0);
-	mainLayout->addWidget(m_bds, 1, 1);
-	mainLayout->addWidget(m_bdsDateTime, 1, 2);
-	mainLayout->addWidget(m_bdsAvlSatellites, 1, 3);
-	mainLayout->addWidget(m_bdsPriority, 1, 4);
-	mainLayout->addWidget(m_gpsLock, 2, 0);
-	mainLayout->addWidget(m_gps, 2, 1);
-	mainLayout->addWidget(m_gpsDateTime, 2, 2);
-	mainLayout->addWidget(m_gpsAvlSatellites, 2, 3);
-	mainLayout->addWidget(m_gpsPriority, 2, 4);
-	mainLayout->addWidget(m_gloLock, 3, 0);
-	mainLayout->addWidget(m_glo, 3, 1);
-	mainLayout->addWidget(m_gloDateTime, 3, 2);
-	mainLayout->addWidget(m_gloAvlSatellites, 3, 3);
-	mainLayout->addWidget(m_gloPriority, 3, 4);
-	mainLayout->addWidget(m_dcbLock, 4, 0);
-	mainLayout->addWidget(m_dcb, 4, 1);
-	mainLayout->addWidget(m_dcbDateTime, 4, 2);
-	mainLayout->addWidget(m_dcbPriority, 4, 4);
-	mainLayout->addWidget(m_acbLock, 5, 0);
-	mainLayout->addWidget(m_acb, 5, 1);
-	mainLayout->addWidget(m_acbDateTime, 5, 2);
-	mainLayout->addWidget(m_acbPriority, 5, 4);
-	mainLayout->addWidget(m_input, 6, 1);
-	mainLayout->addWidget(m_inputDateTime, 6, 2);
-	mainLayout->addWidget(m_confirm, 6, 4, 2, 1);
-	mainLayout->addWidget(inputLabel, 7, 1);
-	mainLayout->addWidget(m_inputSetting, 7, 2);
-	
+	mainLayout->addWidget(priorityLabel, 0, 4, RowSpan, 1);
+	mainLayout->addWidget(m_bdsLock, 1, 0, RowSpan, 1);
+	mainLayout->addWidget(m_bds, 1, 1, RowSpan, 1);
+	mainLayout->addWidget(m_bdsDateTime, 1, 2, RowSpan, 1);
+	mainLayout->addWidget(m_bdsAvlSatellites, 1, 3, RowSpan, 1);
+	mainLayout->addWidget(m_bdsPriority, 1, 4, RowSpan, 1);
+	mainLayout->addWidget(m_gpsLock, 2, 0, RowSpan, 1);
+	mainLayout->addWidget(m_gps, 2, 1, RowSpan, 1);
+	mainLayout->addWidget(m_gpsDateTime, 2, 2, RowSpan, 1);
+	mainLayout->addWidget(m_gpsAvlSatellites, 2, 3, RowSpan, 1);
+	mainLayout->addWidget(m_gpsPriority, 2, 4, RowSpan, 1);
+	mainLayout->addWidget(m_gloLock, 3, 0, RowSpan, 1);
+	mainLayout->addWidget(m_glo, 3, 1, RowSpan, 1);
+	mainLayout->addWidget(m_gloDateTime, 3, 2, RowSpan, 1);
+	mainLayout->addWidget(m_gloAvlSatellites, 3, 3, RowSpan, 1);
+	mainLayout->addWidget(m_gloPriority, 3, 4, RowSpan, 1);
+	mainLayout->addWidget(m_dcbLock, 4, 0, RowSpan, 1);
+	mainLayout->addWidget(m_dcb, 4, 1, RowSpan, 1);
+	mainLayout->addWidget(m_dcbDateTime, 4, 2, RowSpan, 1);
+	mainLayout->addWidget(m_dcbPriority, 4, 4, RowSpan, 1);
+	mainLayout->addWidget(m_acbLock, 5, 0, RowSpan, 1);
+	mainLayout->addWidget(m_acb, 5, 1, RowSpan, 1);
+	mainLayout->addWidget(m_acbDateTime, 5, 2, RowSpan, 1);
+	mainLayout->addWidget(m_acbPriority, 5, 4, RowSpan, 1);
+	mainLayout->addWidget(m_input, 6, 1, RowSpan, 1);
+	mainLayout->addWidget(m_inputDateTime, 6, 2, RowSpan, 1);
+	mainLayout->addWidget(m_confirm, 6, 4, RowSpan+2, 1);
+	mainLayout->addWidget(inputLabel, 7, 1, RowSpan, 1);
+	mainLayout->addWidget(m_inputSetting, 7, 2, RowSpan, 1);	
+	// 设置行距
+	mainLayout->setRowMinimumHeight(1, MinRowHeight);
+	mainLayout->setRowMinimumHeight(2, MinRowHeight);
+	mainLayout->setRowMinimumHeight(3, MinRowHeight);
+	mainLayout->setRowMinimumHeight(4, MinRowHeight);
+	mainLayout->setRowMinimumHeight(5, MinRowHeight);
+	mainLayout->setRowMinimumHeight(6, MinRowHeight);
+	mainLayout->setRowMinimumHeight(7, MinRowHeight);
+
 
 	auto baseLayout = new QVBoxLayout;
-	baseLayout->addLayout(topLayout);
-	baseLayout->addLayout(mainLayout);
+	//baseLayout->addStretch(1);
+	baseLayout->addLayout(topLayout, 1);
+	baseLayout->addLayout(mainLayout, 8);
+	//baseLayout->addStretch(1);
+	baseLayout->setMargin(15);
 	setLayout(baseLayout);
 
 	setStyleSheet(QSS_YaHeiTimeSrcRadio.arg(largeRadioQss).arg(smallRadioQss)
 		+ QSS_TimeSrcLabel.arg(normalLabelQss).arg(boldLabelQss));
+
+	connectSlots();
+	QList<QAbstractButton *> refSrcButtons = m_refSrcGroup->buttons();
+	for (auto &button : refSrcButtons) {
+		button->setEnabled(true);
+	}
+	for (int i = 0; i < 5; ++i) {
+		m_priorityGroup[i]->setEnabled(false);
+		m_priorityGroup[i]->setCurrentIndex(i);
+		m_priorityValue[i] = i + 1;
+	}
+}
+
+void TimeSrcTab::connectSlots()
+{
+	connect(m_auto, SIGNAL(toggled(bool)), this, SLOT(slotOnSwitchAutoManual(bool)));
+	connect(m_bdsPriority, SIGNAL(currentIndexChanged(QString)), this, SLOT(slotOnCurrentIndexChanged(QString)));
+	connect(m_gpsPriority, SIGNAL(currentIndexChanged(QString)), this, SLOT(slotOnCurrentIndexChanged(QString)));
+	connect(m_gloPriority, SIGNAL(currentIndexChanged(QString)), this, SLOT(slotOnCurrentIndexChanged(QString)));
+	connect(m_dcbPriority, SIGNAL(currentIndexChanged(QString)), this, SLOT(slotOnCurrentIndexChanged(QString)));
+	connect(m_acbPriority, SIGNAL(currentIndexChanged(QString)), this, SLOT(slotOnCurrentIndexChanged(QString)));
+}
+
+void TimeSrcTab::slotOnSwitchAutoManual(bool checked)
+{
+	if (checked) {
+		QList<QAbstractButton *> refSrcButtons = m_refSrcGroup->buttons();
+		for (auto &button : refSrcButtons) {
+			button->setEnabled(false);
+		}
+
+		for (int i = 0; i < 5; ++i) {
+			m_priorityGroup[i]->setEnabled(true);
+		}
+
+	} else {
+		QList<QAbstractButton *> refSrcButtons = m_refSrcGroup->buttons();
+		for (auto &button : refSrcButtons) {
+			button->setEnabled(true);
+		}
+		for (int i = 0; i < 5; ++i) {
+			m_priorityGroup[i]->setEnabled(false);
+		}
+	}
+}
+
+void TimeSrcTab::slotOnCurrentIndexChanged(const QString& text)
+{	
+	int idx(0), value(0);
+	for (int i = 0; i < 5; ++i) {
+		if ( 0 == text.compare(m_priorityGroup[i]->currentText()) ) {
+			if (m_priorityValue[i] != text.toInt()) {
+				idx = i;
+				value = m_priorityValue[i];
+				break;
+			}
+		}
+	}
+	for (int i = 0; i < 5; ++i) {
+		if (0 == text.compare(m_priorityGroup[i]->currentText())) {
+			if (m_priorityValue[i] == text.toInt()) {
+				m_priorityGroup[i]->setCurrentIndex(value - 1);
+				m_priorityValue[i] = value;
+				break;
+			}
+		}
+	}
+	m_priorityValue[idx] = text.toInt();
 }
 
 /****************************************************************************************

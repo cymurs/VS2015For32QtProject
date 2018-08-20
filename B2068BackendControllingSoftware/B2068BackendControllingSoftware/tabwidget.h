@@ -51,6 +51,13 @@ public:
 	explicit TimeSrcTab(QWidget *parent = 0);
 
 private:
+	void connectSlots();
+
+private Q_SLOTS:
+	void slotOnSwitchAutoManual(bool checked);
+	void slotOnCurrentIndexChanged(const QString& text);
+
+private:
 	QRadioButton *m_manual;
 	QRadioButton *m_auto;
 
@@ -87,6 +94,10 @@ private:
 
 	QLineEdit *m_inputSetting;
 	QPushButton *m_confirm;
+
+	QButtonGroup *m_refSrcGroup;
+	QComboBox *m_priorityGroup[5];
+	int m_priorityValue[5];
 };
 
 // Õ¯ø⁄…Ë÷√
