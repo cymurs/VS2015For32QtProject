@@ -5,6 +5,7 @@
 
 QT_BEGIN_NAMESPACE
 class QLabel;
+class QSerialPort;
 QT_END_NAMESPACE
 
 // 主界面
@@ -101,6 +102,125 @@ private:
 	int m_priorityValue[5];
 };
 
+// 串口设置
+class ComSettingsTab : public QWidget
+{
+	Q_OBJECT
+
+public:
+	explicit ComSettingsTab(QWidget *parent = 0);
+
+protected:
+	void resizeEvent(QResizeEvent *event) override;
+
+private:
+	QLabel *m_debugLabel;
+	QComboBox *m_debugCom;
+	QLabel *m_firstLabel;
+	QComboBox *m_timingFirst;
+	QLabel *m_secondLabel;
+	QComboBox *m_timingSecond;
+	QPushButton *m_confirm;
+
+	const int m_lblWidth;
+	const int m_lblHeight;
+};
+
+// 单播
+class UnicastWidget : public QWidget
+{
+	Q_OBJECT
+
+public:
+	explicit UnicastWidget(QWidget *parent = 0);
+
+protected:
+	void paintEvent(QPaintEvent *event) override;
+
+private:
+	QLineEdit *m_localIP;
+	QPushButton *m_ipConfirm;
+	QLineEdit *m_localPort;
+	QPushButton *m_portConfirm;
+	QLineEdit *m_submask;
+	QPushButton *m_maskConfirm;
+	QLineEdit *m_gateway;
+	QPushButton *m_gatewayConfirm;
+	QLineEdit *m_remoteIP;
+	QPushButton *m_remoteIPConfirm;
+	QLineEdit *m_remotePort;
+	QPushButton *m_remotePortConfirm;
+	QLineEdit *m_delay;
+	QPushButton *m_delayConfirm;
+};
+
+// 组播
+class MulticastWidget : public QWidget
+{
+	Q_OBJECT
+
+public:
+	explicit MulticastWidget(QWidget *parent = 0);
+
+protected:
+	void paintEvent(QPaintEvent *event) override;
+
+private:
+	QLineEdit *m_localIP;
+	QPushButton *m_ipConfirm;
+	QLineEdit *m_localPort;
+	QPushButton *m_portConfirm;
+	QLineEdit *m_remoteIP;
+	QPushButton *m_remoteIPConfirm;
+	QLineEdit *m_remotePort;
+	QPushButton *m_remotePortConfirm;
+	QLineEdit *m_delay;
+	QPushButton *m_delayConfirm;
+};
+
+// 广播
+class BroadcastWidget : public QWidget
+{
+	Q_OBJECT
+
+public:
+	explicit BroadcastWidget(QWidget *parent = 0);
+
+protected:
+	void paintEvent(QPaintEvent *event) override;
+
+private:
+	QLineEdit *m_broadcastIP;
+	QPushButton *m_ipConfirm;
+	QLineEdit *m_broadcastPort;
+	QPushButton *m_portConfirm;
+	QLineEdit *m_delay;
+	QPushButton *m_delayConfirm;
+};
+
+// 监控
+class MonitorWidget : public QWidget
+{
+	Q_OBJECT
+
+public:
+	explicit MonitorWidget(QWidget *parent = 0);
+
+protected:
+	void paintEvent(QPaintEvent *event) override;
+
+private:
+	QLineEdit *m_localIP;
+	QPushButton *m_ipConfirm;	
+	QLineEdit *m_submask;
+	QPushButton *m_maskConfirm;
+	QLineEdit *m_gateway;
+	QPushButton *m_gatewayConfirm;
+	QLineEdit *m_recvPort;
+	QLineEdit *m_sendPort;
+	QPushButton *m_sendPortConfirm;
+};
+
 // 网口设置
 class NetSettingsTab : public QWidget
 {
@@ -108,6 +228,40 @@ class NetSettingsTab : public QWidget
 
 public:
 	explicit NetSettingsTab(QWidget *parent = 0);
+
+protected:
+	//void resizeEvent(QResizeEvent *event) override;
+
+private:
+	QGroupBox *createNetExclusiveGroup();
+	QGroupBox *createCommExclusiveGroup();
+	void connectSlots();
+
+private Q_SLOTS:
+	void slotOnNetButtonClicked(int id);
+	void slotOnCommButtonClicked(int id);
+	
+
+private:
+	QRadioButton *m_firstNet;
+	QRadioButton *m_secondNet;
+	QButtonGroup *m_netGroup;
+	QGroupBox *m_netBox;
+
+	QRadioButton *m_unicast;
+	QRadioButton *m_multicast;
+	QRadioButton *m_broadcast;
+	QRadioButton *m_monitor;
+	QButtonGroup *m_commGroup;
+	QGroupBox *m_commBox;
+
+	UnicastWidget *m_unicastWgt;
+	MulticastWidget *m_multicastWgt;
+	BroadcastWidget *m_broadcastWgt;
+	MonitorWidget *m_monitorWgt;
+	QStackedLayout *m_settingsLayout;
+
+	QString m_curNetNum;
 };
 
 class StateParamsTab : public QWidget

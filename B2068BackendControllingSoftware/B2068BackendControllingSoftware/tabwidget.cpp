@@ -9,6 +9,7 @@ const int TopMargin = 10;		// 顶边距
 const int BottonMargin = 20;	// 底边距
 const int LblWidth = 80;			//	标签宽度
 const int LblHeight = 20;			// 标签高度
+const int LeWidth = 240;        // 输入框宽度
 
 /****************************************************************************************
 主窗口
@@ -22,6 +23,7 @@ TabWidget::TabWidget(QWidget *parent)
 	m_tabWidget = new QTabWidget;
 	m_tabWidget->addTab(new MainTab(), tr("主界面"));
 	m_tabWidget->addTab(new TimeSrcTab(), tr("时间源"));
+	m_tabWidget->addTab(new ComSettingsTab(), tr("串口设置"));
 	m_tabWidget->addTab(new NetSettingsTab(), tr("网口设置"));
 	m_tabWidget->addTab(new StateParamsTab(), tr("状态参数"));	
 
@@ -38,7 +40,7 @@ TabWidget::TabWidget(QWidget *parent)
 	setWindowTitle(tr("B2068控制软件"));
 	
 	// 测试
-	m_tabWidget->setCurrentIndex(1);
+	m_tabWidget->setCurrentIndex(3);
 }
 
 TabWidget::~TabWidget()
@@ -461,11 +463,464 @@ void TimeSrcTab::slotOnCurrentIndexChanged(const QString& text)
 }
 
 /****************************************************************************************
+串口设置
+*****************************************************************************************/
+ComSettingsTab::ComSettingsTab(QWidget *parent /*= 0*/)
+	: QWidget(parent)
+	, m_lblWidth(LblWidth * 1.5)
+	, m_lblHeight(LblHeight * 1.5)
+{
+	int w = width();
+	int h = height();
+	
+	QStringList baud;
+	baud << QString::number(QSerialPort::Baud9600) 
+		<< QString::number(QSerialPort::Baud19200) 
+		<< QString::number(QSerialPort::Baud57600);
+
+	m_debugLabel = new QLabel(tr("调试串口"), this);
+	m_debugLabel->setGeometry(w / 4, (h - m_lblHeight * 8) / 2, m_lblWidth, m_lblHeight);
+
+	m_debugCom = new QComboBox(this);
+	m_debugCom->addItems(baud);
+	m_debugCom->setCurrentIndex(2);
+	m_debugCom->setGeometry(w / 2, (h - m_lblHeight * 8) / 2, m_lblWidth, m_lblHeight);
+
+	m_firstLabel = new QLabel(tr("定时/串口1"), this);
+	m_firstLabel->setGeometry(w / 4, (h - m_lblHeight * 4) / 2, m_lblWidth, m_lblHeight);
+
+	m_timingFirst = new QComboBox(this);
+	m_timingFirst->addItems(baud);
+	m_timingFirst->setGeometry(w / 2, (h - m_lblHeight * 4) / 2, m_lblWidth, m_lblHeight);
+
+	m_secondLabel = new QLabel(tr("定时/串口2"), this);
+	m_secondLabel->setGeometry(w / 4, h / 2, m_lblWidth, m_lblHeight);
+
+	m_timingSecond = new QComboBox(this);
+	m_timingSecond->addItems(baud);
+	m_timingSecond->setGeometry(w / 2, h / 2, m_lblWidth, m_lblHeight);
+
+	m_confirm = new QPushButton(tr("确认设置"), this);
+	m_confirm->setGeometry(w / 2 + m_lblWidth / 2, h * 3 / 4 - m_lblHeight, m_lblWidth, m_lblHeight);
+
+	setStyleSheet(QSS_ComSettingsLabel);
+}
+
+void ComSettingsTab::resizeEvent(QResizeEvent *event)
+{
+	QSize s = event->size();
+	int w = s.width();
+	int h = s.height();
+	if (0 == w && 0 == h) {
+		QWidget::resizeEvent(event);
+		return;
+	}
+
+	m_debugLabel->setGeometry(w / 4, (h - m_lblHeight * 8) / 2, m_lblWidth, m_lblHeight);
+	m_debugCom->setGeometry(w / 2, (h - m_lblHeight * 8) / 2, m_lblWidth, m_lblHeight);
+	m_firstLabel->setGeometry(w / 4, (h - m_lblHeight * 4) / 2, m_lblWidth, m_lblHeight);
+	m_timingFirst->setGeometry(w / 2, (h - m_lblHeight * 4) / 2, m_lblWidth, m_lblHeight);
+	m_secondLabel->setGeometry(w / 4, h / 2, m_lblWidth, m_lblHeight);
+	m_timingSecond->setGeometry(w / 2, h / 2, m_lblWidth, m_lblHeight);
+	m_confirm->setGeometry(w / 2 + m_lblWidth / 2, h * 3 / 4 - m_lblHeight, m_lblWidth, m_lblHeight);
+}
+
+/****************************************************************************************
 网口设置
 *****************************************************************************************/
+UnicastWidget::UnicastWidget(QWidget *parent /*= 0*/)
+	: QWidget(parent)
+{
+	auto localIPLabel = new QLabel(tr("本机IP"), this);
+	m_localIP = new QLineEdit(tr("192.168.59.180"), this);
+	m_localIP->setAlignment(Qt::AlignCenter);
+	m_localIP->setMaximumWidth(LeWidth);
+	m_ipConfirm = new QPushButton(tr("确认设置"), this);	
+
+	auto localPortLabel = new QLabel(tr("本机端口"), this);
+	m_localPort = new QLineEdit(tr("6666"), this);
+	m_localPort->setAlignment(Qt::AlignCenter);
+	m_localPort->setMaximumWidth(LeWidth);
+	m_portConfirm = new QPushButton(tr("确认设置"), this);
+
+	auto submaskLabel = new QLabel(tr("本机掩码"), this);
+	m_submask = new QLineEdit(tr("255.255.255.0"), this);
+	m_submask->setAlignment(Qt::AlignCenter);
+	m_submask->setMaximumWidth(LeWidth);
+	m_maskConfirm = new QPushButton(tr("确认设置"), this);
+
+	auto gatewayLabel = new QLabel(tr("本机网关"), this);
+	m_gateway = new QLineEdit(tr("192.168.59.1"), this);
+	m_gateway->setAlignment(Qt::AlignCenter);
+	m_gateway->setMaximumWidth(LeWidth);
+	m_gatewayConfirm = new QPushButton(tr("确认设置"), this);
+
+	auto remoteIPLabel = new QLabel(tr("目标IP"), this);
+	m_remoteIP = new QLineEdit(tr("192.168.59.117"), this);
+	m_remoteIP->setAlignment(Qt::AlignCenter);
+	m_remoteIP->setMaximumWidth(LeWidth);
+	m_remoteIPConfirm = new QPushButton(tr("确认设置"), this);
+
+	auto remotePortLabel = new QLabel(tr("目标端口"), this);
+	m_remotePort = new QLineEdit(tr("8888"), this);
+	m_remotePort->setAlignment(Qt::AlignCenter);
+	m_remotePort->setMaximumWidth(LeWidth);
+	m_remotePortConfirm = new QPushButton(tr("确认设置"), this);
+
+	auto delayLabel = new QLabel(tr("网络延时"), this);
+	m_delay = new QLineEdit(tr("33"), this);
+	m_delay->setAlignment(Qt::AlignCenter);
+	m_delay->setMaximumWidth(LeWidth * 3 / 4);
+	auto delayUnit = new QLabel(tr("ms"), this);
+	m_delayConfirm = new QPushButton(tr("确认设置"), this);
+
+	auto delayLayout = new QHBoxLayout;
+	delayLayout->addWidget(m_delay, 3);
+	delayLayout->addWidget(delayUnit, 1);
+
+	// 不设定this父对象, 才能在其他窗口中正常展示布局的控件
+	auto baseLayout = new QGridLayout;
+	baseLayout->addWidget(localIPLabel, 0, 1);
+	baseLayout->addWidget(m_localIP, 0, 3);
+	baseLayout->addWidget(m_ipConfirm, 0, 5);
+	baseLayout->addWidget(localPortLabel, 1, 1);
+	baseLayout->addWidget(m_localPort, 1, 3);
+	baseLayout->addWidget(m_portConfirm, 1, 5);
+	baseLayout->addWidget(submaskLabel, 2, 1);
+	baseLayout->addWidget(m_submask, 2, 3);
+	baseLayout->addWidget(m_maskConfirm, 2, 5);
+	baseLayout->addWidget(gatewayLabel, 3, 1);
+	baseLayout->addWidget(m_gateway, 3, 3);
+	baseLayout->addWidget(m_gatewayConfirm, 3, 5);
+	baseLayout->addWidget(remoteIPLabel, 4, 1);
+	baseLayout->addWidget(m_remoteIP, 4, 3);
+	baseLayout->addWidget(m_remoteIPConfirm, 4, 5);
+	baseLayout->addWidget(remotePortLabel, 5, 1);
+	baseLayout->addWidget(m_remotePort, 5, 3);
+	baseLayout->addWidget(m_remotePortConfirm, 5, 5);
+	baseLayout->addWidget(delayLabel, 6, 1);
+	baseLayout->addLayout(delayLayout, 6, 3);
+	baseLayout->addWidget(m_delayConfirm, 6, 5);
+	// 设置控件之间的间隔
+	baseLayout->setColumnStretch(0, 1);
+	baseLayout->setColumnStretch(1, 2);
+	baseLayout->setColumnStretch(2, 1);
+	baseLayout->setColumnStretch(3, 3);
+	baseLayout->setColumnStretch(4, 1);
+	baseLayout->setColumnStretch(5, 2);
+	setLayout(baseLayout);
+}
+
+void UnicastWidget::paintEvent(QPaintEvent *event)
+{
+	// 使主窗口中设置的qss生效
+	QStyleOption opt;
+	opt.init(this);
+	QPainter p(this);
+	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
+}
+
+MulticastWidget::MulticastWidget(QWidget *parent /*= 0*/)
+	: QWidget(parent)
+{
+	auto localIPLabel = new QLabel(tr("组播本机IP"), this);
+	m_localIP = new QLineEdit(tr("192.168.59.180"), this);
+	m_localIP->setAlignment(Qt::AlignCenter);
+	m_localIP->setMaximumWidth(LeWidth);
+	m_ipConfirm = new QPushButton(tr("确认设置"), this);
+
+	auto localPortLabel = new QLabel(tr("组播本机端口"), this);
+	m_localPort = new QLineEdit(tr("6666"), this);
+	m_localPort->setAlignment(Qt::AlignCenter);
+	m_localPort->setMaximumWidth(LeWidth);
+	m_portConfirm = new QPushButton(tr("确认设置"), this);
+
+	auto remoteIPLabel = new QLabel(tr("组播目标IP"), this);
+	m_remoteIP = new QLineEdit(tr("192.168.59.117"), this);
+	m_remoteIP->setAlignment(Qt::AlignCenter);
+	m_remoteIP->setMaximumWidth(LeWidth);
+	m_remoteIPConfirm = new QPushButton(tr("确认设置"), this);
+
+	auto remotePortLabel = new QLabel(tr("组播目标端口"), this);
+	m_remotePort = new QLineEdit(tr("8888"), this);
+	m_remotePort->setAlignment(Qt::AlignCenter);
+	m_remotePort->setMaximumWidth(LeWidth);
+	m_remotePortConfirm = new QPushButton(tr("确认设置"), this);
+
+	auto delayLabel = new QLabel(tr("网络延时"), this);
+	m_delay = new QLineEdit(tr("33"), this);
+	m_delay->setAlignment(Qt::AlignCenter);
+	m_delay->setMaximumWidth(LeWidth * 3 / 4);
+	auto delayUnit = new QLabel(tr("ms"), this);
+	m_delayConfirm = new QPushButton(tr("确认设置"), this);
+
+	auto delayLayout = new QHBoxLayout;
+	delayLayout->addWidget(m_delay, 3);
+	delayLayout->addWidget(delayUnit, 1);
+
+	// 不设定this父对象, 才能在其他窗口中正常展示布局的控件
+	auto baseLayout = new QGridLayout;
+	baseLayout->addWidget(localIPLabel, 0, 1);
+	baseLayout->addWidget(m_localIP, 0, 3);
+	baseLayout->addWidget(m_ipConfirm, 0, 5);
+	baseLayout->addWidget(localPortLabel, 1, 1);
+	baseLayout->addWidget(m_localPort, 1, 3);
+	baseLayout->addWidget(m_portConfirm, 1, 5);
+	baseLayout->addWidget(remoteIPLabel, 2, 1);
+	baseLayout->addWidget(m_remoteIP, 2, 3);
+	baseLayout->addWidget(m_remoteIPConfirm, 2, 5);
+	baseLayout->addWidget(remotePortLabel, 3, 1);
+	baseLayout->addWidget(m_remotePort, 3, 3);
+	baseLayout->addWidget(m_remotePortConfirm, 3, 5);
+	baseLayout->addWidget(delayLabel, 4, 1);
+	baseLayout->addLayout(delayLayout, 4, 3);
+	baseLayout->addWidget(m_delayConfirm, 4, 5);
+	// 设置控件之间的间隔
+	baseLayout->setColumnStretch(0, 1);
+	baseLayout->setColumnStretch(1, 2);
+	baseLayout->setColumnStretch(2, 1);
+	baseLayout->setColumnStretch(3, 3);
+	baseLayout->setColumnStretch(4, 1);
+	baseLayout->setColumnStretch(5, 2);
+	setLayout(baseLayout);
+}
+
+void MulticastWidget::paintEvent(QPaintEvent *event)
+{
+	// 使主窗口中设置的qss生效
+	QStyleOption opt;
+	opt.init(this);
+	QPainter p(this);
+	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
+}
+
+BroadcastWidget::BroadcastWidget(QWidget *parent /*= 0*/)
+	: QWidget(parent)
+{
+	auto broadcastIPLabel = new QLabel(tr("广播IP"), this);
+	m_broadcastIP = new QLineEdit(tr("192.168.59.180"), this);
+	m_broadcastIP->setAlignment(Qt::AlignCenter);
+	m_broadcastIP->setMaximumWidth(LeWidth);
+	m_ipConfirm = new QPushButton(tr("确认设置"), this);
+
+	auto broadcastPortLabel = new QLabel(tr("广播端口"), this);
+	m_broadcastPort = new QLineEdit(tr("6666"), this);
+	m_broadcastPort->setAlignment(Qt::AlignCenter);
+	m_broadcastPort->setMaximumWidth(LeWidth);
+	m_portConfirm = new QPushButton(tr("确认设置"), this);
+
+	auto delayLabel = new QLabel(tr("网络延时"), this);
+	m_delay = new QLineEdit(tr("33"), this);
+	m_delay->setAlignment(Qt::AlignCenter);
+	m_delay->setMaximumWidth(LeWidth * 3 / 4);
+	auto delayUnit = new QLabel(tr("ms"), this);
+	m_delayConfirm = new QPushButton(tr("确认设置"), this);
+
+	auto delayLayout = new QHBoxLayout;
+	delayLayout->addWidget(m_delay, 3);
+	delayLayout->addWidget(delayUnit, 1);
+
+	// 不设定this父对象, 才能在其他窗口中正常展示布局的控件
+	auto baseLayout = new QGridLayout;
+	baseLayout->addWidget(broadcastIPLabel, 0, 1);
+	baseLayout->addWidget(m_broadcastIP, 0, 3);
+	baseLayout->addWidget(m_ipConfirm, 0, 5);
+	baseLayout->addWidget(broadcastPortLabel, 1, 1);
+	baseLayout->addWidget(m_broadcastPort, 1, 3);
+	baseLayout->addWidget(m_portConfirm, 1, 5);
+	baseLayout->addWidget(delayLabel, 4, 1);
+	baseLayout->addLayout(delayLayout, 4, 3);
+	baseLayout->addWidget(m_delayConfirm, 4, 5);
+	// 设置控件之间的间隔
+	baseLayout->setColumnStretch(0, 1);
+	baseLayout->setColumnStretch(1, 2);
+	baseLayout->setColumnStretch(2, 1);
+	baseLayout->setColumnStretch(3, 3);
+	baseLayout->setColumnStretch(4, 1);
+	baseLayout->setColumnStretch(5, 2);
+	setLayout(baseLayout);
+}
+
+void BroadcastWidget::paintEvent(QPaintEvent *event)
+{
+	// 使主窗口中设置的qss生效
+	QStyleOption opt;
+	opt.init(this);
+	QPainter p(this);
+	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
+}
+
+MonitorWidget::MonitorWidget(QWidget *parent /*= 0*/)
+	: QWidget(parent)
+{
+	auto localIPLabel = new QLabel(tr("本机IP"), this);
+	m_localIP = new QLineEdit(tr("192.168.59.180"), this);
+	m_localIP->setAlignment(Qt::AlignCenter);
+	m_localIP->setMaximumWidth(LeWidth);
+
+	auto submaskLabel = new QLabel(tr("本机掩码"), this);
+	m_submask = new QLineEdit(tr("255.255.255.0"), this);
+	m_submask->setAlignment(Qt::AlignCenter);
+	m_submask->setMaximumWidth(LeWidth);
+
+	auto gatewayLabel = new QLabel(tr("本机网关"), this);
+	m_gateway = new QLineEdit(tr("192.168.59.1"), this);
+	m_gateway->setAlignment(Qt::AlignCenter);
+	m_gateway->setMaximumWidth(LeWidth);
+
+	auto recvPortLabel = new QLabel(tr("监控接收端口"), this);
+	m_recvPort = new QLineEdit(tr("20212"), this);
+	m_recvPort->setAlignment(Qt::AlignCenter);
+	m_recvPort->setMaximumWidth(LeWidth);
+
+	auto sendPortLabel = new QLabel(tr("监控发送端口"), this);
+	m_sendPort = new QLineEdit(tr("10212"), this);
+	m_sendPort->setAlignment(Qt::AlignCenter);
+	m_sendPort->setMaximumWidth(LeWidth);
+	m_sendPortConfirm = new QPushButton(tr("确认设置"), this);
+
+	// 不设定this父对象, 才能在其他窗口中正常展示布局的控件
+	auto baseLayout = new QGridLayout;
+	baseLayout->addWidget(localIPLabel, 0, 1);
+	baseLayout->addWidget(m_localIP, 0, 3);
+	baseLayout->addWidget(submaskLabel, 1, 1);
+	baseLayout->addWidget(m_submask, 1, 3);	
+	baseLayout->addWidget(gatewayLabel, 2, 1);
+	baseLayout->addWidget(m_gateway, 2, 3);	
+	baseLayout->addWidget(recvPortLabel, 3, 1);
+	baseLayout->addWidget(m_recvPort, 3, 3);
+	baseLayout->addWidget(sendPortLabel, 4, 1);
+	baseLayout->addWidget(m_sendPort, 4, 3);
+	baseLayout->addWidget(m_sendPortConfirm, 3, 5, 2, 1);	
+	// 设置控件之间的间隔
+	baseLayout->setColumnStretch(0, 1);
+	baseLayout->setColumnStretch(1, 2);
+	baseLayout->setColumnStretch(2, 1);
+	baseLayout->setColumnStretch(3, 3);
+	baseLayout->setColumnStretch(4, 1);
+	baseLayout->setColumnStretch(5, 2);
+	setLayout(baseLayout);
+}
+
+void MonitorWidget::paintEvent(QPaintEvent *event)
+{
+	// 使主窗口中设置的qss生效
+	QStyleOption opt;
+	opt.init(this);
+	QPainter p(this);
+	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
+}
+
 NetSettingsTab::NetSettingsTab(QWidget *parent)
 	: QWidget(parent)
-{}
+{
+	int w = width();
+	int h = height();
+
+	m_netBox = createNetExclusiveGroup();
+	m_commBox = createCommExclusiveGroup();
+		
+	m_unicastWgt = new UnicastWidget;
+	m_multicastWgt = new MulticastWidget;
+	m_broadcastWgt = new BroadcastWidget;
+	m_monitorWgt = new MonitorWidget;
+	m_settingsLayout = new QStackedLayout;
+	m_settingsLayout->addWidget(m_unicastWgt);
+	m_settingsLayout->addWidget(m_multicastWgt);
+	m_settingsLayout->addWidget(m_broadcastWgt);
+	m_settingsLayout->addWidget(m_monitorWgt);
+	m_settingsLayout->setCurrentIndex(0);
+
+	auto baseLayout = new QGridLayout;
+	baseLayout->addWidget(m_netBox, 0, 0, 1, 1);
+	baseLayout->addWidget(m_commBox, 0, 1, 1, 1);
+	baseLayout->addLayout(m_settingsLayout, 1, 0, 1, 2);
+	setLayout(baseLayout);
+	
+	setStyleSheet(QSS_NetSettings);
+
+	connectSlots();
+}
+
+//void NetSettingsTab::resizeEvent(QResizeEvent *event)
+//{
+//	QSize s = event->size();
+//	int w = s.width();
+//	int h = s.height();
+//	if (0 == w && 0 == h) {
+//		QWidget::resizeEvent(event);
+//		return;
+//	}
+//
+//	m_netBox->setGeometry(0, 0, w / 2, 80);
+//	m_actionBox->setGeometry(w / 2, 0, w / 2, 80);
+//	m_unicastWgt->setGeometry(0, 80, w, h - 80);
+//	m_unicastWgt->show();
+//}
+
+QGroupBox * NetSettingsTab::createNetExclusiveGroup()
+{
+	m_firstNet = new QRadioButton(tr("网口1"), this);
+	m_secondNet = new QRadioButton(tr("网口2"), this);
+	m_netGroup = new QButtonGroup;
+	m_netGroup->addButton(m_firstNet, 0);
+	m_netGroup->addButton(m_secondNet, 1);	
+	m_firstNet->setChecked(true);
+	m_curNetNum = QString::number(1);
+
+	QGroupBox *netBox = new QGroupBox(this);
+	auto netLayout = new QHBoxLayout;	
+	netLayout->addStretch(1);  // 使得button居中
+	netLayout->addWidget(m_firstNet, 2);
+	netLayout->addWidget(m_secondNet, 2);	
+	netBox->setLayout(netLayout);
+
+	return netBox;
+}
+
+QGroupBox * NetSettingsTab::createCommExclusiveGroup()
+{
+	m_unicast = new QRadioButton(tr("单播"), this);
+	m_multicast = new QRadioButton(tr("组播"), this);
+	m_broadcast = new QRadioButton(tr("广播"), this);
+	m_monitor = new QRadioButton(tr("监控"), this);
+	m_commGroup = new QButtonGroup;
+	m_commGroup->addButton(m_unicast, 0);
+	m_commGroup->addButton(m_multicast, 1);
+	m_commGroup->addButton(m_broadcast, 2);
+	m_commGroup->addButton(m_monitor, 3);	
+	m_unicast->setChecked(true);	
+
+	QGroupBox *commBox = new QGroupBox(this);
+	auto commLayout = new QGridLayout;
+	commLayout->addWidget(m_unicast, 0, 1);
+	commLayout->addWidget(m_multicast, 0, 2);
+	commLayout->addWidget(m_broadcast, 1, 1);
+	commLayout->addWidget(m_monitor, 1, 2);	
+	// 使得button居中
+	commLayout->setColumnStretch(0, 1);
+	commLayout->setColumnStretch(1, 2);
+	commLayout->setColumnStretch(2, 2);
+	commBox->setLayout(commLayout);
+
+	return commBox;
+}
+
+void NetSettingsTab::connectSlots()
+{
+	connect(m_commGroup, SIGNAL(buttonClicked(int)), this, SLOT(slotOnCommButtonClicked(int)));
+	connect(m_netGroup, SIGNAL(buttonClicked(int)), this, SLOT(slotOnNetButtonClicked(int)));
+}
+
+void NetSettingsTab::slotOnNetButtonClicked(int id)
+{
+	m_curNetNum = QString::number(id + 1);
+}
+
+void NetSettingsTab::slotOnCommButtonClicked(int id)
+{
+	m_settingsLayout->setCurrentIndex(id);
+}
 
 /****************************************************************************************
 状态参数
@@ -473,3 +928,5 @@ NetSettingsTab::NetSettingsTab(QWidget *parent)
 StateParamsTab::StateParamsTab(QWidget *parent)
 	: QWidget(parent)
 {}
+
+

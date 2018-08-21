@@ -146,3 +146,44 @@ const QString QSS_TimeSrcLabel =
 	"QLabel#%2, QPushButton {"
 		"font: bold normal 15px \"Microsoft YaHei\";"
 	"}";
+
+/****************************************************************************************
+串口设置
+*****************************************************************************************/
+const QString QSS_ComSettingsLabel =
+	"QLabel, QPushButton {"
+		"font: bold normal 16px \"Microsoft YaHei\";"
+	"}"
+	"QComboBox {"
+		"font: 16px \"Microsoft YaHei\";"
+		"color: #0306A8;"
+	"}";
+
+/****************************************************************************************
+网口设置
+*****************************************************************************************/
+const QString QSS_NetSettings =
+	"QRadioButton, QLabel {"
+		"font: bold normal 20px \"Microsoft YaHei\";"
+	"}"
+	"QRadioButton::indicator {"
+		"width: 20px;"
+		"height: 20px;"
+	"}"
+	"QRadioButton::indicator::checked {"
+		"image: url(:/BackendControlling/images/full.png);"
+	"}"
+	"QRadioButton::indicator::unchecked {"
+		"image: url(:/BackendControlling/images/empty.png);"
+	"}"
+	"QRadioButton::indicator::unchecked:hover {"
+		"background: grey;"
+		"border-radius: 10px;"
+	"}"
+	"QPushButton {"
+		"font: bold normal 16px \"Microsoft YaHei\";"
+	"}"
+	"QLineEdit {"
+		"font: 16px \"Microsoft YaHei\";"
+		"color: #0306A8;"
+	"}";
