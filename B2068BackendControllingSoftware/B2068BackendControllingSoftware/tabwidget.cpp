@@ -185,12 +185,10 @@ void MainTab::slotOnRefSrcTimeOut()
 *****************************************************************************************/
 TimeSrcTab::TimeSrcTab(QWidget *parent)
 	: QWidget(parent)
-{
-		
+{		
 	const QSize LockSize(20, 20);
 	const int RowSpan(1), MinRowHeight(40);	
-
-	int frameStyle = QFrame::NoFrame;
+	
 	QStringList priority;
 	priority << "1" << "2" << "3" << "4" << "5";
 	
@@ -207,13 +205,11 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	m_auto->setObjectName(largeRadioQss);
 	
 
-	m_bdsLock = new QLabel(this);	
-	//m_bdsLock->setFrameStyle(frameStyle);
+	m_bdsLock = new QLabel(this);		
 	m_bdsLock->setScaledContents(true);
 	m_bdsLock->setFixedSize(LockSize);
 	m_bdsLock->setPixmap(QPixmap(":/BackendControlling/images/lock_black_close.png", "PNG"));
 		
-
 	m_bds = new QRadioButton(tr("北斗"), this);
 	m_bds->setObjectName(smallRadioQss);
 
@@ -226,6 +222,7 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 
 	m_bdsPriority = new QComboBox(this);
 	m_bdsPriority->addItems(priority);
+
 
 	m_gpsLock = new QLabel(this);
 	m_gpsLock->setScaledContents(true);
@@ -245,6 +242,7 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	m_gpsPriority = new QComboBox(this);
 	m_gpsPriority->addItems(priority);
 
+
 	m_gloLock = new QLabel(this);
 	m_gloLock->setScaledContents(true);
 	m_gloLock->setFixedSize(LockSize);
@@ -262,6 +260,7 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	m_gloPriority = new QComboBox(this);
 	m_gloPriority->addItems(priority);
 
+
 	m_dcbLock = new QLabel(this);
 	m_dcbLock->setScaledContents(true);
 	m_dcbLock->setFixedSize(LockSize);
@@ -275,6 +274,7 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 
 	m_dcbPriority = new QComboBox(this);
 	m_dcbPriority->addItems(priority);
+
 
 	m_acbLock = new QLabel(this);
 	m_acbLock->setScaledContents(true);
@@ -290,6 +290,7 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	m_acbPriority = new QComboBox(this);
 	m_acbPriority->addItems(priority);
 
+
 	m_input = new QRadioButton(tr("输入时间"), this);
 	m_input->setObjectName(smallRadioQss);
 
@@ -297,22 +298,24 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	m_inputDateTime->setObjectName(normalLabelQss);
 	m_inputDateTime->setScaledContents(true);
 
+
+	QLabel *inputLabel = new QLabel(tr("输入时间设置"), this);
+	inputLabel->setObjectName(boldLabelQss);
+
 	m_inputSetting = new QLineEdit(tr("20180817113510"), this);
 	m_inputSetting->setAlignment(Qt::AlignCenter);
 	m_inputSetting->setPlaceholderText("YYYYMMDDhhmmss");
 	QRegExp rx("2\\d{3}(0[1-9]|1[0-2])(0[1-9]|[12]\\d|3[01])([01]\\d|2[0-3])([0-5]\\d){2}");
 	QValidator *validator = new QRegExpValidator(rx, this);
-	m_inputSetting->setValidator(validator);
-	
+	m_inputSetting->setValidator(validator);	
 
 	m_confirm = new QPushButton(tr("确认\n设置"), this);
 
 	QLabel *priorityLabel = new QLabel(tr("优先级"), this);
 	priorityLabel->setObjectName(boldLabelQss);
 
-	QLabel *inputLabel = new QLabel(tr("输入时间设置"), this);
-	inputLabel->setObjectName(boldLabelQss);
-
+	
+	// 分组
 	QButtonGroup *operatingGroup = new QButtonGroup(this);
 	operatingGroup->addButton(m_manual);
 	operatingGroup->addButton(m_auto);
@@ -332,6 +335,7 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	m_priorityGroup[2] = m_gloPriority;
 	m_priorityGroup[3] = m_dcbPriority;
 	m_priorityGroup[4] = m_acbPriority;
+
 
 	auto topLayout = new QHBoxLayout;
 	topLayout->addStretch(1);
@@ -392,15 +396,7 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 		+ QSS_TimeSrcLabel.arg(normalLabelQss).arg(boldLabelQss));
 
 	connectSlots();
-	QList<QAbstractButton *> refSrcButtons = m_refSrcGroup->buttons();
-	for (auto &button : refSrcButtons) {
-		button->setEnabled(true);
-	}
-	for (int i = 0; i < 5; ++i) {
-		m_priorityGroup[i]->setEnabled(false);
-		m_priorityGroup[i]->setCurrentIndex(i);
-		m_priorityValue[i] = i + 1;
-	}
+	switchAutoManual(false, true);
 }
 
 void TimeSrcTab::connectSlots()
@@ -413,26 +409,30 @@ void TimeSrcTab::connectSlots()
 	connect(m_acbPriority, SIGNAL(currentIndexChanged(QString)), this, SLOT(slotOnCurrentIndexChanged(QString)));
 }
 
+void TimeSrcTab::switchAutoManual(bool isAuto, bool isInitial /*= false*/)
+{
+	bool isManual = !isAuto;
+	QList<QAbstractButton *> refSrcButtons = m_refSrcGroup->buttons();
+	for (auto &button : refSrcButtons) {
+		button->setEnabled(isManual);
+	}
+
+	for (int i = 0; i < 5; ++i) {
+		m_priorityGroup[i]->setEnabled(isAuto);
+		if (isInitial) {
+			m_priorityGroup[i]->setCurrentIndex(i);
+			m_priorityValue[i] = i + 1;
+		}
+	}
+}
+
 void TimeSrcTab::slotOnSwitchAutoManual(bool checked)
 {
 	if (checked) {
-		QList<QAbstractButton *> refSrcButtons = m_refSrcGroup->buttons();
-		for (auto &button : refSrcButtons) {
-			button->setEnabled(false);
-		}
-
-		for (int i = 0; i < 5; ++i) {
-			m_priorityGroup[i]->setEnabled(true);
-		}
+		switchAutoManual(true);
 
 	} else {
-		QList<QAbstractButton *> refSrcButtons = m_refSrcGroup->buttons();
-		for (auto &button : refSrcButtons) {
-			button->setEnabled(true);
-		}
-		for (int i = 0; i < 5; ++i) {
-			m_priorityGroup[i]->setEnabled(false);
-		}
+		switchAutoManual(false);
 	}
 }
 

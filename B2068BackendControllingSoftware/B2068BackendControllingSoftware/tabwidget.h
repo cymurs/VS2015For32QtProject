@@ -52,6 +52,7 @@ public:
 
 private:
 	void connectSlots();
+	void switchAutoManual(bool isAuto, bool isInitial = false);
 
 private Q_SLOTS:
 	void slotOnSwitchAutoManual(bool checked);
