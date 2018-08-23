@@ -187,3 +187,38 @@ const QString QSS_NetSettings =
 		"font: 16px \"Microsoft YaHei\";"
 		"color: #0306A8;"
 	"}";
+
+/****************************************************************************************
+状态参数
+*****************************************************************************************/
+const QString QSS_StateParams =
+	"QTabWidget::tab-bar {"
+		"left: 5px;" /* move to the right by 5px */
+		"top: 0.5em;"
+	"}"
+	"QTabWidget::pane {"
+		"margin-top: 0.5em;" 
+	"}"
+	"QLabel, QTableWidget, QTableView, QHeaderView {"
+		"font: bold normal 16px \"times\";"
+	"}"
+	"QLabel#%1, QTableView  {"
+		"color: #0306A8;"
+	"}";
+
+/****************************************************************************************
+设备总览
+*****************************************************************************************/
+const QString QSS_DeviceOverview =
+	"QLabel, QTableWidget, QHeaderView {"
+		"font: bold normal 16px \"times\";"
+	"}"
+	"QLabel#%1  {"
+		"color: #0306A8;"
+	"}";
+
+/****************************************************************************************
+北斗状态
+*****************************************************************************************/
+const QString QSS_BDSState =
+"";

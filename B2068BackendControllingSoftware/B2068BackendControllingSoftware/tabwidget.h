@@ -8,6 +8,9 @@ class QLabel;
 class QSerialPort;
 QT_END_NAMESPACE
 
+class DeviceOverviewTab;
+class BDSStateTab;
+
 // 主界面
 class MainTab : public QWidget
 {
@@ -264,14 +267,21 @@ private:
 	QString m_curNetNum;
 };
 
+// 状态参数
 class StateParamsTab : public QWidget
 {
 	Q_OBJECT
 
 public:
 	explicit StateParamsTab(QWidget *parent = 0);
+
+private:
+	QTabWidget *m_centralWidget;
+	DeviceOverviewTab *m_deviceTab;
+	BDSStateTab *m_bdsTab;
 };
 
+// 总界面
 class TabWidget : public QDialog
 {
 	Q_OBJECT

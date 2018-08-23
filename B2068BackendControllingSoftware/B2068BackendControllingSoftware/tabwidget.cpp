@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "tabwidget.h"
+#include "stateparamswidget.h"
+
 
 /****************************************************************************************
 子控件位置属性
@@ -40,7 +42,7 @@ TabWidget::TabWidget(QWidget *parent)
 	setWindowTitle(tr("B2068控制软件"));
 	
 	// 测试
-	m_tabWidget->setCurrentIndex(3);
+	m_tabWidget->setCurrentIndex(4);
 }
 
 TabWidget::~TabWidget()
@@ -927,6 +929,20 @@ void NetSettingsTab::slotOnCommButtonClicked(int id)
 *****************************************************************************************/
 StateParamsTab::StateParamsTab(QWidget *parent)
 	: QWidget(parent)
-{}
+{
+	m_deviceTab = new DeviceOverviewTab;
+	m_bdsTab = new BDSStateTab;
+	
+	m_centralWidget = new QTabWidget;
+	m_centralWidget->addTab(m_deviceTab, tr("设备总览"));
+	m_centralWidget->addTab(m_bdsTab, tr("北斗状态"));
+	m_centralWidget->setCurrentIndex(1);
+
+	auto baseLayout = new QVBoxLayout(this);
+	baseLayout->addWidget(m_centralWidget);
+	baseLayout->setMargin(0);	
+
+	setStyleSheet(QSS_StateParams.arg(valueLabelQss));
+}
 
 

@@ -54,6 +54,12 @@
     <ClCompile Include="qss.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="stateparamswidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cradar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -80,6 +86,12 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="tabwidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="stateparamswidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="cradar.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
