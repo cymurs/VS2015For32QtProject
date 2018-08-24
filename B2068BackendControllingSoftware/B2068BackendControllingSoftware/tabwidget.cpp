@@ -3,15 +3,6 @@
 #include "stateparamswidget.h"
 
 
-/****************************************************************************************
-×Ó¿Ø¼þÎ»ÖÃÊôÐÔ
-*****************************************************************************************/
-const int LeftMargin = 20;			// ×ó±ß¾à
-const int TopMargin = 10;		// ¶¥±ß¾à
-const int BottonMargin = 20;	// µ×±ß¾à
-const int LblWidth = 80;			//	±êÇ©¿í¶È
-const int LblHeight = 20;			// ±êÇ©¸ß¶È
-const int LeWidth = 240;        // ÊäÈë¿ò¿í¶È
 
 /****************************************************************************************
 Ö÷´°¿Ú
@@ -934,13 +925,23 @@ StateParamsTab::StateParamsTab(QWidget *parent)
 	m_bdsTab = new SatTypeStateTab;
 	m_gpsTab = new SatTypeStateTab;
 	m_gloTab = new SatTypeStateTab;
+	m_dcbTab = new DCBStateTab;
+	m_acbTab = new ACBStateTab;
+	m_delayTab = new DelayCompensationTab;
+	m_pulseTab = new PulseSettingsTab;
+	m_tzTab = new TimezoneTab;
 	
 	m_centralWidget = new QTabWidget;
 	m_centralWidget->addTab(m_deviceTab, tr("Éè±¸×ÜÀÀ"));
 	m_centralWidget->addTab(m_bdsTab, tr("±±¶·×´Ì¬"));
 	m_centralWidget->addTab(m_gpsTab, tr("GPS×´Ì¬"));
 	m_centralWidget->addTab(m_gloTab, tr("GLONASS×´Ì¬"));
-	m_centralWidget->setCurrentIndex(2);
+	m_centralWidget->addTab(m_dcbTab, tr("Ö±Á÷×´Ì¬"));
+	m_centralWidget->addTab(m_acbTab, tr("½»Á÷×´Ì¬"));
+	m_centralWidget->addTab(m_delayTab, tr("ÑÓÊ±²¹³¥"));
+	m_centralWidget->addTab(m_pulseTab, tr("Âö³åÅäÖÃ"));
+	m_centralWidget->addTab(m_tzTab, tr("Ê±ÇøÉèÖÃ"));
+	m_centralWidget->setCurrentIndex(8);
 
 	auto baseLayout = new QVBoxLayout(this);
 	baseLayout->addWidget(m_centralWidget);

@@ -55,40 +55,153 @@ private:
 	ElevationAzimuthParams *m_elevAzimParams;
 };
 
-// 
-class GPSStateTab : public QWidget
+// Ö±Á÷BÂë×´Ì¬
+class DCBStateTab : public QWidget
 {
 	Q_OBJECT
 
 public:
-	GPSStateTab(QWidget *parent = 0);
+	DCBStateTab(QWidget *parent = 0);
+
+protected:
+	void resizeEvent(QResizeEvent *event) override;
 
 private:
-	QLabel *m_workState;
-	QLabel *m_signState;
-	QLabel *m_pdop;
-	QLabel *m_visSatellites;
-	QLabel *m_avlSatellites;
-	QTableView *m_bdsTable;
-	CRadar *m_radar;
-	ElevationAzimuthParams *m_elevAzimParams;
+	void setChildrenGeometry(int w = 0, int h = 0);
+
+private:
+	QLabel *m_runStateLabel;
+	QLabel *m_runState;
+	QLabel *m_synStateLabel;
+	QLabel *m_synState;
+	QLabel *m_inFormatLabel;
+	QComboBox *m_inFormat;
+	QLabel *m_outFormatLabel;
+	QComboBox *m_outFormat;
+	QPushButton *m_confirm;	
+
+	const int m_lblWidth;
+	const int m_lblHeight;
 };
 
-// 
-class GLOStateTab : public QWidget
+// ½»Á÷BÂë×´Ì¬
+class ACBStateTab : public QWidget
 {
 	Q_OBJECT
 
 public:
-	GLOStateTab(QWidget *parent = 0);
+	ACBStateTab(QWidget *parent = 0);
+
+protected:
+	void resizeEvent(QResizeEvent *event) override;
 
 private:
-	QLabel *m_workState;
-	QLabel *m_signState;
-	QLabel *m_pdop;
-	QLabel *m_visSatellites;
-	QLabel *m_avlSatellites;
-	QTableView *m_bdsTable;
-	CRadar *m_radar;
-	ElevationAzimuthParams *m_elevAzimParams;
+	void setChildrenGeometry(int w = 0, int h = 0);
+
+private:
+	QLabel *m_runStateLabel;
+	QLabel *m_runState;
+	QLabel *m_synStateLabel;
+	QLabel *m_synState;
+	QLabel *m_inFormatLabel;
+	QComboBox *m_inFormat;
+	QLabel *m_outFormatLabel;
+	QComboBox *m_outFormat;
+	QLabel *m_outAmpLabel;
+	QLineEdit *m_outAmplitude;
+	QLabel *m_outAmpUnit;
+	QLabel *m_outMrLabel;
+	QComboBox *m_outMr;
+	QPushButton *m_confirm;
+
+	const int m_lblWidth;
+	const int m_lblHeight;
+};
+
+// ÑÓÊ±²¹³¥
+class DelayCompensationTab : public QWidget
+{
+	Q_OBJECT
+
+public:
+	DelayCompensationTab(QWidget *parent = 0);
+
+protected:
+	void resizeEvent(QResizeEvent *event) override;
+
+private:
+	void setChildrenGeometry(int w = 0, int h = 0);
+
+private:
+	QLabel *m_bdsLabel;
+	QLineEdit *m_bds;
+	QLabel *m_bdsUnit;
+	QLabel *m_gpsLabel;
+	QLineEdit *m_gps;
+	QLabel *m_gpsUnit;
+	QLabel *m_gloLabel;
+	QLineEdit *m_glo;
+	QLabel *m_gloUnit;
+	QLabel *m_acbLabel;
+	QLineEdit *m_acb;
+	QLabel *m_acbUnit;
+	QLabel *m_dcbLabel;
+	QLineEdit *m_dcb;
+	QLabel *m_dcbUnit;
+	QPushButton *m_confirm;
+
+	const int m_lblWidth;
+	const int m_lblHeight;
+};
+
+// Âö³åÅäÖÃ
+class PulseSettingsTab : public QWidget
+{
+	Q_OBJECT
+
+public:
+	PulseSettingsTab(QWidget *parent = 0);
+
+protected:
+	void resizeEvent(QResizeEvent *event) override;
+
+private:
+	void setChildrenGeometry(int w = 0, int h = 0);
+
+private:
+	QLabel *m_ppsWidthLabel;
+	QLineEdit *m_ppsWidth;
+	QComboBox *m_ppsWidthUnit;
+	QLabel *m_ppsDelayLabel;
+	QLineEdit *m_ppsDelay;
+	QComboBox *m_ppsDelayUnit;
+	QPushButton *m_confirm;
+	QValidator *m_msValidator;
+	QValidator *m_nsValidator;
+
+	const int m_lblWidth;
+	const int m_lblHeight;
+};
+
+// Ê±ÇøÉèÖÃ
+class TimezoneTab : public QWidget
+{
+	Q_OBJECT
+
+public:
+	TimezoneTab(QWidget *parent = 0);
+
+protected:
+	void resizeEvent(QResizeEvent *event) override;
+
+private:
+	void setChildrenGeometry(int w = 0, int h = 0);
+
+private:
+	QLabel *m_timezoneLabel;
+	QLineEdit *m_timezone;
+	QPushButton *m_confirm;
+
+	const int m_lblWidth;
+	const int m_lblHeight;
 };

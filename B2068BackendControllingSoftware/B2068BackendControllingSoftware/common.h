@@ -4,10 +4,20 @@
 #pragma execution_character_set("utf-8")  
 
 /****************************************************************************************
+×Ó¿Ø¼þÎ»ÖÃÊôÐÔ
+*****************************************************************************************/
+const int LeftMargin = 20;			// ×ó±ß¾à
+const int TopMargin = 10;		// ¶¥±ß¾à
+const int BottonMargin = 20;	// µ×±ß¾à
+const int LblWidth = 80;			//	±êÇ©¿í¶È
+const int LblHeight = 20;			// ±êÇ©¸ß¶È
+const int LeWidth = 240;        // ÊäÈë¿ò¿í¶È
+
+/****************************************************************************************
 qss¸¨Öú×Ö·û´®
 *****************************************************************************************/
-extern const QString valueLabelQss;
-extern const QString valueTableViewQss;
+const QString valueLabelQss("valuelabel");
+const QString valueTableViewQss("valuetableview");
 
 /****************************************************************************************/
 const int MaxAvlSatellites = 10;

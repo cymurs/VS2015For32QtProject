@@ -2,13 +2,6 @@
 #include "stateparamswidget.h"
 #include "cradar.h"
 
-/****************************************************************************************
-qss辅助字符串
-*****************************************************************************************/
-const QString valueLabelQss("valuelabel");
-const QString valueTableViewQss("valuetableview");
-
-//const int MaxAvlSatellites = 10;
 
 /****************************************************************************************
 设备总览
@@ -113,7 +106,7 @@ DeviceOverviewTab::DeviceOverviewTab(QWidget *parent)
 }
 
 /****************************************************************************************
-北斗状态
+北斗状态 GPS状态 GLONASS状态
 *****************************************************************************************/
 SatTypeStateTab::SatTypeStateTab(QWidget *parent /*= 0*/)
 {
@@ -325,4 +318,339 @@ QPointF SatTypeStateTab::angleToCoordinate(double elev, double azim)
 	double radius = elev;
 	double angle = (azim + 90) / 360.0 * 6.28;
 	return QPointF(-radius * cos(angle), radius * sin(angle));
+}
+
+/****************************************************************************************
+直流B码状态
+*****************************************************************************************/
+DCBStateTab::DCBStateTab(QWidget *parent /*= 0*/)
+	: QWidget(parent)
+	, m_lblWidth(LblWidth * 1.5)
+	, m_lblHeight(LblHeight * 1.5)
+{
+	int w = width();
+	int h = height();
+
+	QStringList formats = {"GJB97", "GJB08", "200-04"};
+	
+	m_runStateLabel = new QLabel(tr("运行状态"), this);	
+	m_runState = new QLabel(tr("异常"), this);
+	m_runState->setObjectName(valueLabelQss);
+
+	m_synStateLabel = new QLabel(tr("同步状态"), this);
+	m_synState = new QLabel(tr("异常"), this);
+	m_synState->setObjectName(valueLabelQss);
+
+	m_inFormatLabel = new QLabel(tr("直流B码输入格式"), this);
+	m_inFormat = new QComboBox(this);
+	m_inFormat->addItems(formats);
+
+	m_outFormatLabel = new QLabel(tr("直流B码输出格式"), this);
+	m_outFormat = new QComboBox(this);
+	m_outFormat->addItems(formats);
+
+	m_confirm = new QPushButton(tr("确认设置"), this);
+	
+	setChildrenGeometry(w, h);
+	
+}
+
+void DCBStateTab::resizeEvent(QResizeEvent *event)
+{
+	QSize s = event->size();
+	int w = s.width();
+	int h = s.height();
+	if (0 == w && 0 == h) {
+		QWidget::resizeEvent(event);
+		return;
+	}
+
+	setChildrenGeometry(w, h);
+}
+
+void DCBStateTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
+{
+	if (0 == w && 0 == h) return;
+
+	m_runStateLabel->setGeometry(w / 6, (h - m_lblHeight * 10) / 2, m_lblWidth, m_lblHeight);
+	m_runState->setGeometry(w / 2, (h - m_lblHeight * 10) / 2, m_lblWidth, m_lblHeight);
+	m_synStateLabel->setGeometry(w / 6, (h - m_lblHeight * 6) / 2, m_lblWidth, m_lblHeight);
+	m_synState->setGeometry(w / 2, (h - m_lblHeight * 6) / 2, m_lblWidth, m_lblHeight);
+	m_inFormatLabel->setGeometry(w / 6, (h - m_lblHeight * 2) / 2, LblWidth * 2, m_lblHeight);
+	m_inFormat->setGeometry(w / 2, (h - m_lblHeight * 2) / 2, m_lblWidth, m_lblHeight);
+	m_outFormatLabel->setGeometry(w / 6, h / 2 + m_lblHeight, LblWidth * 2, m_lblHeight);
+	m_outFormat->setGeometry(w / 2, h / 2 + m_lblHeight, m_lblWidth, m_lblHeight);
+	m_confirm->setGeometry(w / 2 + m_lblWidth / 2, h / 2 + m_lblHeight * 4, m_lblWidth, m_lblHeight);
+}
+
+/****************************************************************************************
+交流B码状态
+*****************************************************************************************/
+ACBStateTab::ACBStateTab(QWidget *parent /*= 0*/)
+	: QWidget(parent)
+	, m_lblWidth(LblWidth)
+	, m_lblHeight(LblHeight)
+{
+	int w = width();
+	int h = height();
+
+	QStringList formats = { "GJB97", "GJB08", "200-04" };
+	QStringList modRatio = { "2:1", "3:1", "4:1", "5:1", "6:1" };
+
+	m_runStateLabel = new QLabel(tr("运行状态"), this);
+	m_runState = new QLabel(tr("异常"), this);
+	m_runState->setObjectName(valueLabelQss);
+
+	m_synStateLabel = new QLabel(tr("同步状态"), this);
+	m_synState = new QLabel(tr("异常"), this);
+	m_synState->setObjectName(valueLabelQss);
+
+	m_inFormatLabel = new QLabel(tr("交流B码输入格式"), this);
+	m_inFormat = new QComboBox(this);
+	m_inFormat->addItems(formats);
+
+	m_outFormatLabel = new QLabel(tr("交流B码输出格式"), this);
+	m_outFormat = new QComboBox(this);
+	m_outFormat->addItems(formats);
+
+	m_outAmpLabel = new QLabel(tr("交流B码输出幅值"), this);
+	m_outAmplitude = new QLineEdit(tr("1.5"), this);
+	// 无效代码
+	//QDoubleValidator *validator = new QDoubleValidator(0.5, 10.0, 1, this);
+	//validator->setBottom(0.5);
+	QRegExp rx("^10|\\d\\.5|[1-9]$");
+	QValidator *validator = new QRegExpValidator(rx, this);
+	m_outAmplitude->setValidator(validator);
+	m_outAmpUnit = new QLabel(tr("V"), this);
+
+	m_outMrLabel = new QLabel(tr("交流B码输出调制比"), this);
+	m_outMr = new QComboBox(this);
+	m_outMr->addItems(modRatio);
+
+	m_confirm = new QPushButton(tr("确认设置"), this);
+
+	setChildrenGeometry(w, h);
+
+}
+
+void ACBStateTab::resizeEvent(QResizeEvent *event)
+{
+	QSize s = event->size();
+	int w = s.width();
+	int h = s.height();
+	if (0 == w && 0 == h) {
+		QWidget::resizeEvent(event);
+		return;
+	}
+
+	setChildrenGeometry(w, h);
+}
+
+void ACBStateTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
+{
+	if (0 == w && 0 == h)  return;
+
+	int wdth = LblWidth * 1.5;
+	int hght = LblHeight * 1.5;
+	int dblWdth = LblWidth * 2;
+	m_runStateLabel->setGeometry(w / 6, (h - m_lblHeight * 14) / 2, m_lblWidth, m_lblHeight);
+	m_runState->setGeometry(w / 2, (h - m_lblHeight * 14) / 2, m_lblWidth, m_lblHeight);
+	m_synStateLabel->setGeometry(w / 6, (h - m_lblHeight * 10) / 2, m_lblWidth, m_lblHeight);
+	m_synState->setGeometry(w / 2, (h - m_lblHeight * 10) / 2, m_lblWidth, m_lblHeight);
+	m_inFormatLabel->setGeometry(w / 6, (h - m_lblHeight * 6) / 2, dblWdth, m_lblHeight);
+	m_inFormat->setGeometry(w / 2, (h - m_lblHeight * 6) / 2, wdth, hght);
+	m_outFormatLabel->setGeometry(w / 6, (h - m_lblHeight * 2) / 2, dblWdth, m_lblHeight);
+	m_outFormat->setGeometry(w / 2, (h - m_lblHeight * 2) / 2, wdth, hght);
+	m_outAmpLabel->setGeometry(w / 6, h / 2 + m_lblHeight, dblWdth, m_lblHeight);
+	m_outAmplitude->setGeometry(w / 2, h / 2 + m_lblHeight, wdth * 4 / 5, hght);
+	m_outAmpUnit->setGeometry(w / 2 + wdth * 5 / 6, h / 2 + m_lblHeight, wdth / 6, hght);
+	m_outMrLabel->setGeometry(w / 6, h / 2 + m_lblHeight * 3, dblWdth, m_lblHeight);
+	m_outMr->setGeometry(w / 2, h / 2 + m_lblHeight * 3, wdth, hght);
+	m_confirm->setGeometry(w / 2 + wdth / 2, h / 2 + m_lblHeight * 6, wdth, hght);
+}
+
+/****************************************************************************************
+延时补偿
+*****************************************************************************************/
+DelayCompensationTab::DelayCompensationTab(QWidget *parent /*= 0*/)
+	: QWidget(parent)
+	, m_lblWidth(LblWidth)
+	, m_lblHeight(LblHeight)
+{
+	int w = width();
+	int h = height();
+	
+	m_bdsLabel = new QLabel(tr("北斗"), this);
+	m_bds = new QLineEdit(tr("0"), this);
+	m_bds->setAlignment(Qt::AlignCenter);
+	m_bdsUnit = new QLabel(tr("ns"), this);	
+
+	m_gpsLabel = new QLabel(tr("GPS"), this);
+	m_gps = new QLineEdit(tr("0"), this);
+	m_gps->setAlignment(Qt::AlignCenter);
+	m_gpsUnit = new QLabel(tr("ns"), this);
+
+	m_gloLabel = new QLabel(tr("GLONASS"), this);
+	m_glo = new QLineEdit(tr("0"), this);
+	m_glo->setAlignment(Qt::AlignCenter);
+	m_gloUnit = new QLabel(tr("ns"), this);
+
+	m_acbLabel = new QLabel(tr("交流B码"), this);
+	m_acb = new QLineEdit(tr("0"), this);
+	m_acb->setAlignment(Qt::AlignCenter);
+	m_acbUnit = new QLabel(tr("ns"), this);
+
+	m_dcbLabel = new QLabel(tr("直流B码"), this);
+	m_dcb = new QLineEdit(tr("0"), this);
+	m_dcb->setAlignment(Qt::AlignCenter);
+	m_dcbUnit = new QLabel(tr("ns"), this);
+
+	m_confirm = new QPushButton(tr("确认设置"), this);
+
+	setChildrenGeometry(w, h);
+}
+
+void DelayCompensationTab::resizeEvent(QResizeEvent *event)
+{
+	QSize s = event->size();
+	int w = s.width();
+	int h = s.height();
+	if (0 == w && 0 == h) {
+		QWidget::resizeEvent(event);
+		return;
+	}
+
+	setChildrenGeometry(w, h);
+}
+
+void DelayCompensationTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
+{
+	if (0 == w && 0 == h)  return;
+
+	int wdth = LblWidth * 1.5;
+	int hght = LblHeight * 1.5;
+	m_bdsLabel->setGeometry(w / 4, (h - m_lblHeight * 12) / 2, wdth, hght);
+	m_bds->setGeometry(w / 2, (h - m_lblHeight * 12) / 2, wdth, hght);
+	m_bdsUnit->setGeometry(w / 2 + wdth * 1.1, (h - m_lblHeight * 12) / 2, wdth, hght);
+	m_gpsLabel->setGeometry(w / 4, (h - m_lblHeight * 8) / 2, wdth, hght);
+	m_gps->setGeometry(w / 2, (h - m_lblHeight * 8) / 2, wdth, hght);
+	m_gpsUnit->setGeometry(w / 2 + wdth * 1.1, (h - m_lblHeight * 8) / 2, wdth, hght);
+	m_gloLabel->setGeometry(w / 4, (h - m_lblHeight * 4) / 2, wdth, hght);
+	m_glo->setGeometry(w / 2, (h - m_lblHeight * 4) / 2, wdth, hght);
+	m_gloUnit->setGeometry(w / 2 + wdth * 1.1, (h - m_lblHeight * 4) / 2, wdth, hght);
+	m_acbLabel->setGeometry(w / 4, h  / 2, wdth, hght);
+	m_acb->setGeometry(w / 2, h / 2, wdth, hght);
+	m_acbUnit->setGeometry(w / 2 + wdth * 1.1, h / 2, wdth, hght);
+	m_dcbLabel->setGeometry(w / 4, h / 2 + m_lblHeight * 2, wdth, hght);
+	m_dcb->setGeometry(w / 2, h / 2 + m_lblHeight * 2, wdth, hght);
+	m_dcbUnit->setGeometry(w / 2 + wdth * 1.1, h / 2 + m_lblHeight * 2, wdth, hght);
+	m_confirm->setGeometry(w / 2 + wdth / 2, h / 2 + m_lblHeight * 5, wdth, hght);
+}
+
+/****************************************************************************************
+脉冲配置
+*****************************************************************************************/
+PulseSettingsTab::PulseSettingsTab(QWidget *parent /*= 0*/)
+	: QWidget(parent)
+	, m_lblWidth(LblWidth * 1.5)
+	, m_lblHeight(LblHeight * 1.5)
+{
+	QStringList unit = { "ms", "ns" };
+	
+	m_ppsWidthLabel = new QLabel(tr("脉宽"), this);
+	m_ppsWidth = new QLineEdit(tr("30"), this);
+	m_ppsWidth->setAlignment(Qt::AlignCenter);
+	QRegExp rx1("^[1-9]?\\d$");
+	QValidator *validator1 = new QRegExpValidator(rx1, this);
+	m_ppsWidth->setValidator(validator1);
+	m_ppsWidthUnit = new QComboBox(this);
+	m_ppsWidthUnit->addItems(unit);
+
+	m_ppsDelayLabel = new QLabel(tr("延时"), this);
+	m_ppsDelay = new QLineEdit(tr("0"), this);
+	m_ppsDelay->setAlignment(Qt::AlignCenter);
+	QRegExp rx("^[1-9]?\\d$");
+	QValidator *validator = new QRegExpValidator(rx, this);
+	m_ppsDelay->setValidator(validator);
+	m_ppsDelayUnit = new QComboBox(this);	
+	m_ppsDelayUnit->addItems(unit);
+	m_ppsDelayUnit->setCurrentIndex(1);
+	// 丑得很
+	//QLineEdit *centerLineEdit = new QLineEdit;	
+	//centerLineEdit->setReadOnly(true);
+	//centerLineEdit->setAlignment(Qt::AlignCenter);
+	//m_ppsDelayUnit->setLineEdit(centerLineEdit);
+
+	m_confirm = new QPushButton(tr("确认设置"), this);
+
+	int w = width();
+	int h = height();
+	setChildrenGeometry(w, h);
+}
+
+void PulseSettingsTab::resizeEvent(QResizeEvent *event)
+{
+	QSize s = event->size();
+	int w = s.width();
+	int h = s.height();
+	if (0 == w && 0 == h) {
+		QWidget::resizeEvent(event);
+		return;
+	}
+
+	setChildrenGeometry(w, h);
+}
+
+void PulseSettingsTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
+{
+	if (0 == w && 0 == h) return;
+	
+	int wdth = LblWidth;
+	m_ppsWidthLabel->setGeometry(w / 4, (h - m_lblHeight * 6) / 2, wdth, m_lblHeight);
+	m_ppsWidth->setGeometry(w / 4 + wdth, (h - m_lblHeight * 6) / 2, m_lblWidth, m_lblHeight);
+	m_ppsWidthUnit->setGeometry(w / 4 + LblWidth*2.6, (h - m_lblHeight * 6) / 2, wdth, m_lblHeight);
+	m_ppsDelayLabel->setGeometry(w / 4, (h - m_lblHeight * 2) / 2, wdth, m_lblHeight);
+	m_ppsDelay->setGeometry(w / 4 + wdth, (h - m_lblHeight * 2) / 2, m_lblWidth, m_lblHeight);
+	m_ppsDelayUnit->setGeometry(w / 4 + LblWidth*2.6, (h - m_lblHeight * 2) / 2, wdth, m_lblHeight);
+	m_confirm->setGeometry(w / 2 + wdth, h / 2 + m_lblHeight * 3, m_lblWidth, m_lblHeight);
+}
+
+/****************************************************************************************
+时区设置
+*****************************************************************************************/
+TimezoneTab::TimezoneTab(QWidget *parent /*= 0*/)
+	: QWidget(parent)
+	, m_lblWidth(LblWidth * 1.5)
+	, m_lblHeight(LblHeight * 1.5)
+{
+	m_timezoneLabel = new QLabel(tr("时区"), this);
+	m_timezone = new QLineEdit(tr("8"), this);
+	m_timezone->setAlignment(Qt::AlignCenter);
+	m_confirm = new QPushButton(tr("确认设置"), this);
+	
+	int w = width();
+	int h = height();
+	setChildrenGeometry(w, h);
+}
+
+void TimezoneTab::resizeEvent(QResizeEvent *event)
+{
+	QSize s = event->size();
+	int w = s.width();
+	int h = s.height();
+	if (0 == w && 0 == h) {
+		QWidget::resizeEvent(event);
+		return;
+	}
+
+	setChildrenGeometry(w, h);
+}
+
+void TimezoneTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
+{
+	if (0 == w && 0 == h) return;
+
+	m_timezoneLabel->setGeometry(w / 5, h / 3, LblWidth, m_lblHeight);
+	m_timezone->setGeometry(w / 5 + LblWidth, h / 3, m_lblWidth, m_lblHeight);
+	m_confirm->setGeometry(w / 5 + m_lblWidth * 2, h / 3, m_lblWidth, m_lblHeight);
 }

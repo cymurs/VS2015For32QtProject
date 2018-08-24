@@ -199,10 +199,13 @@ const QString QSS_StateParams =
 	"QTabWidget::pane {"
 		"margin-top: 0.5em;" 
 	"}"
-	"QLabel, QTableWidget, QTableView, QHeaderView {"
+	"QLabel, QTableWidget, QTableView, QHeaderView, QPushButton {"
 		"font: bold normal 16px \"times\";"
 	"}"
-	"QLabel#%1, QTableView#%2  {"
+	"QComboBox, QLineEdit  {"
+		"font: 16px \"times\";"
+	"}"
+	"QLabel#%1, QTableView#%2, QComboBox, QLineEdit  {"
 		"color: #0306A8;"
 	"}";
 

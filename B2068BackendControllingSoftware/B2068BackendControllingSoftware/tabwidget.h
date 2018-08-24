@@ -10,6 +10,11 @@ QT_END_NAMESPACE
 
 class DeviceOverviewTab;
 class SatTypeStateTab;
+class DCBStateTab;
+class ACBStateTab;
+class DelayCompensationTab;
+class PulseSettingsTab;
+class TimezoneTab;
 
 // 主界面
 class MainTab : public QWidget
@@ -284,6 +289,11 @@ private:
 	SatTypeStateTab *m_bdsTab;
 	SatTypeStateTab *m_gpsTab;
 	SatTypeStateTab *m_gloTab;
+	DCBStateTab *m_dcbTab;
+	ACBStateTab *m_acbTab;
+	DelayCompensationTab *m_delayTab;
+	PulseSettingsTab *m_pulseTab;
+	TimezoneTab *m_tzTab;
 };
 
 // 总界面
