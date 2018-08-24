@@ -557,24 +557,30 @@ PulseSettingsTab::PulseSettingsTab(QWidget *parent /*= 0*/)
 {
 	QStringList unit = { "ms", "ns" };
 	
+	QRegExp rxmsWidth("^([1-9]\\d{2}|[1-9]\\d|[1-9])$");
+	m_msWidthValidator = new QRegExpValidator(rxmsWidth, this);
+	QRegExp rxnsWidth("[1-9]\\d{3}|[1-9]\\d{4}|[1-9]\\d{5}|[1-9]\\d{6}|[1-9]\\d{7}|[1-9]\\d{8}");
+	m_nsWidthValidator = new QRegExpValidator(rxnsWidth, this);
+	QRegExp rxmsDelay("-?([1-9]?\\d|[1-9]\\d{2})");
+	m_msDelayValidator = new QRegExpValidator(rxmsDelay, this);
+	QRegExp rxnsDelay("-?([1-9]?\\d|[1-9]\\d{2}|[1-9]\\d{3}|[1-9]\\d{4}|[1-9]\\d{5}|[1-9]\\d{6}|[1-9]\\d{7}|[1-9]\\d{8})");
+	m_nsDelayValidator = new QRegExpValidator(rxnsDelay, this);
+
 	m_ppsWidthLabel = new QLabel(tr("脉宽"), this);
 	m_ppsWidth = new QLineEdit(tr("30"), this);
-	m_ppsWidth->setAlignment(Qt::AlignCenter);
-	QRegExp rx1("^[1-9]?\\d$");
-	QValidator *validator1 = new QRegExpValidator(rx1, this);
-	m_ppsWidth->setValidator(validator1);
+	m_ppsWidth->setAlignment(Qt::AlignCenter);	
 	m_ppsWidthUnit = new QComboBox(this);
 	m_ppsWidthUnit->addItems(unit);
+	m_ppsWidthUnit->setCurrentIndex(1);
+	m_ppsWidth->setValidator(m_nsWidthValidator);
 
 	m_ppsDelayLabel = new QLabel(tr("延时"), this);
 	m_ppsDelay = new QLineEdit(tr("0"), this);
-	m_ppsDelay->setAlignment(Qt::AlignCenter);
-	QRegExp rx("^[1-9]?\\d$");
-	QValidator *validator = new QRegExpValidator(rx, this);
-	m_ppsDelay->setValidator(validator);
+	m_ppsDelay->setAlignment(Qt::AlignCenter);	
 	m_ppsDelayUnit = new QComboBox(this);	
 	m_ppsDelayUnit->addItems(unit);
 	m_ppsDelayUnit->setCurrentIndex(1);
+	m_ppsDelay->setValidator(m_nsDelayValidator);
 	// 丑得很
 	//QLineEdit *centerLineEdit = new QLineEdit;	
 	//centerLineEdit->setReadOnly(true);
@@ -586,6 +592,7 @@ PulseSettingsTab::PulseSettingsTab(QWidget *parent /*= 0*/)
 	int w = width();
 	int h = height();
 	setChildrenGeometry(w, h);
+	connectSlots();
 }
 
 void PulseSettingsTab::resizeEvent(QResizeEvent *event)
@@ -613,6 +620,30 @@ void PulseSettingsTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
 	m_ppsDelay->setGeometry(w / 4 + wdth, (h - m_lblHeight * 2) / 2, m_lblWidth, m_lblHeight);
 	m_ppsDelayUnit->setGeometry(w / 4 + LblWidth*2.6, (h - m_lblHeight * 2) / 2, wdth, m_lblHeight);
 	m_confirm->setGeometry(w / 2 + wdth, h / 2 + m_lblHeight * 3, m_lblWidth, m_lblHeight);
+}
+
+void PulseSettingsTab::connectSlots()
+{
+	connect(m_ppsWidthUnit, SIGNAL(currentIndexChanged(int)), this, SLOT(slotOnWidthUnitChanged(int)));
+	connect(m_ppsDelayUnit, SIGNAL(currentIndexChanged(int)), this, SLOT(slotOnDelayUnitChanged(int)));
+}
+
+void PulseSettingsTab::slotOnWidthUnitChanged(int index)
+{
+	m_ppsWidth->clear();
+	if (0 == index)
+		m_ppsWidth->setValidator(m_msWidthValidator); // (new QIntValidator(1, 999, this)); ---体验差
+	else
+		m_ppsWidth->setValidator(m_nsWidthValidator);
+}
+
+void PulseSettingsTab::slotOnDelayUnitChanged(int index)
+{
+	m_ppsDelay->clear();
+	if (0 == index)
+		m_ppsDelay->setValidator(m_msDelayValidator);
+	else
+		m_ppsDelay->setValidator(m_nsDelayValidator);
 }
 
 /****************************************************************************************

@@ -167,6 +167,11 @@ protected:
 
 private:
 	void setChildrenGeometry(int w = 0, int h = 0);
+	void connectSlots();
+
+public Q_SLOTS:
+	void slotOnWidthUnitChanged(int index);
+	void slotOnDelayUnitChanged(int index);
 
 private:
 	QLabel *m_ppsWidthLabel;
@@ -176,8 +181,11 @@ private:
 	QLineEdit *m_ppsDelay;
 	QComboBox *m_ppsDelayUnit;
 	QPushButton *m_confirm;
-	QValidator *m_msValidator;
-	QValidator *m_nsValidator;
+
+	QValidator *m_msWidthValidator;
+	QValidator *m_nsWidthValidator;
+	QValidator *m_msDelayValidator;
+	QValidator *m_nsDelayValidator;
 
 	const int m_lblWidth;
 	const int m_lblHeight;
