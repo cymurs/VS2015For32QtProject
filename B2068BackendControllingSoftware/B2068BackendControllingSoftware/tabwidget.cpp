@@ -931,18 +931,63 @@ StateParamsTab::StateParamsTab(QWidget *parent)
 	: QWidget(parent)
 {
 	m_deviceTab = new DeviceOverviewTab;
-	m_bdsTab = new BDSStateTab;
+	m_bdsTab = new SatTypeStateTab;
+	m_gpsTab = new SatTypeStateTab;
+	m_gloTab = new SatTypeStateTab;
 	
 	m_centralWidget = new QTabWidget;
 	m_centralWidget->addTab(m_deviceTab, tr("Éè±¸×ÜÀÀ"));
 	m_centralWidget->addTab(m_bdsTab, tr("±±¶·×´Ì¬"));
-	m_centralWidget->setCurrentIndex(1);
+	m_centralWidget->addTab(m_gpsTab, tr("GPS×´Ì¬"));
+	m_centralWidget->addTab(m_gloTab, tr("GLONASS×´Ì¬"));
+	m_centralWidget->setCurrentIndex(2);
 
 	auto baseLayout = new QVBoxLayout(this);
 	baseLayout->addWidget(m_centralWidget);
 	baseLayout->setMargin(0);	
 
-	setStyleSheet(QSS_StateParams.arg(valueLabelQss));
+	setStyleSheet(QSS_StateParams.arg(valueLabelQss).arg(valueTableViewQss));
+	initTest();
 }
 
+void StateParamsTab::initTest()
+{
+	st_Gnsssta gs;
+	strcpy_s(gs.satelliteType, 4, "bds");
+	m_bdsTab->setGnssstaInfo(gs);
+
+	strcpy_s(gs.satelliteType, 4, "gps");
+	m_gpsTab->setGnssstaInfo(gs);
+
+	strcpy_s(gs.satelliteType, 4, "glo");
+	m_gloTab->setGnssstaInfo(gs);
+
+	st_Gnssgsv gg;
+	strcpy_s(gg.satelliteType, 4, "bds");
+	m_bdsTab->setGnssgsvInfo(gg);
+
+	strcpy_s(gg.satelliteType, 4, "gps");
+	gg.frameTotal = 1;	
+	gg.count = 4;
+	gg.satelliteNo[0] = 1;
+	gg.satelliteNo[1] = 3;
+	gg.satelliteNo[2] = 6;
+	gg.satelliteNo[3] = 7;
+	gg.elevation[0] = 57;
+	gg.elevation[1] = 32;
+	gg.elevation[2] = 12;
+	gg.elevation[3] = 45;
+	gg.azimuth[0] = 34;
+	gg.azimuth[1] = 125;
+	gg.azimuth[2] = 225;
+	gg.azimuth[3] = 111;
+	gg.snr[0] = 52;
+	gg.snr[1] = 41;
+	gg.snr[2] = 35;
+	gg.snr[3] = 52;
+	m_gpsTab->setGnssgsvInfo(gg);
+
+	strcpy_s(gg.satelliteType, 4, "glo");
+	m_gloTab->setGnssgsvInfo(gg);
+}
 

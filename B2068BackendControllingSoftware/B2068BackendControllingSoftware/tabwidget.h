@@ -9,7 +9,7 @@ class QSerialPort;
 QT_END_NAMESPACE
 
 class DeviceOverviewTab;
-class BDSStateTab;
+class SatTypeStateTab;
 
 // 主界面
 class MainTab : public QWidget
@@ -276,9 +276,14 @@ public:
 	explicit StateParamsTab(QWidget *parent = 0);
 
 private:
+	void initTest();  // 仅做测试
+
+private:
 	QTabWidget *m_centralWidget;
 	DeviceOverviewTab *m_deviceTab;
-	BDSStateTab *m_bdsTab;
+	SatTypeStateTab *m_bdsTab;
+	SatTypeStateTab *m_gpsTab;
+	SatTypeStateTab *m_gloTab;
 };
 
 // 总界面

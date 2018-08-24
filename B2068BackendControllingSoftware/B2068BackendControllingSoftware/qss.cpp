@@ -202,7 +202,7 @@ const QString QSS_StateParams =
 	"QLabel, QTableWidget, QTableView, QHeaderView {"
 		"font: bold normal 16px \"times\";"
 	"}"
-	"QLabel#%1, QTableView  {"
+	"QLabel#%1, QTableView#%2  {"
 		"color: #0306A8;"
 	"}";
 

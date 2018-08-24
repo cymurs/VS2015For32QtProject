@@ -17,15 +17,22 @@ protected:
 signals:
 
 public slots:
+	void setPoints(const QList<QPointF> &points);
+	void appendPoints(const QList<QPointF> &points);
+	void appendPoint(const QPointF &point);
 
 private:
-    QRect      m_drawArea;      //绘制区域
-    int           m_pieRotate;     //扇形旋转区域
-    int           m_timerId;       //定时器ID
-    int           m_pointTimerId;  //变更点定时器
-    int           m_nSpeed;        //速度
-    QList<QPoint> m_points;        //绘制点
-    QList<int>    m_pointsAlapha;  //绘制点颜色alapha值
+	QRect getMaxSquare();
+
+private:
+    QRect      m_drawArea;				//绘制区域
+    int           m_pieRotate;				//扇形旋转区域
+    int           m_timerId;					//定时器ID
+    int           m_pointTimerId;			//变更点定时器
+    int           m_nSpeed;					//速度
+    QList<QPointF> m_points;			//绘制点
+    QList<int>    m_pointsAlapha;	//绘制点颜色alapha值
+	const int dv{ 15 };							//绘制区域偏移量			
 };
 
 #endif // CRADAR_H

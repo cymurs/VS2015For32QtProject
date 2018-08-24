@@ -6,6 +6,9 @@
 qss辅助字符串
 *****************************************************************************************/
 const QString valueLabelQss("valuelabel");
+const QString valueTableViewQss("valuetableview");
+
+//const int MaxAvlSatellites = 10;
 
 /****************************************************************************************
 设备总览
@@ -112,7 +115,7 @@ DeviceOverviewTab::DeviceOverviewTab(QWidget *parent)
 /****************************************************************************************
 北斗状态
 *****************************************************************************************/
-BDSStateTab::BDSStateTab(QWidget *parent /*= 0*/)
+SatTypeStateTab::SatTypeStateTab(QWidget *parent /*= 0*/)
 {
 	auto workStateLabel = new QLabel(tr("工作状态"), this);
 	m_workState = new QLabel(tr("正常"), this);
@@ -152,23 +155,43 @@ BDSStateTab::BDSStateTab(QWidget *parent /*= 0*/)
 		}
 	}	
 	
-	m_bdsTable = new QTableView(this);	
+	m_satTypeTable = new QTableView(this);
 	// 行列平均并随窗体自适应
-	m_bdsTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-	m_bdsTable->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-	m_bdsTable->verticalHeader()->hide();	
+	m_satTypeTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+	m_satTypeTable->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+	m_satTypeTable->verticalHeader()->hide();	
 	// 设置不可编辑
-	m_bdsTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	m_satTypeTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	// 隔行变色
-	m_bdsTable->setAlternatingRowColors(true); 
-	m_bdsTable->setModel(model);
+	m_satTypeTable->setAlternatingRowColors(true); 
+	m_satTypeTable->setObjectName(valueTableViewQss);
+	m_satTypeTable->setModel(model);
+
+	// 在雷达图上绘制点
+	m_elevAzimParams = new ElevationAzimuthParams;
+	double *elev = m_elevAzimParams->elevations;
+	double *azim = m_elevAzimParams->azimuths;
+	m_elevAzimParams->count = itemLists[1].size();
+	QStringList elevList = itemLists[1];
+	QStringList azimList = itemLists[2];
+	QList<QPointF> points;
+	for (int idx = 0; idx < m_elevAzimParams->count; ++idx) {
+		elev[idx] = elevList[idx].toDouble();
+		azim[idx] = azimList[idx].toDouble();
+		
+		//double radius = elev[idx];
+		//double angle = (azim[idx] + 90) / 360.0 * 6.28;
+		//points << QPointF( -radius * cos(angle), radius * sin(angle) );
+		points << angleToCoordinate(elev[idx], azim[idx]);
+	}
 
 	m_radar = new CRadar(this);
+	m_radar->setPoints(points);
 
 	auto baseLayout = new QGridLayout(this);
 	baseLayout->addWidget(workStateLabel, 0, 1);
 	baseLayout->addWidget(m_workState, 0, 2);
-	baseLayout->addWidget(m_bdsTable, 0, 4, 6, 1);
+	baseLayout->addWidget(m_satTypeTable, 0, 4, 6, 1);
 	baseLayout->addWidget(signStateLabel, 1, 1);
 	baseLayout->addWidget(m_signState, 1, 2);
 	baseLayout->addWidget(pdopLabel, 2, 1);
@@ -189,5 +212,117 @@ BDSStateTab::BDSStateTab(QWidget *parent /*= 0*/)
 	baseLayout->setRowStretch(2, 1);
 	baseLayout->setRowStretch(3, 1);
 	baseLayout->setRowStretch(4, 1);
-	baseLayout->setRowStretch(5, 5);
+	baseLayout->setRowStretch(5, 6);
+}
+
+void SatTypeStateTab::setGnssstaInfo(const st_Gnsssta &gnsssta)
+{
+	/****************************************************************************************/
+	// 测试专用
+	if (0 == strncmp(gnsssta.satelliteType, "bds", 3)) {
+		return;
+	}
+		
+	if (0 == strncmp(gnsssta.satelliteType, "gps", 3)) {
+		m_visSatellites->setText("10");
+		m_avlSatellites->setText("4");
+		return;
+	}
+
+	if (0 == strncmp(gnsssta.satelliteType, "glo", 3)) {
+		m_visSatellites->setText("8");
+		m_avlSatellites->setText("2");
+		return;
+	}
+	/*****************************************************************************************/
+	
+	
+	m_workState->setText(tr("异常"));
+	m_signState->setText(tr("异常"));
+	m_pdop->setText(QString::number(gnsssta.pdop));
+	m_visSatellites->setText(QString::number(gnsssta.visSatellites));
+	m_avlSatellites->setText(QString::number(gnsssta.avlSatellites));
+	if (gnsssta.avlSatellites > 0 && 1 == gnsssta.d3PosFlag && 1 == gnsssta.rmcStateFlag)
+		m_workState->setText(tr("正常"));
+	if (gnsssta.visSatellites > 3 && 1 == gnsssta.snrFlag)
+		m_signState->setText(tr("正常"));
+}
+
+void SatTypeStateTab::setGnssgsvInfo(const st_Gnssgsv &gnssgsv)
+{
+	/****************************************************************************************/
+	// 测试专用
+	if (0 == strncmp(gnssgsv.satelliteType, "bds", 3)) {
+		return;
+	}
+
+	if (0 == strncmp(gnssgsv.satelliteType, "gps", 3)) {
+		
+		//return;
+	}
+
+	if (0 == strncmp(gnssgsv.satelliteType, "glo", 3)) {
+		int row(0);
+		QStandardItemModel *model = (QStandardItemModel *)m_satTypeTable->model();
+		model->setData(model->index(row, 0), 9);
+		model->setData(model->index(row, 1), 8);
+		model->setData(model->index(row, 2), 100);
+		model->setData(model->index(row, 3), 40);
+		++row;
+		model->setData(model->index(row, 0), 13);
+		model->setData(model->index(row, 1), 44);
+		model->setData(model->index(row, 2), 159);
+		model->setData(model->index(row, 3), 50);
+		++row;
+		QList<QPointF> points;
+		points << angleToCoordinate(8, 100) << angleToCoordinate(44, 159);
+		m_radar->setPoints(points);
+
+
+		while (row < 10) {
+			model->setData(model->index(row, 0), "");
+			model->setData(model->index(row, 1), "");
+			model->setData(model->index(row, 2), "");
+			model->setData(model->index(row, 3), "");
+			++row;
+		}
+
+		return;
+	}
+	/*****************************************************************************************/
+
+	int row(0);
+	QList<QPointF> points;
+	// 默认按一帧4个卫星号计算
+	if (gnssgsv.frameTotal > 1)
+		row = (gnssgsv.frameNo - 1) * 4;
+	QStandardItemModel *model = (QStandardItemModel *)m_satTypeTable->model();
+	for (int i = 0; i < gnssgsv.count; ++i) {
+		model->setData(model->index(row, 0), gnssgsv.satelliteNo[i]);
+		model->setData(model->index(row, 1), gnssgsv.elevation[i]);
+		model->setData(model->index(row, 2), gnssgsv.azimuth[i]);
+		model->setData(model->index(row, 3), gnssgsv.snr[i]);
+		++row;
+
+		points << angleToCoordinate(gnssgsv.elevation[i], gnssgsv.azimuth[i]);
+	}
+	if (gnssgsv.frameTotal > 1 && gnssgsv.frameNo > 1)
+		m_radar->appendPoints(points);
+	else
+		m_radar->setPoints(points);
+
+	while (row < 10) {
+		model->setData(model->index(row, 0), "");
+		model->setData(model->index(row, 1), "");
+		model->setData(model->index(row, 2), "");
+		model->setData(model->index(row, 3), "");
+		++row;
+	}
+}
+
+QPointF SatTypeStateTab::angleToCoordinate(double elev, double azim)
+{
+	double radius = elev;
+	double angle = (azim + 90) / 360.0 * 6.28;
+	return QPointF(-radius * cos(angle), radius * sin(angle));
 }

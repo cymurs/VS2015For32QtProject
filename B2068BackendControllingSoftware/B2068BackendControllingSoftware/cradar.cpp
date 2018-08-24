@@ -23,6 +23,7 @@ void CRadar::paintEvent(QPaintEvent *event)
     painter.setRenderHint(QPainter::Antialiasing);
 
     //背景
+	//painter.fillRect(getMaxSquare(), QColor(15, 45, 188));
     painter.fillRect(rect(),QColor(15,45,188));
 
     //边长
@@ -33,19 +34,25 @@ void CRadar::paintEvent(QPaintEvent *event)
     painter.drawLine(m_drawArea.topLeft() + QPoint(0,len/2),m_drawArea.topRight() + QPoint(0,len/2));
     painter.drawLine(m_drawArea.topLeft() + QPoint(len/2,0),m_drawArea.bottomLeft() + QPoint(len/2,0));
     painter.drawEllipse(m_drawArea.center(),len/2,len/2);
-    painter.drawEllipse(m_drawArea.center(),len*5/12,len*5/12);
+    painter.drawEllipse(m_drawArea.center(),len*4/9,len*4/9);
+    painter.drawEllipse(m_drawArea.center(),len*7/18,len*7/18);
     painter.drawEllipse(m_drawArea.center(),len/3,len/3);
-    painter.drawEllipse(m_drawArea.center(),len/4,len/4);
-    painter.drawEllipse(m_drawArea.center(),len/6,len/6);
-    painter.drawEllipse(m_drawArea.center(),len/12,len/12);
+    painter.drawEllipse(m_drawArea.center(),len*5/18,len*5/18);
+    painter.drawEllipse(m_drawArea.center(),len*2/9,len*2/9);
+	painter.drawEllipse(m_drawArea.center(), len / 6, len / 6);
+	painter.drawEllipse(m_drawArea.center(), len / 9, len / 9);
+	painter.drawEllipse(m_drawArea.center(), len / 18, len / 18);
 
     //四个刻度
+	int w = width();
+	int h = height();
+	int min = std::min(w, h);
     int fontWidth = QFontMetrics(QFont()).width("0");
-    int fontHeight = QFontMetrics(QFont()).height();
-    painter.drawText(QPoint(width()/2-fontWidth/2, fontHeight), "0");
-    painter.drawText(QPoint(width()-fontWidth*3, height()/2+fontHeight/3), "90");
-    painter.drawText(QPoint(width()/2-fontWidth*1.5, height()-fontHeight/3), "180");
-    painter.drawText(QPoint(0, height()/2+fontHeight/3), "270");
+    int fontHeight = QFontMetrics(QFont()).height();	
+    painter.drawText(QPoint(w/2-fontWidth/2, fontHeight), "0");    
+	painter.drawText(QPoint((w + min) /2 - fontWidth * 2, h / 2 + fontHeight / 3), "90");
+    painter.drawText(QPoint(w/2-fontWidth*1.5, h-fontHeight/3), "180");    
+	painter.drawText(QPoint(dv, h / 2 + fontHeight / 3), "270");
 
     //转动部分
         //---//线
@@ -67,29 +74,69 @@ void CRadar::paintEvent(QPaintEvent *event)
     //装饰-随机点
     for(int i = 0; i < m_points.count(); ++i)
     {
-        int colorAlaph = m_pointsAlapha.at(i);
+ //       int colorAlaph = m_pointsAlapha.at(i);
 //        painter.setPen(QPen(QColor(0,0,0,colorAlaph),5));
 //        painter.drawPoint(m_points.at(i)+m_drawArea.center());
-        QPoint po = m_points[i];
-        po.setY(0 - po.y());
-        painter.setPen(QPen(QColor(Qt::red),4));
+        QPointF po = m_points[i];
+        po.setY((0 - po.y()) * len / 180);
+		po.setX(po.x() * len / 180);
+        painter.setPen(QPen(QColor(Qt::red),2));
 //        painter.drawPoint(po+m_drawArea.center()); //方点
-        painter.drawEllipse(po+m_drawArea.center(), 2, 2); //圆点
+        painter.drawEllipse(po+m_drawArea.center(), 1, 1); //圆点
     }
 }
 
 void CRadar::resizeEvent(QResizeEvent *event)
 {
     //以较短的边长作为绘制区域边长
-    if(width() > height())
+	m_drawArea = getMaxSquare();
+    /*if(width() > height())
     {
         m_drawArea = QRect((width() - height())/2,0,height(),height());
     }
     else
     {
         m_drawArea = QRect(0,(height() - width())/2,width(),width());
-    }
+    }*/
 
-//    m_drawArea.adjust(10,10,-10,-10);
-    m_drawArea.adjust(20,20,-20,-20);
+	 /*****************************************************************************************
+	 左上角和右下角的偏移, 
+	 左上 正, 右下 负, 向内缩, 
+	 左上 负, 右下 正, 向外扩
+	 *****************************************************************************************/	
+	m_drawArea.adjust(dv, dv, -dv, -dv);    
+}
+
+void CRadar::setPoints(const QList<QPointF> &points)
+{
+	if (points.empty()) return;
+
+	m_points.clear();
+	m_points = points;
+
+	update();
+}
+
+void CRadar::appendPoints(const QList<QPointF> &points)
+{
+	if (points.empty()) return;
+
+	m_points.append(points);
+
+	update();
+}
+
+void CRadar::appendPoint(const QPointF &point)
+{
+	m_points.append(point);
+
+	update();
+}
+
+QRect CRadar::getMaxSquare()
+{
+	int w = width();
+	int h = height();
+	int min = std::min(w, h);
+	return QRect((w - min) / 2, (h - min) / 2, min, min);
 }
