@@ -15,6 +15,11 @@ class ACBStateTab;
 class DelayCompensationTab;
 class PulseSettingsTab;
 class TimezoneTab;
+class LogInfoTab;
+class ScreenSettingTab;
+class RestoreTab;
+class FactorySettingTab;
+
 
 // 主界面
 class MainTab : public QWidget
@@ -294,6 +299,11 @@ private:
 	DelayCompensationTab *m_delayTab;
 	PulseSettingsTab *m_pulseTab;
 	TimezoneTab *m_tzTab;
+	LogInfoTab *m_logTab;
+	LogInfoTab *m_alarmTab;
+	ScreenSettingTab *m_buzzTab;
+	RestoreTab *m_restoreTab;
+	FactorySettingTab *m_factoryTab;
 };
 
 // 总界面

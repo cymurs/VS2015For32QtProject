@@ -213,3 +213,131 @@ private:
 	const int m_lblWidth;
 	const int m_lblHeight;
 };
+
+// 日志信息
+class LogInfoTab : public QWidget
+{
+	Q_OBJECT
+
+public:
+	LogInfoTab(QWidget *parent = 0);
+
+	void prepend(const QString &info);
+	void append(const QString &info);
+protected:
+	//void resizeEvent(QResizeEvent *event) override;
+
+private:
+	//void setChildrenGeometry(int w = 0, int h = 0);
+
+private:
+	QTextEdit *m_log;
+
+	const int m_maxCount;
+};
+
+// 告警信息
+//class AlarmInfoTab : public QWidget
+//{
+//	Q_OBJECT
+//
+//public:
+//	AlarmInfoTab(QWidget *parent = 0);
+//
+//	void prepend(const QString &info);
+//	void append(const QString &info);
+//protected:
+//	//void resizeEvent(QResizeEvent *event) override;
+//
+//private:
+//	//void setChildrenGeometry(int w = 0, int h = 0);
+//
+//private:
+//	QTextEdit *m_alarm;
+//
+//	const int m_maxCount;
+//};
+
+// 屏幕设置
+class ScreenSettingTab : public QWidget
+{
+	Q_OBJECT
+
+public:
+	ScreenSettingTab(QWidget *parent = 0);
+
+protected:
+	void resizeEvent(QResizeEvent *event) override;
+
+private:
+	void setChildrenGeometry(int w = 0, int h = 0);
+
+private:
+	QCheckBox *m_buzzer;
+	QPushButton *m_confirm;
+
+	const int m_lblWidth;
+	const int m_lblHeight;
+};
+
+// 出厂设置
+class FactorySettingTab : public QWidget
+{
+	Q_OBJECT
+
+public:
+	FactorySettingTab(QWidget *parent = 0);
+
+protected:
+	void resizeEvent(QResizeEvent *event) override;
+
+private:
+	void setChildrenGeometry(int w = 0, int h = 0);
+
+private:
+	QLabel *m_devTypeLabel;
+	QCheckBox *m_b2d;
+	QCheckBox *m_b3;
+	QPushButton *m_typeConfirm;
+	QLabel *m_devIDLabel;
+	QLineEdit *m_devID;
+	QPushButton *m_idConfirm;
+	QLabel *m_hwVersionLabel;
+	QLineEdit *m_hwVersion;
+	QPushButton *m_verConfirm;
+	QLabel *m_card1Label;
+	QLineEdit *m_networkCard1;
+	QPushButton *m_card1Confirm;
+	QLabel *m_card2Label;
+	QLineEdit *m_networkCard2;
+	QPushButton *m_card2Confirm;
+
+	const int m_lblWidth;
+	const int m_lblHeight;
+};
+
+
+
+
+// 还原设置
+class RestoreTab : public QWidget
+{
+	Q_OBJECT
+
+public:
+	RestoreTab(QWidget *parent = 0);
+
+protected:
+	void resizeEvent(QResizeEvent *event) override;
+
+private:
+	void setChildrenGeometry(int w = 0, int h = 0);
+
+private:
+	QLabel *m_pwdLabel;
+	QLineEdit *m_pwd;
+	QPushButton *m_confirm;
+
+	const int m_lblWidth;
+	const int m_lblHeight;
+};

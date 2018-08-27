@@ -930,6 +930,11 @@ StateParamsTab::StateParamsTab(QWidget *parent)
 	m_delayTab = new DelayCompensationTab;
 	m_pulseTab = new PulseSettingsTab;
 	m_tzTab = new TimezoneTab;
+	m_logTab = new LogInfoTab;
+	m_alarmTab = new LogInfoTab;
+	m_buzzTab = new ScreenSettingTab;
+	m_restoreTab = new RestoreTab;
+	m_factoryTab = new FactorySettingTab;
 	
 	m_centralWidget = new QTabWidget;
 	m_centralWidget->addTab(m_deviceTab, tr("设备总览"));
@@ -941,7 +946,13 @@ StateParamsTab::StateParamsTab(QWidget *parent)
 	m_centralWidget->addTab(m_delayTab, tr("延时补偿"));
 	m_centralWidget->addTab(m_pulseTab, tr("脉冲配置"));
 	m_centralWidget->addTab(m_tzTab, tr("时区设置"));
-	m_centralWidget->setCurrentIndex(8);
+	m_centralWidget->addTab(m_logTab, tr("日志信息"));
+	m_centralWidget->addTab(m_alarmTab, tr("告警信息"));
+	m_centralWidget->addTab(m_buzzTab, tr("屏幕设置"));
+	m_centralWidget->addTab(m_factoryTab, tr("出厂设置"));
+	m_centralWidget->addTab(m_restoreTab, tr("还原设置"));
+	
+	m_centralWidget->setCurrentIndex(13);
 
 	auto baseLayout = new QVBoxLayout(this);
 	baseLayout->addWidget(m_centralWidget);

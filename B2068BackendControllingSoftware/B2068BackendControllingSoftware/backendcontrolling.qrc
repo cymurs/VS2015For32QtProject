@@ -12,5 +12,7 @@
         <file>images/lock_white_open.png</file>
         <file>images/empty.png</file>
         <file>images/full.png</file>
+        <file>images/selected.png</file>
+        <file>images/unselected.png</file>
     </qresource>
 </RCC>

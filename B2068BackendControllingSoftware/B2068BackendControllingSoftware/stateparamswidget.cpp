@@ -685,3 +685,201 @@ void TimezoneTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
 	m_timezone->setGeometry(w / 5 + LblWidth, h / 3, m_lblWidth, m_lblHeight);
 	m_confirm->setGeometry(w / 5 + m_lblWidth * 2, h / 3, m_lblWidth, m_lblHeight);
 }
+
+/****************************************************************************************
+日志信息 告警信息
+*****************************************************************************************/
+LogInfoTab::LogInfoTab(QWidget *parent /*= 0*/)
+	: QWidget(parent)
+	, m_maxCount(2)
+{
+	m_log = new QTextEdit(tr("001:20180827-113045:切换到锁定状态"), this);
+
+	auto baseLayout = new QHBoxLayout(this);
+	baseLayout->addWidget(m_log);
+}
+
+void LogInfoTab::prepend(const QString &info)
+{
+	int cnt = m_log->document()->lineCount();
+	int diff = cnt - m_maxCount;
+	if (diff >= 0) {
+		m_log->moveCursor(QTextCursor::End, QTextCursor::MoveAnchor);
+		m_log->moveCursor(QTextCursor::Up, QTextCursor::KeepAnchor);
+		--diff;
+		while (diff >= 0) {
+			m_log->moveCursor(QTextCursor::Up, QTextCursor::KeepAnchor);
+			--diff;
+		}
+		m_log->textCursor().removeSelectedText();
+	}
+	
+	m_log->moveCursor(QTextCursor::Start, QTextCursor::MoveAnchor);
+	m_log->insertPlainText(info);
+}
+
+void LogInfoTab::append(const QString &info)
+{
+	int cnt = m_log->document()->lineCount();
+	int diff = cnt - m_maxCount;
+	if (diff >= 0) {
+		m_log->moveCursor(QTextCursor::Start, QTextCursor::MoveAnchor);
+		m_log->moveCursor(QTextCursor::Down, QTextCursor::KeepAnchor);
+		--diff;
+		while (diff >= 0) {
+			m_log->moveCursor(QTextCursor::Down, QTextCursor::KeepAnchor);
+			--diff;
+		}
+		m_log->textCursor().removeSelectedText();
+	}
+
+	m_log->append(info);
+}
+
+/****************************************************************************************
+屏幕设置
+*****************************************************************************************/
+ScreenSettingTab::ScreenSettingTab(QWidget *parent /*= 0*/)
+	: QWidget(parent)
+	, m_lblWidth(LblWidth * 1.5)
+	, m_lblHeight(LblHeight * 1.5)
+{
+	m_buzzer = new QCheckBox(tr("蜂鸣器"), this);	
+	m_buzzer->setLayoutDirection(Qt::RightToLeft);	
+
+	m_confirm = new QPushButton(tr("确认设置"), this);
+
+	int w = width();
+	int h = height();
+	setChildrenGeometry(w, h);
+}
+
+void ScreenSettingTab::resizeEvent(QResizeEvent *event)
+{
+	QSize s = event->size();
+	int w = s.width();
+	int h = s.height();
+	if (0 == w && 0 == h) {
+		QWidget::resizeEvent(event);
+		return;
+	}
+
+	setChildrenGeometry(w, h);
+}
+
+void ScreenSettingTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
+{
+	if (0 == w && 0 == h) return;
+
+	m_buzzer->setGeometry(w / 2 - m_lblWidth, h / 2 - m_lblHeight, m_lblWidth, m_lblHeight);
+	m_confirm->setGeometry((w + m_lblWidth) / 2, h / 2 + m_lblHeight * 2, m_lblWidth, m_lblHeight);
+}
+
+/****************************************************************************************
+还原设置
+*****************************************************************************************/
+RestoreTab::RestoreTab(QWidget *parent /*= 0*/)
+	: QWidget(parent)
+	, m_lblWidth(LblWidth * 1.5)
+	, m_lblHeight(LblHeight * 1.5)
+{
+	m_pwdLabel = new QLabel(tr("密码"), this);
+	m_pwd = new QLineEdit(this);
+	m_confirm = new QPushButton(tr("确认设置"), this);
+
+	int w = width();
+	int h = height();
+	setChildrenGeometry(w, h);
+}
+
+void RestoreTab::resizeEvent(QResizeEvent *event)
+{
+	QSize s = event->size();
+	int w = s.width();
+	int h = s.height();
+	if (0 == w && 0 == h) {
+		QWidget::resizeEvent(event);
+		return;
+	}
+
+	setChildrenGeometry(w, h);
+}
+
+void RestoreTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
+{
+	if (0 == w && 0 == h) return;
+
+	m_pwdLabel->setGeometry(w / 2 - m_lblWidth, h / 2 - m_lblHeight, m_lblWidth / 2, m_lblHeight);
+	m_pwd->setGeometry(w / 2 - m_lblWidth / 2, h / 2 - m_lblHeight, m_lblWidth, m_lblHeight);
+	m_confirm->setGeometry(w / 2, h / 2 + m_lblHeight * 2, m_lblWidth, m_lblHeight);
+}
+
+/****************************************************************************************
+出厂设置
+*****************************************************************************************/
+FactorySettingTab::FactorySettingTab(QWidget *parent /*= 0*/)
+	: QWidget(parent)
+	, m_lblWidth(LblWidth * 1.5)
+	, m_lblHeight(LblHeight * 1.5)
+{
+	m_devTypeLabel = new QLabel(tr("1. 设备型号"), this);
+	m_b2d = new QCheckBox(tr("B2068-2D"), this);
+	m_b3 = new QCheckBox(tr("B2068-3"), this);
+	m_typeConfirm = new QPushButton(tr("确认设置"), this);
+
+	m_devIDLabel = new QLabel(tr("2. 设备编号"), this);
+	m_devID = new QLineEdit(this);
+	m_idConfirm = new QPushButton(tr("确认设置"), this);
+
+	m_hwVersionLabel = new QLabel(tr("3. 硬件版本"), this);
+	m_hwVersion = new QLineEdit(this);
+	m_verConfirm = new QPushButton(tr("确认设置"), this);
+
+	m_card1Label = new QLabel(tr("4. 网卡1物理地址"), this);
+	m_networkCard1 = new QLineEdit(this);
+	m_card1Confirm = new QPushButton(tr("确认设置"), this);
+
+	m_card2Label = new QLabel(tr("5. 网卡2物理地址"), this);
+	m_networkCard2 = new QLineEdit(this);
+	m_card2Confirm = new QPushButton(tr("确认设置"), this);
+
+	int w = width();
+	int h = height();
+	setChildrenGeometry(w, h);
+}
+
+void FactorySettingTab::resizeEvent(QResizeEvent *event)
+{
+	QSize s = event->size();
+	int w = s.width();
+	int h = s.height();
+	if (0 == w && 0 == h) {
+		QWidget::resizeEvent(event);
+		return;
+	}
+
+	setChildrenGeometry(w, h);
+}
+
+void FactorySettingTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
+{
+	if (0 == w && 0 == h) return;
+
+	int left = m_lblHeight;
+	m_devTypeLabel->setGeometry(left, m_lblHeight, m_lblWidth, m_lblHeight);
+	m_b2d->setGeometry(left * 1.5, LblHeight * 3, m_lblWidth, m_lblHeight);
+	m_b3->setGeometry(left * 1.5, LblHeight * 5, m_lblWidth, m_lblHeight);
+	m_typeConfirm->setGeometry(left * 1.5 + m_lblWidth * 1.5, LblHeight * 4, m_lblWidth, m_lblHeight);
+	m_devIDLabel->setGeometry(left, LblHeight * 7, m_lblWidth, m_lblHeight);
+	m_devID->setGeometry(left * 1.5 + m_lblWidth, LblHeight * 7, m_lblWidth * 2, m_lblHeight);
+	m_idConfirm->setGeometry(left * 1.5 + m_lblWidth * 3.2, LblHeight * 7, m_lblWidth, m_lblHeight);
+	m_hwVersionLabel->setGeometry(left, LblHeight * 9, m_lblWidth, m_lblHeight);
+	m_hwVersion->setGeometry(left * 1.5 + m_lblWidth, LblHeight * 9, m_lblWidth * 2, m_lblHeight);
+	m_verConfirm->setGeometry(left * 1.5 + m_lblWidth * 3.2, LblHeight * 9, m_lblWidth, m_lblHeight);
+	m_card1Label->setGeometry(left, LblHeight * 11, m_lblWidth, m_lblHeight);
+	m_networkCard1->setGeometry(left * 1.5 + m_lblWidth, LblHeight * 11, m_lblWidth * 2, m_lblHeight);
+	m_card1Confirm->setGeometry(left * 1.5 + m_lblWidth * 3.2, LblHeight * 11, m_lblWidth, m_lblHeight);
+	m_card2Label->setGeometry(left, LblHeight * 13, m_lblWidth, m_lblHeight);
+	m_networkCard2->setGeometry(left * 1.5 + m_lblWidth, LblHeight * 13, m_lblWidth * 2, m_lblHeight);
+	m_card2Confirm->setGeometry(left * 1.5 + m_lblWidth * 3.2, LblHeight * 13, m_lblWidth, m_lblHeight);
+}
