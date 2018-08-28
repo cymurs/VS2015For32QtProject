@@ -2,6 +2,10 @@
 #include "tabwidget.h"
 #include "stateparamswidget.h"
 
+/****************************************************************************************/
+const int LoginInterval = 5 * 60 * 1000;
+
+st_UserPwd userPwd;
 
 
 /****************************************************************************************
@@ -12,34 +16,169 @@ TabWidget::TabWidget(QWidget *parent)
 {
 	//ui.setupUi(this);
 	resize(600, 400);
+	setMinimumSize(600, 400);
 
+	m_signIn = new SignInWidget;
+
+	m_stateParams = new StateParamsTab;
 	m_tabWidget = new QTabWidget;
 	m_tabWidget->addTab(new MainTab(), tr("主界面"));
 	m_tabWidget->addTab(new TimeSrcTab(), tr("时间源"));
 	m_tabWidget->addTab(new ComSettingsTab(), tr("串口设置"));
 	m_tabWidget->addTab(new NetSettingsTab(), tr("网口设置"));
-	m_tabWidget->addTab(new StateParamsTab(), tr("状态参数"));	
+	m_tabWidget->addTab(m_stateParams, tr("状态参数"));	
 
-	auto baseLayout = new QVBoxLayout;
-	baseLayout->addWidget(m_tabWidget);
-	baseLayout->setMargin(0);
-	baseLayout->setSpacing(0);
-	setLayout(baseLayout);
+	//auto baseLayout = new QVBoxLayout;
+	m_centralLayout = new QStackedLayout;
+	m_centralLayout->addWidget(m_signIn);
+	m_centralLayout->addWidget(m_tabWidget);
+	m_centralLayout->setMargin(0);
+	m_centralLayout->setSpacing(0);
+	m_centralLayout->setCurrentIndex(0);
+	setLayout(m_centralLayout);
 	
 	if (windowState() | Qt::WindowMaximized)
 		setWindowState(windowState() & ~Qt::WindowMaximized);
 
 	setStyleSheet(QSS_TabWidget);
 	setWindowTitle(tr("B2068控制软件"));
+	setWindowIcon(QIcon(":/BackendControlling/images/90.ico"));
 	
-	// 测试
-	m_tabWidget->setCurrentIndex(4);
+	m_firstTime = true;
+	connectSlots();	
+
 }
 
 TabWidget::~TabWidget()
 {
 }
 
+void TabWidget::connectSlots()
+{
+	connect(m_signIn, SIGNAL(login(bool)), this, SLOT(slotOnSignIn(bool)));
+	connect(m_stateParams, SIGNAL(relogin()), this, SLOT(slotOnLoginTimeout()));
+}
+
+void TabWidget::slotOnSignIn(bool signin)
+{
+	if (signin) {		
+		m_centralLayout->setCurrentIndex(1);
+		if (m_firstTime) {
+			m_tabWidget->setCurrentIndex(0);
+			m_firstTime = false;
+		}
+		QTimer::singleShot(LoginInterval, this, &TabWidget::slotOnLoginTimeout);
+	}
+	else {
+		exit(0);
+	}
+}
+
+void TabWidget::slotOnLoginTimeout()
+{
+	m_centralLayout->setCurrentIndex(0);
+}
+
+/****************************************************************************************
+登录界面
+*****************************************************************************************/
+SignInWidget::SignInWidget(QWidget *parent /* = 0 */)
+	: QWidget(parent)
+	, m_lblWidth(LblWidth * 1.5)
+	, m_lblHeight(LblHeight * 1.5)
+{
+	QStringList users = { "USER1", "USER2", "USER3" };
+	QRegExp rx("^\\d{6}$");
+	QValidator *validator = new QRegExpValidator(rx, this);
+	
+	m_userLabel = new QLabel(tr("用  户: "), this);
+	m_userLabel->setFrameStyle(QFrame::NoFrame);
+	m_user = new QComboBox(this);
+	m_user->addItems(users);
+	m_pwdLabel = new QLabel(tr("密  码: "), this); 
+	m_pwd = new QLineEdit(this);
+	m_pwd->setValidator(validator);
+	m_pwd->setAlignment(Qt::AlignCenter);
+	m_login = new QPushButton(tr("登  录"), this);
+	m_quit = new QPushButton(tr("退  出"), this);
+	//m_pwdArray[0] = 888888;
+	//m_pwdArray[1] = 888888;
+	//m_pwdArray[2] = 888888;	
+	userPwd.user2pwd["USER1"] = "888888";
+	userPwd.user2pwd["USER2"] = "888888";
+	userPwd.user2pwd["USER3"] = "888888";
+
+	int w = width();
+	int h = height();
+	setChildrenGeometry(w, h);
+
+	QString objName("signin");
+	setObjectName(objName);
+	setStyleSheet(QSS_SignInWidget.arg(objName));
+	connectSlots();
+}
+
+void SignInWidget::resizeEvent(QResizeEvent *event)
+{
+	QSize s = event->size();
+	int w = s.width();
+	int h = s.height();
+	if (0 == w && 0 == h) {
+		QWidget::resizeEvent(event);
+		return;
+	}
+
+	setChildrenGeometry(w, h);
+}
+
+void SignInWidget::paintEvent(QPaintEvent *event)
+{
+	QStyleOption opt;
+	opt.init(this);
+	QPainter p(this);
+	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
+	QWidget::paintEvent(event);
+}
+
+void SignInWidget::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
+{
+	if (0 == w && 0 == h) return;
+
+	int left = w / 4;
+	int top = (h - m_lblHeight * 6) / 2;
+	m_userLabel->setGeometry(left, top, m_lblWidth, m_lblHeight);
+	m_user->setGeometry(w / 2, top, m_lblWidth, m_lblHeight);
+	m_pwdLabel->setGeometry(left, top + m_lblHeight * 2, m_lblWidth, m_lblHeight);
+	m_pwd->setGeometry(w / 2, top + m_lblHeight * 2, m_lblWidth, m_lblHeight);
+	m_login->setGeometry(left, top + m_lblHeight * 5, m_lblWidth, m_lblHeight);
+	m_quit->setGeometry(w / 2, top + m_lblHeight * 5, m_lblWidth, m_lblHeight);
+}
+
+void SignInWidget::connectSlots()
+{
+	connect(m_login, SIGNAL(clicked(bool)), this, SLOT(slotOnLoginClicked(bool)));
+	connect(m_quit, SIGNAL(clicked(bool)), this, SLOT(slotOnQuitClicked()));
+}
+
+void SignInWidget::slotOnLoginClicked(bool checked)
+{
+	QString user = m_user->currentText();
+	QString pwd = m_pwd->text();
+
+	if (0 != pwd.compare(userPwd.user2pwd[user])) {
+		QMessageBox::critical(this, tr("错误"), tr("密码不正确"));
+		m_pwd->setFocus(Qt::MouseFocusReason);
+		return;
+	}
+	userPwd.curUser = user;
+
+	emit login(true);
+}
+
+void SignInWidget::slotOnQuitClicked()
+{
+	emit login(false);
+}
 
 /****************************************************************************************
 主界面
@@ -935,6 +1074,8 @@ StateParamsTab::StateParamsTab(QWidget *parent)
 	m_buzzTab = new ScreenSettingTab;
 	m_restoreTab = new RestoreTab;
 	m_factoryTab = new FactorySettingTab;
+	m_pwdTab = new PasswordChangeTab;
+	m_verTab = new VersionInfoTab;
 	
 	m_centralWidget = new QTabWidget;
 	m_centralWidget->addTab(m_deviceTab, tr("设备总览"));
@@ -950,9 +1091,11 @@ StateParamsTab::StateParamsTab(QWidget *parent)
 	m_centralWidget->addTab(m_alarmTab, tr("告警信息"));
 	m_centralWidget->addTab(m_buzzTab, tr("屏幕设置"));
 	m_centralWidget->addTab(m_factoryTab, tr("出厂设置"));
+	m_centralWidget->addTab(m_pwdTab, tr("密码修改"));
 	m_centralWidget->addTab(m_restoreTab, tr("还原设置"));
-	
-	m_centralWidget->setCurrentIndex(13); 
+	m_centralWidget->addTab(m_verTab, tr("版本信息"));
+	m_centralWidget->setCurrentIndex(0);
+	//m_centralWidget->setUsesScrollButtons(false); // 将tab全部铺开, 不设左移右移按钮
 
 	auto baseLayout = new QVBoxLayout(this);
 	baseLayout->addWidget(m_centralWidget);
@@ -960,6 +1103,7 @@ StateParamsTab::StateParamsTab(QWidget *parent)
 
 	setStyleSheet(QSS_StateParams.arg(valueLabelQss).arg(valueTableViewQss).arg(valueLightgrayQss));
 	initTest();
+	connectSlots();
 }
 
 void StateParamsTab::initTest()
@@ -1001,5 +1145,10 @@ void StateParamsTab::initTest()
 
 	strcpy_s(gg.satelliteType, 4, "glo");
 	m_gloTab->setGnssgsvInfo(gg);
+}
+
+void StateParamsTab::connectSlots()
+{
+	connect(m_pwdTab, SIGNAL(relogin()), this, SIGNAL(relogin()));
 }
 

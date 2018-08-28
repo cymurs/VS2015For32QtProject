@@ -776,89 +776,6 @@ void ScreenSettingTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
 }
 
 /****************************************************************************************
-还原设置
-*****************************************************************************************/
-RestoreTab::RestoreTab(QWidget *parent /*= 0*/)
-	: QWidget(parent)
-	, m_lblWidth(LblWidth * 1.5)
-	, m_lblHeight(LblHeight * 1.5)	
-{
-	m_random = new QLabel(this);
-	m_random->setObjectName(valueLightgrayQss);
-	m_pwdLabel = new QLabel(tr("密码"), this);
-	m_pwd = new QLineEdit(this);
-	m_pwd->setAlignment(Qt::AlignCenter);
-	m_confirm = new QPushButton(tr("确认设置"), this);
-
-	generateRandomValue();
-
-	int w = width();
-	int h = height();
-	setChildrenGeometry(w, h);
-
-	connectSlots();
-}
-
-void RestoreTab::resizeEvent(QResizeEvent *event)
-{
-	QSize s = event->size();
-	int w = s.width();
-	int h = s.height();
-	if (0 == w && 0 == h) {
-		QWidget::resizeEvent(event);
-		return;
-	}
-
-	setChildrenGeometry(w, h);
-}
-
-void RestoreTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
-{
-	if (0 == w && 0 == h) return;
-
-	m_random->setGeometry(w / 2 - m_lblWidth / 6, h / 2 - m_lblHeight * 2, m_lblWidth, m_lblHeight);
-	m_pwdLabel->setGeometry(w / 2 - m_lblWidth, h / 2 - m_lblHeight, m_lblWidth / 2, m_lblHeight);
-	m_pwd->setGeometry(w / 2 - m_lblWidth / 2, h / 2 - m_lblHeight, m_lblWidth, m_lblHeight);
-	m_confirm->setGeometry(w / 2, h / 2 + m_lblHeight * 2, m_lblWidth, m_lblHeight);
-}
-
-void RestoreTab::connectSlots()
-{
-	connect(m_confirm, SIGNAL(clicked(bool)), this, SLOT(slotOnConfirmClicked()));
-}
-
-void RestoreTab::generateRandomValue()
-{
-	qsrand(QTime(0, 0, 0).secsTo(QTime::currentTime()));
-	int value, total(0), last(0);
-	for (int i = 0; i < 4; ++i) {
-		do
-		{
-			value = qrand() % 10;
-		} while (3 == i && 0 == value);
-		total += value * pow(10, i);
-		last += ((value * 2) % 10) * pow(10, i);
-	}
-	m_random->setText(tr("%1").arg(total));
-	m_value = QString::number(last);
-}
-
-void RestoreTab::slotOnConfirmClicked()
-{
-	QString value = m_pwd->text();
-	if (4 != value.length()) {
-		QMessageBox::warning(this, tr("警告"), tr("密码应为4位数字"));
-		return;
-	}
-	
-	if (0 != value.compare(m_value)) {
-		QMessageBox::warning(this, tr("警告"), tr("密码错误"));
-		return;
-	}
-	
-}
-
-/****************************************************************************************
 出厂设置
 *****************************************************************************************/
 FactorySettingTab::FactorySettingTab(QWidget *parent /*= 0*/)
@@ -927,4 +844,242 @@ void FactorySettingTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
 	m_card2Label->setGeometry(left, top + m_lblHeight * 6, m_lblWidth, m_lblHeight);
 	m_networkCard2->setGeometry(left * 1.5 + m_lblWidth, top + m_lblHeight * 6, m_lblWidth * 2, m_lblHeight);
 	m_card2Confirm->setGeometry(left * 1.5 + m_lblWidth * 3.2, top + m_lblHeight * 6, m_lblWidth, m_lblHeight);
+}
+
+/****************************************************************************************
+密码修改
+*****************************************************************************************/
+PasswordChangeTab::PasswordChangeTab(QWidget *parent /*= 0*/)
+	: QWidget(parent)
+	, m_lblWidth(LblWidth * 1.5)
+	, m_lblHeight(LblHeight * 1.5)
+{
+	QRegExp rx("^\\d{6}$");
+	QValidator *validator = new QRegExpValidator(rx, this);
+	
+	m_oldPwdLabel = new QLabel(tr("旧密码"), this); 	
+	m_oldPwd = new QLineEdit(this);
+	m_oldPwd->setAlignment(Qt::AlignCenter);
+	m_oldPwd->setValidator(validator);
+	m_newPwdLabel = new QLabel(tr("新密码"), this);
+	m_newPwd = new QLineEdit(this);
+	m_newPwd->setAlignment(Qt::AlignCenter);
+	m_newPwd->setValidator(validator);
+	m_againPwdLabel = new QLabel(tr("确认新密码"), this);
+	m_againPwd = new QLineEdit(this);
+	m_againPwd->setAlignment(Qt::AlignCenter);
+	m_againPwd->setValidator(validator);
+	m_confirm = new QPushButton(tr("确认设置"), this);
+
+	int w = width();
+	int h = height();
+	setChildrenGeometry(w, h);
+
+	connectSlots();
+}
+
+void PasswordChangeTab::resizeEvent(QResizeEvent *event)
+{
+	QSize s = event->size();
+	int w = s.width();
+	int h = s.height();
+	if (0 == w && 0 == h) {
+		QWidget::resizeEvent(event);
+		return;
+	}
+
+	setChildrenGeometry(w, h);
+}
+
+void PasswordChangeTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
+{
+	if (0 == w && 0 == h) return;
+
+	int left = w / 4;
+	int top = (h - m_lblHeight * 8) / 2;
+	m_oldPwdLabel->setGeometry(left, top, m_lblWidth, m_lblHeight);
+	m_oldPwd->setGeometry(left + m_lblWidth, top, m_lblWidth, m_lblHeight);
+	m_newPwdLabel->setGeometry(left, top + m_lblHeight * 2, m_lblWidth, m_lblHeight);
+	m_newPwd->setGeometry(left + m_lblWidth, top + m_lblHeight * 2, m_lblWidth, m_lblHeight);
+	m_againPwdLabel->setGeometry(left, top + m_lblHeight * 4, m_lblWidth, m_lblHeight);
+	m_againPwd->setGeometry(left + m_lblWidth, top + m_lblHeight * 4, m_lblWidth, m_lblHeight);
+	m_confirm->setGeometry(left + m_lblWidth * 1.5, top + m_lblHeight * 7, m_lblWidth, m_lblHeight);
+}
+
+void PasswordChangeTab::connectSlots()
+{
+	connect(m_confirm, SIGNAL(clicked(bool)), this, SLOT(slotOnConfirmClicked()));
+}
+
+void PasswordChangeTab::slotOnConfirmClicked()
+{
+	QString oldPwd = m_oldPwd->text();
+	QString newPwd = m_newPwd->text();
+	QString againPwd = m_againPwd->text();
+
+	if (0 != oldPwd.compare(userPwd.user2pwd[userPwd.curUser])) {
+		QMessageBox::critical(this, tr("错误"), tr("旧密码不正确"));
+		m_oldPwd->setFocus(Qt::MouseFocusReason);
+		return;
+	}
+
+	if (6 != newPwd.length()) {
+		QMessageBox::warning(this, tr("警告"), tr("密码必须为6位数字"));
+		m_newPwd->setFocus(Qt::MouseFocusReason);
+		return;
+	}
+
+	if (0 != newPwd.compare(againPwd)) {
+		QMessageBox::warning(this, tr("警告"), tr("两次输入密码不一致"));
+		m_newPwd->setFocus(Qt::MouseFocusReason);
+		return;
+	}
+
+	userPwd.user2pwd[userPwd.curUser] = newPwd;
+	if (0 == QMessageBox::information(this, tr("信息"), tr("密码重设成功"), tr("重新登录"), tr("取消"))) {
+		emit relogin();
+	}
+}
+
+/****************************************************************************************
+还原设置
+*****************************************************************************************/
+RestoreTab::RestoreTab(QWidget *parent /*= 0*/)
+	: QWidget(parent)
+	, m_lblWidth(LblWidth * 1.5)
+	, m_lblHeight(LblHeight * 1.5)
+{
+	m_random = new QLabel(this);
+	m_random->setObjectName(valueLightgrayQss);
+	m_pwdLabel = new QLabel(tr("密码"), this);
+	m_pwd = new QLineEdit(this);
+	m_pwd->setAlignment(Qt::AlignCenter);
+	m_confirm = new QPushButton(tr("确认设置"), this);
+
+	generateRandomValue();
+
+	int w = width();
+	int h = height();
+	setChildrenGeometry(w, h);
+
+	connectSlots();
+}
+
+void RestoreTab::resizeEvent(QResizeEvent *event)
+{
+	QSize s = event->size();
+	int w = s.width();
+	int h = s.height();
+	if (0 == w && 0 == h) {
+		QWidget::resizeEvent(event);
+		return;
+	}
+
+	setChildrenGeometry(w, h);
+}
+
+void RestoreTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
+{
+	if (0 == w && 0 == h) return;
+
+	m_random->setGeometry(w / 2 - m_lblWidth / 6, h / 2 - m_lblHeight * 2, m_lblWidth, m_lblHeight);
+	m_pwdLabel->setGeometry(w / 2 - m_lblWidth, h / 2 - m_lblHeight, m_lblWidth / 2, m_lblHeight);
+	m_pwd->setGeometry(w / 2 - m_lblWidth / 2, h / 2 - m_lblHeight, m_lblWidth, m_lblHeight);
+	m_confirm->setGeometry(w / 2, h / 2 + m_lblHeight * 2, m_lblWidth, m_lblHeight);
+}
+
+void RestoreTab::connectSlots()
+{
+	connect(m_confirm, SIGNAL(clicked(bool)), this, SLOT(slotOnConfirmClicked()));
+}
+
+void RestoreTab::generateRandomValue()
+{
+	qsrand(QTime(0, 0, 0).secsTo(QTime::currentTime()));
+	int value, total(0), last(0);
+	for (int i = 0; i < 4; ++i) {
+		do
+		{
+			value = qrand() % 10;
+		} while (3 == i && 0 == value);
+		total += value * pow(10, i);
+		last += ((value * 2) % 10) * pow(10, i);
+	}
+	m_random->setText(tr("%1").arg(total));
+	m_value = QString::number(last);
+}
+
+void RestoreTab::slotOnConfirmClicked()
+{
+	QString value = m_pwd->text();
+	if (4 != value.length()) {
+		QMessageBox::warning(this, tr("警告"), tr("密码应为4位数字"));
+		return;
+	}
+
+	if (0 != value.compare(m_value)) {
+		QMessageBox::warning(this, tr("警告"), tr("密码错误"));
+		return;
+	}
+
+}
+
+/****************************************************************************************
+版本信息
+*****************************************************************************************/
+VersionInfoTab::VersionInfoTab(QWidget *parent /*= 0*/)
+	: QWidget(parent)
+	, m_lblWidth(LblWidth * 1.5)
+	, m_lblHeight(LblHeight * 1.5)
+{
+	m_softVerLabel = new QLabel(tr("软件版本"), this);
+	m_softVer = new QLabel(tr("A2.5-B1.5-C1.5-D1.7-E1.8"), this);
+	m_softVer->setObjectName(valueLabelQss);
+	//m_softVer->setAlignment(Qt::AlignCenter);
+	m_firmVerLabel = new QLabel(tr("固件版本"), this);
+	m_firmVer = new QLabel(tr("180404-02"), this);
+	m_firmVer->setObjectName(valueLabelQss);
+	//m_firmVer->setAlignment(Qt::AlignCenter);
+	m_hardVerLabel = new QLabel(tr("硬件版本"), this);
+	m_hardVer = new QLabel(tr("HARD_V1.0"), this);
+	m_hardVer->setObjectName(valueLabelQss);
+	//m_hardVer->setAlignment(Qt::AlignCenter);
+	m_devSNLabel = new QLabel(tr("设备序列号"), this);
+	m_devSN = new QLabel(tr("B206832500003"), this);
+	m_devSN->setObjectName(valueLabelQss);
+	//m_devSN->setAlignment(Qt::AlignCenter);
+
+	int w = width();
+	int h = height();
+	setChildrenGeometry(w, h);
+}
+
+void VersionInfoTab::resizeEvent(QResizeEvent *event)
+{
+	QSize s = event->size();
+	int w = s.width();
+	int h = s.height();
+	if (0 == w && 0 == h) {
+		QWidget::resizeEvent(event);
+		return;
+	}
+
+	setChildrenGeometry(w, h);
+}
+
+void VersionInfoTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
+{
+	if (0 == w && 0 == h) return;
+
+	int left = w / 4;
+	int mid = left + m_lblWidth;
+	int top = (h - m_lblHeight * 7) / 2;
+	m_softVerLabel->setGeometry(left, top, m_lblWidth, m_lblHeight);
+	m_softVer->setGeometry(mid, top, m_lblWidth * 2, m_lblHeight);
+	m_firmVerLabel->setGeometry(left, top + m_lblHeight * 2, m_lblWidth, m_lblHeight);
+	m_firmVer->setGeometry(mid, top + m_lblHeight * 2, m_lblWidth, m_lblHeight);
+	m_hardVerLabel->setGeometry(left, top + m_lblHeight * 4, m_lblWidth, m_lblHeight);
+	m_hardVer->setGeometry(mid, top + m_lblHeight * 4, m_lblWidth, m_lblHeight);
+	m_devSNLabel->setGeometry(left, top + m_lblHeight * 6, m_lblWidth, m_lblHeight);
+	m_devSN->setGeometry(mid, top + m_lblHeight * 6, m_lblWidth, m_lblHeight);
 }

@@ -14,5 +14,8 @@
         <file>images/full.png</file>
         <file>images/selected.png</file>
         <file>images/unselected.png</file>
+        <file>images/timg.jpg</file>
+        <file>images/87.ico</file>
+        <file>images/90.ico</file>
     </qresource>
 </RCC>

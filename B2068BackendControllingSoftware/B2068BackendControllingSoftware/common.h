@@ -1,5 +1,6 @@
 #pragma once
 #include <QString>
+#include <QMap>
 // 解决界面显示中文乱码
 #pragma execution_character_set("utf-8")  
 
@@ -22,6 +23,15 @@ const QString valueLightgrayQss("valuelightgray");
 
 /****************************************************************************************/
 const int MaxAvlSatellites = 10;
+
+
+// 用户名和密码
+struct st_UserPwd
+{
+	QMap<QString, QString> user2pwd;
+	QString curUser;
+};
+extern st_UserPwd userPwd;
 
 // 帧数据
 struct st_Gnsssta

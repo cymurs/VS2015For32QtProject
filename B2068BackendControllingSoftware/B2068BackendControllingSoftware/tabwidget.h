@@ -19,7 +19,45 @@ class LogInfoTab;
 class ScreenSettingTab;
 class RestoreTab;
 class FactorySettingTab;
+class PasswordChangeTab;
+class VersionInfoTab;
 
+
+// 登录界面
+class SignInWidget : public QWidget
+{
+	Q_OBJECT
+
+public:
+	SignInWidget(QWidget *parent = 0);
+
+protected:
+	void resizeEvent(QResizeEvent *event) override;
+	void paintEvent(QPaintEvent *event) override;
+
+private:
+	void setChildrenGeometry(int w = 0, int h = 0);
+	void connectSlots();
+
+private slots:
+	void slotOnLoginClicked(bool checked);
+	void slotOnQuitClicked();
+
+signals:
+	void login(bool checked = false);
+
+private:
+	QLabel *m_userLabel;
+	QComboBox *m_user;
+	QLabel *m_pwdLabel;
+	QLineEdit *m_pwd;
+	QPushButton *m_login;
+	QPushButton *m_quit;
+	int m_pwdArray[3];
+
+	const int m_lblWidth;
+	const int m_lblHeight;
+};
 
 // 主界面
 class MainTab : public QWidget
@@ -287,6 +325,10 @@ public:
 
 private:
 	void initTest();  // 仅做测试
+	void connectSlots();
+
+signals:
+	void relogin();
 
 private:
 	QTabWidget *m_centralWidget;
@@ -304,6 +346,8 @@ private:
 	ScreenSettingTab *m_buzzTab;
 	RestoreTab *m_restoreTab;
 	FactorySettingTab *m_factoryTab;
+	PasswordChangeTab *m_pwdTab;
+	VersionInfoTab *m_verTab;
 };
 
 // 总界面
@@ -315,9 +359,25 @@ public:
 	TabWidget(QWidget *parent = Q_NULLPTR);
 	~TabWidget();
 
+protected:
+	void	closeEvent(QCloseEvent *event) override;
+
+
+private:
+	void connectSlots();
+
+private slots:
+	void slotOnSignIn(bool signin);
+	void slotOnLoginTimeout();
+
 private:
 	Ui::TabWidget ui;
 
 private:
+	QStackedLayout *m_centralLayout;
 	QTabWidget *m_tabWidget;
+	SignInWidget *m_signIn;
+	StateParamsTab *m_stateParams;
+	
+	bool m_firstTime;
 };

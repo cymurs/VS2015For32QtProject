@@ -38,6 +38,21 @@ const QString QSS_TabWidget =
 	"}";
 
 /****************************************************************************************
+登录界面
+*****************************************************************************************/
+const QString QSS_SignInWidget =
+	"QWidget#%1 {border-image: url(:/BackendControlling/images/timg.jpg);}"
+	"QLabel, QPushButton {"
+		"font: bold normal 16px \"times\";"
+	"}"
+	"QLineEdit, QComboBox  {"
+		"font: 16px \"times\";"
+	"}"
+	"QLineEdit, QComboBox  {"
+		"color: #0306A8;"
+	"}";
+
+/****************************************************************************************
 主界面
 *****************************************************************************************/
 const QString QSS_MainTabBackground = "QWidget#%1 {border-image: url(:/BackendControlling/images/timg (1).png); }";
@@ -237,9 +252,3 @@ const QString QSS_DeviceOverview =
 	"QLabel#%1  {"
 		"color: #0306A8;"
 	"}";
-
-/****************************************************************************************
-北斗状态
-*****************************************************************************************/
-const QString QSS_BDSState =
-"";

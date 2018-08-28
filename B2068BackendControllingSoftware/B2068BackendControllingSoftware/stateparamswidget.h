@@ -316,8 +316,39 @@ private:
 	const int m_lblHeight;
 };
 
+// 密码修改
+class PasswordChangeTab : public QWidget
+{
+	Q_OBJECT
 
+public:
+	PasswordChangeTab(QWidget *parent = 0);
 
+protected:
+	void resizeEvent(QResizeEvent *event) override;
+
+private:
+	void setChildrenGeometry(int w = 0, int h = 0);
+	void connectSlots();
+
+signals:
+	void relogin();
+
+private slots:
+	void slotOnConfirmClicked();
+
+private:
+	QLabel *m_oldPwdLabel;
+	QLineEdit *m_oldPwd;
+	QLabel *m_newPwdLabel;
+	QLineEdit *m_newPwd;
+	QLabel *m_againPwdLabel;
+	QLineEdit *m_againPwd;
+	QPushButton *m_confirm;
+
+	const int m_lblWidth;
+	const int m_lblHeight;
+};
 
 // 还原设置
 class RestoreTab : public QWidget
@@ -344,6 +375,34 @@ private:
 	QPushButton *m_confirm;
 	QLabel *m_random;
 	QString m_value;
+
+	const int m_lblWidth;
+	const int m_lblHeight;
+};
+
+// 版本信息
+class VersionInfoTab : public QWidget
+{
+	Q_OBJECT
+
+public:
+	VersionInfoTab(QWidget *parent = 0);
+
+protected:
+	void resizeEvent(QResizeEvent *event) override;
+
+private:
+	void setChildrenGeometry(int w = 0, int h = 0);
+
+private:
+	QLabel *m_softVerLabel;
+	QLabel *m_softVer;
+	QLabel *m_firmVerLabel;
+	QLabel *m_firmVer;
+	QLabel *m_hardVerLabel;
+	QLabel *m_hardVer;
+	QLabel *m_devSNLabel;
+	QLabel *m_devSN;
 
 	const int m_lblWidth;
 	const int m_lblHeight;
