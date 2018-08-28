@@ -4,7 +4,7 @@
 
 /****************************************************************************************/
 const int LoginInterval = 5 * 60 * 1000;
-
+const char *ConfigFile = "config.ini";
 st_UserPwd userPwd;
 
 
@@ -46,17 +46,47 @@ TabWidget::TabWidget(QWidget *parent)
 	
 	m_firstTime = true;
 	connectSlots();	
-
+	loadConfig();
 }
 
 TabWidget::~TabWidget()
 {
 }
 
+void TabWidget::closeEvent(QCloseEvent *event)
+{
+	storeConfig();
+	
+}
+
 void TabWidget::connectSlots()
 {
 	connect(m_signIn, SIGNAL(login(bool)), this, SLOT(slotOnSignIn(bool)));
 	connect(m_stateParams, SIGNAL(relogin()), this, SLOT(slotOnLoginTimeout()));
+}
+
+void TabWidget::loadConfig()
+{
+	if (!QFile::exists(ConfigFile)) {
+		userPwd.user2pwd["USER1"] = "888888";
+		userPwd.user2pwd["USER2"] = "888888";
+		userPwd.user2pwd["USER3"] = "888888";
+		return;
+	}
+
+	QSettings file(ConfigFile, QSettings::IniFormat);
+	userPwd.user2pwd["USER1"] = file.value("/USER/USER1").toString();
+	userPwd.user2pwd["USER2"] = file.value("/USER/USER2").toString();
+	userPwd.user2pwd["USER3"] = file.value("/USER/USER3").toString();
+}
+
+void TabWidget::storeConfig()
+{
+	QSettings file(ConfigFile, QSettings::IniFormat);
+	QMap<QString, QString> &m = userPwd.user2pwd;
+	for (auto user = m.begin(); user != m.end(); ++user) {
+		file.setValue(tr("/USER/%1").arg(user.key()), user.value());
+	}
 }
 
 void TabWidget::slotOnSignIn(bool signin)
@@ -103,10 +133,7 @@ SignInWidget::SignInWidget(QWidget *parent /* = 0 */)
 	m_quit = new QPushButton(tr("ÍË  ³ö"), this);
 	//m_pwdArray[0] = 888888;
 	//m_pwdArray[1] = 888888;
-	//m_pwdArray[2] = 888888;	
-	userPwd.user2pwd["USER1"] = "888888";
-	userPwd.user2pwd["USER2"] = "888888";
-	userPwd.user2pwd["USER3"] = "888888";
+	//m_pwdArray[2] = 888888;		
 
 	int w = width();
 	int h = height();

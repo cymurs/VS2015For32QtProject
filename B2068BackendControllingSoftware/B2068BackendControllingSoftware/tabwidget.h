@@ -365,6 +365,8 @@ protected:
 
 private:
 	void connectSlots();
+	void loadConfig();
+	void storeConfig();
 
 private slots:
 	void slotOnSignIn(bool signin);

@@ -827,11 +827,11 @@ void FactorySettingTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
 	if (0 == w && 0 == h) return;
 
 	int left = m_lblHeight;
-	int top = LblHeight * 6.5 + m_lblHeight;
-	m_devTypeLabel->setGeometry(left, m_lblHeight, m_lblWidth, m_lblHeight);
-	m_b2d->setGeometry(left * 1.5, LblHeight * 3.5, m_lblWidth, m_lblHeight);
-	m_b3->setGeometry(left * 1.5, LblHeight * 5.5, m_lblWidth, m_lblHeight);
-	m_typeConfirm->setGeometry(left * 1.5 + m_lblWidth * 1.5, LblHeight * 4.5, m_lblWidth, m_lblHeight);
+	int top = LblHeight * 6 + LblHeight;
+	m_devTypeLabel->setGeometry(left, LblHeight, m_lblWidth, m_lblHeight);
+	m_b2d->setGeometry(left * 1.5, LblHeight * 3, m_lblWidth, m_lblHeight);
+	m_b3->setGeometry(left * 1.5, LblHeight * 5, m_lblWidth, m_lblHeight);
+	m_typeConfirm->setGeometry(left * 1.5 + m_lblWidth * 1.5, LblHeight * 4, m_lblWidth, m_lblHeight);
 	m_devIDLabel->setGeometry(left, top, m_lblWidth, m_lblHeight);
 	m_devID->setGeometry(left * 1.5 + m_lblWidth, top, m_lblWidth * 2, m_lblHeight);
 	m_idConfirm->setGeometry(left * 1.5 + m_lblWidth * 3.2, top, m_lblWidth, m_lblHeight);
@@ -934,7 +934,7 @@ void PasswordChangeTab::slotOnConfirmClicked()
 		m_newPwd->setFocus(Qt::MouseFocusReason);
 		return;
 	}
-
+	
 	userPwd.user2pwd[userPwd.curUser] = newPwd;
 	if (0 == QMessageBox::information(this, tr("信息"), tr("密码重设成功"), tr("重新登录"), tr("取消"))) {
 		emit relogin();
