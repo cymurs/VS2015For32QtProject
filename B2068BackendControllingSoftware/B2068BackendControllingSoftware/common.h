@@ -18,6 +18,7 @@ qss¸¨Öú×Ö·û´®
 *****************************************************************************************/
 const QString valueLabelQss("valuelabel");
 const QString valueTableViewQss("valuetableview");
+const QString valueLightgrayQss("valuelightgray");
 
 /****************************************************************************************/
 const int MaxAvlSatellites = 10;

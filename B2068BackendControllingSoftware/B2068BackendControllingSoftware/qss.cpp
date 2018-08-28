@@ -22,7 +22,7 @@ const QString QSS_TabWidget =
 		"border-bottom-color: #C2C7CB;" /* same as the pane color */
 		"border-top-left-radius: 4px;"
 		"border-top-right-radius: 4px;"
-		"min-width: 20ex;"
+		"min-width: 62.3px;" //20ex;"
 		"padding: 2px;"
 	"}"
 
@@ -193,7 +193,7 @@ const QString QSS_NetSettings =
 *****************************************************************************************/
 const QString QSS_StateParams =
 	"QTabWidget::tab-bar {"
-		"left: 5px;" /* move to the right by 5px */
+		"left: 4px;" /* move to the right by 5px */		
 		"top: 0.5em;"
 	"}"
 	"QTabWidget::pane {"
@@ -207,6 +207,10 @@ const QString QSS_StateParams =
 	"}"
 	"QLabel#%1, QTableView#%2, QComboBox, QLineEdit, QTextEdit  {"
 		"color: #0306A8;"
+	"}"
+	"QLabel#%3 {"
+		"font: 16px \"times\";"
+		"color: lightgray;"
 	"}"
 	"QCheckBox::indicator {"
 		"width: 20px;"

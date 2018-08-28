@@ -952,13 +952,13 @@ StateParamsTab::StateParamsTab(QWidget *parent)
 	m_centralWidget->addTab(m_factoryTab, tr("出厂设置"));
 	m_centralWidget->addTab(m_restoreTab, tr("还原设置"));
 	
-	m_centralWidget->setCurrentIndex(13);
+	m_centralWidget->setCurrentIndex(13); 
 
 	auto baseLayout = new QVBoxLayout(this);
 	baseLayout->addWidget(m_centralWidget);
 	baseLayout->setMargin(0);	
 
-	setStyleSheet(QSS_StateParams.arg(valueLabelQss).arg(valueTableViewQss));
+	setStyleSheet(QSS_StateParams.arg(valueLabelQss).arg(valueTableViewQss).arg(valueLightgrayQss));
 	initTest();
 }
 

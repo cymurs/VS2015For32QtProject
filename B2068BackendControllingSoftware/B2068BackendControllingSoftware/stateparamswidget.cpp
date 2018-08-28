@@ -781,15 +781,22 @@ void ScreenSettingTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
 RestoreTab::RestoreTab(QWidget *parent /*= 0*/)
 	: QWidget(parent)
 	, m_lblWidth(LblWidth * 1.5)
-	, m_lblHeight(LblHeight * 1.5)
+	, m_lblHeight(LblHeight * 1.5)	
 {
+	m_random = new QLabel(this);
+	m_random->setObjectName(valueLightgrayQss);
 	m_pwdLabel = new QLabel(tr("密码"), this);
 	m_pwd = new QLineEdit(this);
+	m_pwd->setAlignment(Qt::AlignCenter);
 	m_confirm = new QPushButton(tr("确认设置"), this);
+
+	generateRandomValue();
 
 	int w = width();
 	int h = height();
 	setChildrenGeometry(w, h);
+
+	connectSlots();
 }
 
 void RestoreTab::resizeEvent(QResizeEvent *event)
@@ -809,9 +816,46 @@ void RestoreTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
 {
 	if (0 == w && 0 == h) return;
 
+	m_random->setGeometry(w / 2 - m_lblWidth / 6, h / 2 - m_lblHeight * 2, m_lblWidth, m_lblHeight);
 	m_pwdLabel->setGeometry(w / 2 - m_lblWidth, h / 2 - m_lblHeight, m_lblWidth / 2, m_lblHeight);
 	m_pwd->setGeometry(w / 2 - m_lblWidth / 2, h / 2 - m_lblHeight, m_lblWidth, m_lblHeight);
 	m_confirm->setGeometry(w / 2, h / 2 + m_lblHeight * 2, m_lblWidth, m_lblHeight);
+}
+
+void RestoreTab::connectSlots()
+{
+	connect(m_confirm, SIGNAL(clicked(bool)), this, SLOT(slotOnConfirmClicked()));
+}
+
+void RestoreTab::generateRandomValue()
+{
+	qsrand(QTime(0, 0, 0).secsTo(QTime::currentTime()));
+	int value, total(0), last(0);
+	for (int i = 0; i < 4; ++i) {
+		do
+		{
+			value = qrand() % 10;
+		} while (3 == i && 0 == value);
+		total += value * pow(10, i);
+		last += ((value * 2) % 10) * pow(10, i);
+	}
+	m_random->setText(tr("%1").arg(total));
+	m_value = QString::number(last);
+}
+
+void RestoreTab::slotOnConfirmClicked()
+{
+	QString value = m_pwd->text();
+	if (4 != value.length()) {
+		QMessageBox::warning(this, tr("警告"), tr("密码应为4位数字"));
+		return;
+	}
+	
+	if (0 != value.compare(m_value)) {
+		QMessageBox::warning(this, tr("警告"), tr("密码错误"));
+		return;
+	}
+	
 }
 
 /****************************************************************************************
@@ -866,20 +910,21 @@ void FactorySettingTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
 	if (0 == w && 0 == h) return;
 
 	int left = m_lblHeight;
+	int top = LblHeight * 6.5 + m_lblHeight;
 	m_devTypeLabel->setGeometry(left, m_lblHeight, m_lblWidth, m_lblHeight);
-	m_b2d->setGeometry(left * 1.5, LblHeight * 3, m_lblWidth, m_lblHeight);
-	m_b3->setGeometry(left * 1.5, LblHeight * 5, m_lblWidth, m_lblHeight);
-	m_typeConfirm->setGeometry(left * 1.5 + m_lblWidth * 1.5, LblHeight * 4, m_lblWidth, m_lblHeight);
-	m_devIDLabel->setGeometry(left, LblHeight * 7, m_lblWidth, m_lblHeight);
-	m_devID->setGeometry(left * 1.5 + m_lblWidth, LblHeight * 7, m_lblWidth * 2, m_lblHeight);
-	m_idConfirm->setGeometry(left * 1.5 + m_lblWidth * 3.2, LblHeight * 7, m_lblWidth, m_lblHeight);
-	m_hwVersionLabel->setGeometry(left, LblHeight * 9, m_lblWidth, m_lblHeight);
-	m_hwVersion->setGeometry(left * 1.5 + m_lblWidth, LblHeight * 9, m_lblWidth * 2, m_lblHeight);
-	m_verConfirm->setGeometry(left * 1.5 + m_lblWidth * 3.2, LblHeight * 9, m_lblWidth, m_lblHeight);
-	m_card1Label->setGeometry(left, LblHeight * 11, m_lblWidth, m_lblHeight);
-	m_networkCard1->setGeometry(left * 1.5 + m_lblWidth, LblHeight * 11, m_lblWidth * 2, m_lblHeight);
-	m_card1Confirm->setGeometry(left * 1.5 + m_lblWidth * 3.2, LblHeight * 11, m_lblWidth, m_lblHeight);
-	m_card2Label->setGeometry(left, LblHeight * 13, m_lblWidth, m_lblHeight);
-	m_networkCard2->setGeometry(left * 1.5 + m_lblWidth, LblHeight * 13, m_lblWidth * 2, m_lblHeight);
-	m_card2Confirm->setGeometry(left * 1.5 + m_lblWidth * 3.2, LblHeight * 13, m_lblWidth, m_lblHeight);
+	m_b2d->setGeometry(left * 1.5, LblHeight * 3.5, m_lblWidth, m_lblHeight);
+	m_b3->setGeometry(left * 1.5, LblHeight * 5.5, m_lblWidth, m_lblHeight);
+	m_typeConfirm->setGeometry(left * 1.5 + m_lblWidth * 1.5, LblHeight * 4.5, m_lblWidth, m_lblHeight);
+	m_devIDLabel->setGeometry(left, top, m_lblWidth, m_lblHeight);
+	m_devID->setGeometry(left * 1.5 + m_lblWidth, top, m_lblWidth * 2, m_lblHeight);
+	m_idConfirm->setGeometry(left * 1.5 + m_lblWidth * 3.2, top, m_lblWidth, m_lblHeight);
+	m_hwVersionLabel->setGeometry(left, top + m_lblHeight * 2, m_lblWidth, m_lblHeight);
+	m_hwVersion->setGeometry(left * 1.5 + m_lblWidth, top + m_lblHeight * 2, m_lblWidth * 2, m_lblHeight);
+	m_verConfirm->setGeometry(left * 1.5 + m_lblWidth * 3.2, top + m_lblHeight * 2, m_lblWidth, m_lblHeight);
+	m_card1Label->setGeometry(left, top + m_lblHeight * 4, m_lblWidth, m_lblHeight);
+	m_networkCard1->setGeometry(left * 1.5 + m_lblWidth, top + m_lblHeight * 4, m_lblWidth * 2, m_lblHeight);
+	m_card1Confirm->setGeometry(left * 1.5 + m_lblWidth * 3.2, top + m_lblHeight * 4, m_lblWidth, m_lblHeight);
+	m_card2Label->setGeometry(left, top + m_lblHeight * 6, m_lblWidth, m_lblHeight);
+	m_networkCard2->setGeometry(left * 1.5 + m_lblWidth, top + m_lblHeight * 6, m_lblWidth * 2, m_lblHeight);
+	m_card2Confirm->setGeometry(left * 1.5 + m_lblWidth * 3.2, top + m_lblHeight * 6, m_lblWidth, m_lblHeight);
 }

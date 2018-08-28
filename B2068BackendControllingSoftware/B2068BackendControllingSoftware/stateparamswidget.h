@@ -332,11 +332,18 @@ protected:
 
 private:
 	void setChildrenGeometry(int w = 0, int h = 0);
+	void connectSlots();
+	void generateRandomValue();
+
+private slots:
+	void slotOnConfirmClicked();
 
 private:
-	QLabel *m_pwdLabel;
+	QLabel *m_pwdLabel;	
 	QLineEdit *m_pwd;
 	QPushButton *m_confirm;
+	QLabel *m_random;
+	QString m_value;
 
 	const int m_lblWidth;
 	const int m_lblHeight;
