@@ -1083,3 +1083,81 @@ void VersionInfoTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
 	m_devSNLabel->setGeometry(left, top + m_lblHeight * 6, m_lblWidth, m_lblHeight);
 	m_devSN->setGeometry(mid, top + m_lblHeight * 6, m_lblWidth, m_lblHeight);
 }
+
+/****************************************************************************************
+状态参数
+*****************************************************************************************/
+StateMainTab::StateMainTab(QWidget *parent /*= 0*/)
+{
+	m_devOverview = new QPushButton(tr("设备总览"), this);	
+	m_bdsStatus = new QPushButton(tr("北斗状态"), this);
+	m_gpsStatus = new QPushButton(tr("GPS状态"), this);
+	m_gloStatus = new QPushButton(tr("GLONASS状态"), this);
+	m_acbStatus = new QPushButton(tr("交流B码状态"), this);
+	m_dcbStatus = new QPushButton(tr("直流B码状态"), this);
+
+	m_posConfiguration = new QPushButton(tr("位置配置"), this);
+	m_posConfiguration->setEnabled(false);
+	m_sportConfiguration = new QPushButton(tr("运动配置"), this);
+	m_sportConfiguration->setEnabled(false);
+	m_minElevation = new QPushButton(tr("最小仰角"), this);
+	m_minElevation->setDisabled(true);
+	m_minSnr = new QPushButton(tr("最小信噪比"), this);
+	m_minSnr->setDisabled(true);
+	m_delayCompensation = new QPushButton(tr("延时补偿"), this);
+	m_pulseConfiguration = new QPushButton(tr("脉冲配置"), this);
+	m_timezone = new QPushButton(tr("时区"), this);
+
+	m_logInfo = new QPushButton(tr("日志信息"), this);
+	m_alarmInfo = new QPushButton(tr("告警信息"), this);
+	m_screenSettings = new QPushButton(tr("屏幕设置"), this);
+	m_factorySettings = new QPushButton(tr("出厂设置"), this);
+	m_pwdChanging = new QPushButton(tr("密码修改"), this);
+	m_restoreSettings = new QPushButton(tr("还原设置"), this);
+	m_verInfo = new QPushButton(tr("版本信息"), this);
+
+	auto baseLayout = new QGridLayout(this);
+	baseLayout->addWidget(m_devOverview, 1, 1);
+	baseLayout->addWidget(m_bdsStatus, 3, 1);
+	baseLayout->addWidget(m_gpsStatus, 5, 1);
+	baseLayout->addWidget(m_gloStatus, 7, 1);
+	baseLayout->addWidget(m_acbStatus, 9, 1);
+	baseLayout->addWidget(m_dcbStatus, 11, 1);
+
+	baseLayout->addWidget(m_posConfiguration, 1, 3);
+	baseLayout->addWidget(m_sportConfiguration, 3, 3);
+	baseLayout->addWidget(m_minElevation, 5, 3);
+	baseLayout->addWidget(m_minSnr, 7, 3);
+	baseLayout->addWidget(m_delayCompensation, 9, 3);
+	baseLayout->addWidget(m_pulseConfiguration, 11, 3);
+	baseLayout->addWidget(m_timezone, 13, 3);
+
+	baseLayout->addWidget(m_logInfo, 1, 5);
+	baseLayout->addWidget(m_alarmInfo, 3, 5);
+	baseLayout->addWidget(m_screenSettings, 5, 5);
+	baseLayout->addWidget(m_factorySettings, 7, 5);
+	baseLayout->addWidget(m_pwdChanging, 9, 5);
+	baseLayout->addWidget(m_restoreSettings, 11, 5);
+	baseLayout->addWidget(m_verInfo, 13, 5);
+
+	for (int i = 0; i < 7; ++i) {
+		if (i % 2) {
+			baseLayout->setColumnStretch(i, 2);
+			continue;
+		}
+		baseLayout->setColumnStretch(i, 1);
+	}
+
+	for (int i = 0; i < 15; ++i) {		
+		if (0 == i || 14 == i) {
+			baseLayout->setRowStretch(i, 2);
+			continue;
+		}
+		if (i % 2) {
+			baseLayout->setRowStretch(i, 4);
+			continue;
+		}
+
+		baseLayout->setRowStretch(i, 1);		
+	}
+}

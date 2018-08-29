@@ -21,7 +21,7 @@ class RestoreTab;
 class FactorySettingTab;
 class PasswordChangeTab;
 class VersionInfoTab;
-
+class StateMainTab;
 
 // 登录界面
 class SignInWidget : public QWidget
@@ -347,7 +347,7 @@ private:
 	RestoreTab *m_restoreTab;
 	FactorySettingTab *m_factoryTab;
 	PasswordChangeTab *m_pwdTab;
-	VersionInfoTab *m_verTab;
+	VersionInfoTab *m_verTab;	
 };
 
 // 总界面

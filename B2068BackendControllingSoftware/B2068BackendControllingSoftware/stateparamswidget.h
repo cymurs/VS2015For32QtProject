@@ -407,3 +407,37 @@ private:
 	const int m_lblWidth;
 	const int m_lblHeight;
 };
+
+// ×´Ì¬²ÎÊý
+class StateMainTab : public QWidget
+{
+	Q_OBJECT
+
+public:
+	StateMainTab(QWidget *parent = 0);
+
+private:
+	QPushButton *m_devOverview;
+	QPushButton *m_bdsStatus;
+	QPushButton *m_gpsStatus;
+	QPushButton *m_gloStatus;
+	QPushButton *m_acbStatus;
+	QPushButton *m_dcbStatus;	
+
+	QPushButton *m_posConfiguration;
+	QPushButton *m_sportConfiguration;
+	QPushButton *m_minElevation;
+	QPushButton *m_minSnr;
+	QPushButton *m_delayCompensation;
+	QPushButton *m_pulseConfiguration;
+	QPushButton *m_timezone;	
+
+	QPushButton *m_logInfo;
+	QPushButton *m_alarmInfo;
+	QPushButton *m_screenSettings;
+	QPushButton *m_factorySettings;
+	QPushButton *m_pwdChanging;
+	QPushButton *m_restoreSettings;
+	QPushButton *m_verInfo;
+
+};
