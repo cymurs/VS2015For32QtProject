@@ -28,24 +28,15 @@
       <Extensions>moc;h;cpp</Extensions>
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{aaf0a194-b596-4265-874f-8a66df1345c6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="backendcontrolling.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Protocol.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Libase.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Communicate.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="tabwidget.cpp">
@@ -60,25 +51,31 @@
     <ClCompile Include="cradar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="transportthread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\stdafx.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Protocol.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Libase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Communicate.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="common.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="qss.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\qdoublebufferedqueue.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\common.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\stdafx.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Libase.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="business.h">
+      <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -92,6 +89,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="cradar.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="transportthread.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
