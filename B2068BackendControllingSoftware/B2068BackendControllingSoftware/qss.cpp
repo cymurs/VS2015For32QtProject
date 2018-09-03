@@ -50,6 +50,9 @@ const QString QSS_SignInWidget =
 	"}"
 	"QLineEdit, QComboBox  {"
 		"color: #0306A8;"
+	"}"
+	"QLineEdit[echoMode=\"2\"] {"
+		"lineedit-password-character: 42;"
 	"}";
 
 /****************************************************************************************
@@ -156,10 +159,10 @@ const QString QSS_TimesTimeSrcRadio =
 
 const QString QSS_TimeSrcLabel =
 	"QLabel#%1, QLineEdit, QComboBox {"
-		"font: 16px \"Microsoft YaHei\";"
+		"font: 16px \"times\";"
 	"}"
 	"QLabel#%2, QPushButton {"
-		"font: bold normal 15px \"Microsoft YaHei\";"
+		"font: bold normal 15px \"times\";"
 	"}";
 
 /****************************************************************************************
@@ -167,10 +170,10 @@ const QString QSS_TimeSrcLabel =
 *****************************************************************************************/
 const QString QSS_ComSettingsLabel =
 	"QLabel, QPushButton {"
-		"font: bold normal 16px \"Microsoft YaHei\";"
+		"font: bold normal 16px \"times\";"
 	"}"
 	"QComboBox {"
-		"font: 16px \"Microsoft YaHei\";"
+		"font: 16px \"times\";"
 		"color: #0306A8;"
 	"}";
 
@@ -179,7 +182,7 @@ const QString QSS_ComSettingsLabel =
 *****************************************************************************************/
 const QString QSS_NetSettings =
 	"QRadioButton, QLabel {"
-		"font: bold normal 20px \"Microsoft YaHei\";"
+		"font: bold normal 20px \"times\";"
 	"}"
 	"QRadioButton::indicator {"
 		"width: 20px;"
@@ -196,10 +199,10 @@ const QString QSS_NetSettings =
 		"border-radius: 10px;"
 	"}"
 	"QPushButton {"
-		"font: bold normal 16px \"Microsoft YaHei\";"
+		"font: bold normal 16px \"times\";"
 	"}"
 	"QLineEdit {"
-		"font: 16px \"Microsoft YaHei\";"
+		"font: 16px \"times\";"
 		"color: #0306A8;"
 	"}";
 
@@ -226,6 +229,9 @@ const QString QSS_StateParams =
 	"QLabel#%3 {"
 		"font: 16px \"times\";"
 		"color: lightgray;"
+	"}"
+	"QLineEdit[echoMode=\"2\"] {"
+		"lineedit-password-character: 42;"
 	"}"
 	"QCheckBox::indicator {"
 		"width: 20px;"

@@ -833,17 +833,17 @@ void FactorySettingTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
 	m_b3->setGeometry(left * 1.5, LblHeight * 5, m_lblWidth, m_lblHeight);
 	m_typeConfirm->setGeometry(left * 1.5 + m_lblWidth * 1.5, LblHeight * 4, m_lblWidth, m_lblHeight);
 	m_devIDLabel->setGeometry(left, top, m_lblWidth, m_lblHeight);
-	m_devID->setGeometry(left * 1.5 + m_lblWidth, top, m_lblWidth * 2, m_lblHeight);
-	m_idConfirm->setGeometry(left * 1.5 + m_lblWidth * 3.2, top, m_lblWidth, m_lblHeight);
+	m_devID->setGeometry(left * 1.5 + m_lblWidth * 1.1, top, m_lblWidth * 2, m_lblHeight);
+	m_idConfirm->setGeometry(left * 1.5 + m_lblWidth * 3.3, top, m_lblWidth, m_lblHeight);
 	m_hwVersionLabel->setGeometry(left, top + m_lblHeight * 2, m_lblWidth, m_lblHeight);
-	m_hwVersion->setGeometry(left * 1.5 + m_lblWidth, top + m_lblHeight * 2, m_lblWidth * 2, m_lblHeight);
-	m_verConfirm->setGeometry(left * 1.5 + m_lblWidth * 3.2, top + m_lblHeight * 2, m_lblWidth, m_lblHeight);
-	m_card1Label->setGeometry(left, top + m_lblHeight * 4, m_lblWidth, m_lblHeight);
-	m_networkCard1->setGeometry(left * 1.5 + m_lblWidth, top + m_lblHeight * 4, m_lblWidth * 2, m_lblHeight);
-	m_card1Confirm->setGeometry(left * 1.5 + m_lblWidth * 3.2, top + m_lblHeight * 4, m_lblWidth, m_lblHeight);
-	m_card2Label->setGeometry(left, top + m_lblHeight * 6, m_lblWidth, m_lblHeight);
-	m_networkCard2->setGeometry(left * 1.5 + m_lblWidth, top + m_lblHeight * 6, m_lblWidth * 2, m_lblHeight);
-	m_card2Confirm->setGeometry(left * 1.5 + m_lblWidth * 3.2, top + m_lblHeight * 6, m_lblWidth, m_lblHeight);
+	m_hwVersion->setGeometry(left * 1.5 + m_lblWidth * 1.1, top + m_lblHeight * 2, m_lblWidth * 2, m_lblHeight);
+	m_verConfirm->setGeometry(left * 1.5 + m_lblWidth * 3.3, top + m_lblHeight * 2, m_lblWidth, m_lblHeight);
+	m_card1Label->setGeometry(left, top + m_lblHeight * 4, m_lblWidth * 1.5, m_lblHeight);
+	m_networkCard1->setGeometry(left * 1.5 + m_lblWidth * 1.1, top + m_lblHeight * 4, m_lblWidth * 2, m_lblHeight);
+	m_card1Confirm->setGeometry(left * 1.5 + m_lblWidth * 3.3, top + m_lblHeight * 4, m_lblWidth, m_lblHeight);
+	m_card2Label->setGeometry(left, top + m_lblHeight * 6, m_lblWidth * 1.5, m_lblHeight);
+	m_networkCard2->setGeometry(left * 1.5 + m_lblWidth * 1.1, top + m_lblHeight * 6, m_lblWidth * 2, m_lblHeight);
+	m_card2Confirm->setGeometry(left * 1.5 + m_lblWidth * 3.3, top + m_lblHeight * 6, m_lblWidth, m_lblHeight);
 }
 
 /****************************************************************************************
@@ -861,14 +861,17 @@ PasswordChangeTab::PasswordChangeTab(QWidget *parent /*= 0*/)
 	m_oldPwd = new QLineEdit(this);
 	m_oldPwd->setAlignment(Qt::AlignCenter);
 	m_oldPwd->setValidator(validator);
+	m_oldPwd->setEchoMode(QLineEdit::Password);
 	m_newPwdLabel = new QLabel(tr("新密码"), this);
 	m_newPwd = new QLineEdit(this);
 	m_newPwd->setAlignment(Qt::AlignCenter);
 	m_newPwd->setValidator(validator);
+	m_newPwd->setEchoMode(QLineEdit::Password);
 	m_againPwdLabel = new QLabel(tr("确认新密码"), this);
 	m_againPwd = new QLineEdit(this);
 	m_againPwd->setAlignment(Qt::AlignCenter);
 	m_againPwd->setValidator(validator);
+	m_againPwd->setEchoMode(QLineEdit::Password);
 	m_confirm = new QPushButton(tr("确认设置"), this);
 
 	int w = width();

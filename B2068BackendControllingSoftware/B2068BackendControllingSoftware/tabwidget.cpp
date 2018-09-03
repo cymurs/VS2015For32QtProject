@@ -127,9 +127,10 @@ SignInWidget::SignInWidget(QWidget *parent /* = 0 */)
 	m_user = new QComboBox(this);
 	m_user->addItems(users);
 	m_pwdLabel = new QLabel(tr("密  码: "), this); 
-	m_pwd = new QLineEdit(this);
+	m_pwd = new QLineEdit(this);	
 	m_pwd->setValidator(validator);
 	m_pwd->setAlignment(Qt::AlignCenter);
+	m_pwd->setEchoMode(QLineEdit::Password); // 结合QSS实现任意掩码 星号: 42  实心圆圈: 9679 实心中小方形: 9726
 	m_login = new QPushButton(tr("登  录"), this);
 	m_quit = new QPushButton(tr("退  出"), this);
 	//m_pwdArray[0] = 888888;
@@ -199,6 +200,7 @@ void SignInWidget::slotOnLoginClicked(bool checked)
 		return;
 	}
 	userPwd.curUser = user;
+	m_pwd->clear();
 
 	emit login(true);
 }
@@ -281,7 +283,7 @@ MainTab::MainTab(QWidget *parent)
 	QString objName("maintab");
 	setObjectName(objName);	
 	setStyleSheet(QSS_MainTabBackground.arg(objName) 
-		+ QSS_YaHeiMainTabLabel.arg(smallLabelQss).arg(mediumLabelQss).arg(largeLabelQss));
+		+ QSS_TimesMainTabLabel.arg(smallLabelQss).arg(mediumLabelQss).arg(largeLabelQss));
 	
 	// 测试	
 	// 设置精度，最精确的一个
@@ -380,6 +382,7 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	m_bdsDateTime->setScaledContents(true);
 
 	m_bdsAvlSatellites = new QLabel(tr("12 颗"), this);
+	m_bdsAvlSatellites->setAlignment(Qt::AlignCenter);
 	m_bdsAvlSatellites->setObjectName(normalLabelQss);
 
 	m_bdsPriority = new QComboBox(this);
@@ -398,7 +401,8 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	m_gpsDateTime->setObjectName(normalLabelQss);
 	m_gpsDateTime->setScaledContents(true);
 
-	m_gpsAvlSatellites = new QLabel(tr("10 颗"), this);
+	m_gpsAvlSatellites = new QLabel(tr("10 颗"), this); 
+	m_gpsAvlSatellites->setAlignment(Qt::AlignCenter);
 	m_gpsAvlSatellites->setObjectName(normalLabelQss);
 
 	m_gpsPriority = new QComboBox(this);
@@ -416,7 +420,8 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	m_gloDateTime->setObjectName(normalLabelQss);
 	m_gloDateTime->setScaledContents(true);
 
-	m_gloAvlSatellites = new QLabel(tr("11 颗"), this);
+	m_gloAvlSatellites = new QLabel(tr("11 颗"), this); 
+	m_gloAvlSatellites->setAlignment(Qt::AlignCenter);
 	m_gloAvlSatellites->setObjectName(normalLabelQss);
 
 	m_gloPriority = new QComboBox(this);
@@ -470,6 +475,7 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	QRegExp rx("2\\d{3}(0[1-9]|1[0-2])(0[1-9]|[12]\\d|3[01])([01]\\d|2[0-3])([0-5]\\d){2}");
 	QValidator *validator = new QRegExpValidator(rx, this);
 	m_inputSetting->setValidator(validator);	
+	m_inputSetting->setMaximumWidth(LblWidth * 2);
 
 	m_confirm = new QPushButton(tr("确认\n设置"), this);
 
@@ -507,44 +513,47 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	topLayout->addStretch(1);
 
 	auto mainLayout = new QGridLayout;
-	mainLayout->addWidget(priorityLabel, 0, 4, RowSpan, 1);
-	mainLayout->addWidget(m_bdsLock, 1, 0, RowSpan, 1);
-	mainLayout->addWidget(m_bds, 1, 1, RowSpan, 1);
-	mainLayout->addWidget(m_bdsDateTime, 1, 2, RowSpan, 1);
-	mainLayout->addWidget(m_bdsAvlSatellites, 1, 3, RowSpan, 1);
-	mainLayout->addWidget(m_bdsPriority, 1, 4, RowSpan, 1);
-	mainLayout->addWidget(m_gpsLock, 2, 0, RowSpan, 1);
-	mainLayout->addWidget(m_gps, 2, 1, RowSpan, 1);
-	mainLayout->addWidget(m_gpsDateTime, 2, 2, RowSpan, 1);
-	mainLayout->addWidget(m_gpsAvlSatellites, 2, 3, RowSpan, 1);
-	mainLayout->addWidget(m_gpsPriority, 2, 4, RowSpan, 1);
-	mainLayout->addWidget(m_gloLock, 3, 0, RowSpan, 1);
-	mainLayout->addWidget(m_glo, 3, 1, RowSpan, 1);
-	mainLayout->addWidget(m_gloDateTime, 3, 2, RowSpan, 1);
-	mainLayout->addWidget(m_gloAvlSatellites, 3, 3, RowSpan, 1);
-	mainLayout->addWidget(m_gloPriority, 3, 4, RowSpan, 1);
-	mainLayout->addWidget(m_dcbLock, 4, 0, RowSpan, 1);
-	mainLayout->addWidget(m_dcb, 4, 1, RowSpan, 1);
-	mainLayout->addWidget(m_dcbDateTime, 4, 2, RowSpan, 1);
-	mainLayout->addWidget(m_dcbPriority, 4, 4, RowSpan, 1);
-	mainLayout->addWidget(m_acbLock, 5, 0, RowSpan, 1);
-	mainLayout->addWidget(m_acb, 5, 1, RowSpan, 1);
-	mainLayout->addWidget(m_acbDateTime, 5, 2, RowSpan, 1);
-	mainLayout->addWidget(m_acbPriority, 5, 4, RowSpan, 1);
-	mainLayout->addWidget(m_input, 6, 1, RowSpan, 1);
-	mainLayout->addWidget(m_inputDateTime, 6, 2, RowSpan, 1);
-	mainLayout->addWidget(m_confirm, 6, 4, RowSpan+2, 1);
-	mainLayout->addWidget(inputLabel, 7, 1, RowSpan, 1);
-	mainLayout->addWidget(m_inputSetting, 7, 2, RowSpan, 1);	
+	mainLayout->addWidget(priorityLabel, 0, 5, RowSpan, 1);
+	mainLayout->addWidget(m_bdsLock, 1, 1, RowSpan, 1);
+	mainLayout->addWidget(m_bds, 1, 2, RowSpan, 1);
+	mainLayout->addWidget(m_bdsDateTime, 1, 3, RowSpan, 1);
+	mainLayout->addWidget(m_bdsAvlSatellites, 1, 4, RowSpan, 1);
+	mainLayout->addWidget(m_bdsPriority, 1, 5, RowSpan, 1);
+	mainLayout->addWidget(m_gpsLock, 2, 1, RowSpan, 1);
+	mainLayout->addWidget(m_gps, 2, 2, RowSpan, 1);
+	mainLayout->addWidget(m_gpsDateTime, 2, 3, RowSpan, 1);
+	mainLayout->addWidget(m_gpsAvlSatellites, 2, 4, RowSpan, 1);
+	mainLayout->addWidget(m_gpsPriority, 2, 5, RowSpan, 1);
+	mainLayout->addWidget(m_gloLock, 3, 1, RowSpan, 1);
+	mainLayout->addWidget(m_glo, 3, 2, RowSpan, 1);
+	mainLayout->addWidget(m_gloDateTime, 3, 3, RowSpan, 1);
+	mainLayout->addWidget(m_gloAvlSatellites, 3, 4, RowSpan, 1);
+	mainLayout->addWidget(m_gloPriority, 3, 5, RowSpan, 1);
+	mainLayout->addWidget(m_dcbLock, 4, 1, RowSpan, 1);
+	mainLayout->addWidget(m_dcb, 4, 2, RowSpan, 1);
+	mainLayout->addWidget(m_dcbDateTime, 4, 3, RowSpan, 1);
+	mainLayout->addWidget(m_dcbPriority, 4, 5, RowSpan, 1);
+	mainLayout->addWidget(m_acbLock, 5, 1, RowSpan, 1);
+	mainLayout->addWidget(m_acb, 5, 2, RowSpan, 1);
+	mainLayout->addWidget(m_acbDateTime, 5, 3, RowSpan, 1);
+	mainLayout->addWidget(m_acbPriority, 5, 5, RowSpan, 1);
+	mainLayout->addWidget(m_input, 6, 2, RowSpan, 1);
+	mainLayout->addWidget(m_inputDateTime, 6, 3, RowSpan, 1);
+	mainLayout->addWidget(m_confirm, 6, 5, RowSpan+2, 1);
+	mainLayout->addWidget(inputLabel, 7, 2, RowSpan, 1);
+	mainLayout->addWidget(m_inputSetting, 7, 3, RowSpan, 1);	
 	// 设置行距
-	mainLayout->setRowMinimumHeight(1, MinRowHeight);
-	mainLayout->setRowMinimumHeight(2, MinRowHeight);
-	mainLayout->setRowMinimumHeight(3, MinRowHeight);
-	mainLayout->setRowMinimumHeight(4, MinRowHeight);
-	mainLayout->setRowMinimumHeight(5, MinRowHeight);
-	mainLayout->setRowMinimumHeight(6, MinRowHeight);
-	mainLayout->setRowMinimumHeight(7, MinRowHeight);
+	for (int i = 1; i < 8; ++i) {
+		mainLayout->setRowMinimumHeight(i, MinRowHeight);
+	}
+	for (int i = 0; i < 7; ++i) {
+		if (0 == i || i > 4) {
+			mainLayout->setColumnStretch(i, 1);
+			continue;
+		}
 
+		mainLayout->setColumnStretch(i, 2);
+	}
 
 	auto baseLayout = new QVBoxLayout;
 	//baseLayout->addStretch(1);
@@ -554,7 +563,7 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	baseLayout->setMargin(15);
 	setLayout(baseLayout);
 
-	setStyleSheet(QSS_YaHeiTimeSrcRadio.arg(largeRadioQss).arg(smallRadioQss)
+	setStyleSheet(QSS_TimesTimeSrcRadio.arg(largeRadioQss).arg(smallRadioQss)
 		+ QSS_TimeSrcLabel.arg(normalLabelQss).arg(boldLabelQss));
 
 	connectSlots();
