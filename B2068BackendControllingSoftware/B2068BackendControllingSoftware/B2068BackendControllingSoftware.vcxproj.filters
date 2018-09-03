@@ -77,6 +77,9 @@
     <ClInclude Include="business.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="backendcontrolling.h">
@@ -107,5 +110,18 @@
     <QtRcc Include="backendcontrolling.qrc">
       <Filter>Resource Files</Filter>
     </QtRcc>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="B2068BackendControllingSoftware.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="images\90.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\87.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

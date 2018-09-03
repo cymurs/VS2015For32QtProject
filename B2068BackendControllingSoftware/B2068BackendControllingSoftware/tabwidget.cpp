@@ -17,6 +17,7 @@ TabWidget::TabWidget(QWidget *parent)
 	//ui.setupUi(this);
 	resize(600, 400);
 	setMinimumSize(600, 400);
+	setFixedSize(600, 400);
 
 	m_signIn = new SignInWidget;
 
