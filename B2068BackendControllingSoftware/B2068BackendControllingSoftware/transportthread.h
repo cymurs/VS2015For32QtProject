@@ -15,6 +15,7 @@ public:
 	void stop();
 
 	void FrameHandleFunc(const st_FrameData &frameData);
+	void HandleFrameFromMasterBoard(const st_FrameData *pFrameData);
 
 protected:
 	TransportThread(QObject *parent = nullptr);
