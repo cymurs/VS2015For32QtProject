@@ -9,7 +9,7 @@
 *****************************************************************************************/
 const int LeftMargin = 20;			// 左边距
 const int TopMargin = 10;		// 顶边距
-const int BottonMargin = 20;	// 底边距
+const int BottomMargin = 20;	// 底边距
 const int LblWidth = 80;			//	标签宽度
 const int LblHeight = 20;			// 标签高度
 const int LeWidth = 240;        // 输入框宽度
@@ -23,7 +23,12 @@ const QString valueLightgrayQss("valuelightgray");
 
 /****************************************************************************************/
 const int MaxAvlSatellites = 10;
+const int LargeVer = 2;
+const int SmallVer = 0;
+const int LoginInterval = 5 * 60 * 1000;
 
+/****************************************************************************************/
+extern const char *ConfigFile;
 
 // 用户名和密码
 struct st_UserPwd

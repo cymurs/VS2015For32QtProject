@@ -17,5 +17,9 @@
         <file>images/timg.jpg</file>
         <file>images/87.ico</file>
         <file>images/90.ico</file>
+        <file>images/back.png</file>
+        <file>images/home.png</file>
+        <file>images/left_btn.png</file>
+        <file>images/top_blue.png</file>
     </qresource>
 </RCC>

@@ -57,6 +57,18 @@
     <ClCompile Include="Common\stdafx.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="topwidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="centralwidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="leftwidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="chiefwidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="qss.h">
@@ -95,6 +107,18 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="transportthread.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="topwidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="centralwidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="leftwidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="chiefwidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

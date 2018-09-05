@@ -3,7 +3,7 @@
 #include "stateparamswidget.h"
 
 /****************************************************************************************/
-const int LoginInterval = 5 * 60 * 1000;
+//const int LoginInterval = 5 * 60 * 1000;
 const char *ConfigFile = "config.ini";
 st_UserPwd userPwd;
 
@@ -26,7 +26,7 @@ TabWidget::TabWidget(QWidget *parent)
 	m_tabWidget->addTab(new MainTab(), tr("主界面"));
 	m_tabWidget->addTab(new TimeSrcTab(), tr("时间源"));
 	m_tabWidget->addTab(new ComSettingsTab(), tr("串口设置"));
-	m_tabWidget->addTab(new NetSettingsTab(), tr("网口设置"));
+	m_tabWidget->addTab(new NetSettingsTab(), tr("网络设置"));
 	m_tabWidget->addTab(m_stateParams, tr("状态参数"));	
 
 	//auto baseLayout = new QVBoxLayout;
@@ -278,7 +278,7 @@ MainTab::MainTab(QWidget *parent)
 	m_position->setObjectName(mediumLabelQss);
 	m_position->setFrameStyle(frameStyle);
 	m_position->setScaledContents(true);
-	m_position->setGeometry(LeftMargin, h - BottonMargin * 1.5, w - LeftMargin, LblHeight);
+	m_position->setGeometry(LeftMargin, h - BottomMargin * 1.5, w - LeftMargin, LblHeight);
 	
 	QString objName("maintab");
 	setObjectName(objName);	
@@ -312,7 +312,7 @@ void MainTab::resizeEvent(QResizeEvent *event)
 	m_timeName->setGeometry(LblWidth, LblWidth, LblWidth * 2, LblHeight);
 	m_refSrcTime->setGeometry((w - LblWidth * 5) / 2, (h - LblHeight * 6) / 2, LblWidth * 6, LblHeight * 4);
 	m_refSrcDate->setGeometry((w - LblWidth * 2) / 2, (h * 2) / 3, LblWidth * 3, LblHeight);
-	m_position->setGeometry(LeftMargin, h - BottonMargin * 1.5, w - LeftMargin, LblHeight);
+	m_position->setGeometry(LeftMargin, h - BottomMargin * 1.5, w - LeftMargin, LblHeight);
 }
 
 // 解决从QWidget派生的简单类 通过setStyleSheet设置背景无效 的问题

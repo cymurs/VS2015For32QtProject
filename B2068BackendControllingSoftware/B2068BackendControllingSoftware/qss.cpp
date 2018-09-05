@@ -56,6 +56,26 @@ const QString QSS_SignInWidget =
 	"}";
 
 /****************************************************************************************
+左侧界面
+*****************************************************************************************/
+const QString QSS_LeftWidget = "QWidget#%1 { background-color: #424642; }";
+const QString QSS_LeftWidgetDefaultButton =
+	"QPushButton {"
+		"font: bold normal 16px \"times\";"
+		"color: white;"
+	"}"
+	"QPushButton:flat {"
+		"border: none;"
+	"}"
+	"QPushButton:hover {"
+		"border-image: url(:/BackendControlling/images/left_btn.png);"
+	"}";
+const QString QSS_LeftWidgetToggledButton = 
+	"QPushButton:flat {"
+		"border-image: url(:/BackendControlling/images/left_btn.png);"
+	"}";
+
+/****************************************************************************************
 主界面
 *****************************************************************************************/
 const QString QSS_MainTabBackground = "QWidget#%1 {border-image: url(:/BackendControlling/images/timg (1).png); }";

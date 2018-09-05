@@ -6,6 +6,10 @@ extern const QString QSS_TabWidget;
 
 extern const QString QSS_SignInWidget;
 
+extern const QString QSS_LeftWidget;
+extern const QString QSS_LeftWidgetDefaultButton;
+extern const QString QSS_LeftWidgetToggledButton;
+
 extern const QString QSS_MainTabBackground;
 extern const QString QSS_YaHeiMainTabLabel;
 extern const QString QSS_TimesMainTabLabel;
