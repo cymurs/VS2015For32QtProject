@@ -21,5 +21,10 @@
         <file>images/home.png</file>
         <file>images/left_btn.png</file>
         <file>images/top_blue.png</file>
+        <file>images/bg_signal.png</file>
+        <file>images/button_disable.png</file>
+        <file>images/button_hover.png</file>
+        <file>images/button_normal.png</file>
+        <file>images/button_pressed.png</file>
     </qresource>
 </RCC>

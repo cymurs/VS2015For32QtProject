@@ -26,9 +26,13 @@ ChiefWidget::ChiefWidget(QWidget *parent)
 	setWindowTitle(tr("B2068 控制软件 V%1.%2").arg(LargeVer).arg(SmallVer));
 	setWindowIcon(QIcon(":/BackendControlling/images/90.ico"));
 
-	m_firstTime = true;
+		
+	m_animation = new QPropertyAnimation(m_main, QByteArray());
+	m_animation->setDuration(5000);
+	
 	connectSlots();
 	loadConfig();
+	m_firstTime = true;
 }
 
 ChiefWidget::~ChiefWidget()
@@ -37,12 +41,36 @@ ChiefWidget::~ChiefWidget()
 
 void ChiefWidget::closeEvent(QCloseEvent *event)
 {
-	storeConfig();
+	if (isQuit())
+	{
+		storeConfig();
+		event->accept();
+	}
+	else {
+		event->ignore();
+	}
+}
+
+bool ChiefWidget::isQuit()
+{
+	// 询问
+	QMessageBox qesBox(QMessageBox::Question, tr("退出"), tr("是否确定要退出?"), QMessageBox::NoButton, this);
+	qesBox.addButton(tr("是"), QMessageBox::YesRole);
+	qesBox.addButton(tr("否"), QMessageBox::NoRole);
+	qesBox.setStyleSheet(QSS_MsgBox + QSS_PushButton);
+
+	if (0 == qesBox.exec())
+		return true;
+	else
+		return false;
 }
 
 void ChiefWidget::connectSlots()
 {
 	connect(m_signIn, SIGNAL(login(bool)), this, SLOT(slotOnSignIn(bool)));
+	connect(m_main, SIGNAL(fadeOut()), this, SLOT(slotOnAnimationFinished()));
+	connect(m_animation, SIGNAL(finished()), this, SLOT(slotOnAnimationFinished()));
+	connect(m_center, SIGNAL(home()), this, SLOT(slotOnGoHome()));
 }
 
 void ChiefWidget::loadConfig()
@@ -80,11 +108,35 @@ void ChiefWidget::slotOnSignIn(bool signin)
 		QTimer::singleShot(LoginInterval, this, &ChiefWidget::slotOnLoginTimeout);
 	}
 	else {
-		exit(0);
+		if (isQuit())
+		{
+			storeConfig();
+			exit(0);
+		}		
 	}
 }
 
 void ChiefWidget::slotOnLoginTimeout()
 {
 	m_baseLayout->setCurrentIndex(0);
+}
+
+void ChiefWidget::slotOnMainFadeOut()
+{
+	m_animation->setTargetObject(m_main);
+	m_animation->setStartValue(1);
+	m_animation->setEndValue(0);
+	m_animation->start();
+
+	//m_baseLayout->setCurrentIndex(2);
+}
+
+void ChiefWidget::slotOnAnimationFinished()
+{
+	m_baseLayout->setCurrentIndex(2);
+}
+
+void ChiefWidget::slotOnGoHome()
+{
+	m_baseLayout->setCurrentIndex(1);
 }

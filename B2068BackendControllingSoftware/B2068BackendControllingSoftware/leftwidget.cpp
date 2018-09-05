@@ -66,8 +66,8 @@ void LeftWidget::setChildrenGeometry(int w, int h)
 {
 	if (0 == w && 0 == h) return;
 
-	int left = LeftMargin;
-	int height = LblHeight * 2;
+	int left = LeftMargin * 0.25;
+	int height = LblHeight * 2.5;
 	int top = (h - BottomMargin) / 4 - height;
 	m_timeSrcBtn->setGeometry(left, top, w - left, height); 
 	m_comBtn->setGeometry(left, (h - BottomMargin) * 2 / 4 - height, w - left, height);

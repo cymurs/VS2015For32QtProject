@@ -16,6 +16,7 @@ public:
 
 protected:
 	void	closeEvent(QCloseEvent *event) override;
+	bool isQuit();
 
 private:
 	void connectSlots();
@@ -25,12 +26,16 @@ private:
 private slots:
 	void slotOnSignIn(bool signin);
 	void slotOnLoginTimeout();
+	void slotOnMainFadeOut();
+	void slotOnAnimationFinished();
+	void slotOnGoHome();
 
 private:
 	SignInWidget *m_signIn;
 	MainTab *m_main;
 	CentralWidget *m_center;
 	QStackedLayout *m_baseLayout;
+	QPropertyAnimation *m_animation;
 
 	bool m_firstTime;
 };

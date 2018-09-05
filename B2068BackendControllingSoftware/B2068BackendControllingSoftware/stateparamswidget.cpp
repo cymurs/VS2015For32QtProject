@@ -1119,6 +1119,28 @@ StateMainTab::StateMainTab(QWidget *parent /*= 0*/)
 	m_restoreSettings = new QPushButton(tr("还原设置"), this);
 	m_verInfo = new QPushButton(tr("版本信息"), this);
 
+	m_btnGroup = new QButtonGroup;
+	m_btnGroup->addButton(m_devOverview, 0);
+	m_btnGroup->addButton(m_bdsStatus, 1);
+	m_btnGroup->addButton(m_gpsStatus, 2);
+	m_btnGroup->addButton(m_gloStatus, 3);
+	m_btnGroup->addButton(m_acbStatus, 4);
+	m_btnGroup->addButton(m_dcbStatus, 5);
+	m_btnGroup->addButton(m_posConfiguration, 6);
+	m_btnGroup->addButton(m_sportConfiguration, 7);
+	m_btnGroup->addButton(m_minElevation, 8);
+	m_btnGroup->addButton(m_minSnr, 9);
+	m_btnGroup->addButton(m_delayCompensation, 10);
+	m_btnGroup->addButton(m_pulseConfiguration, 11);
+	m_btnGroup->addButton(m_timezone, 12);
+	m_btnGroup->addButton(m_logInfo, 13);
+	m_btnGroup->addButton(m_alarmInfo, 14);
+	m_btnGroup->addButton(m_screenSettings, 15);
+	m_btnGroup->addButton(m_factorySettings, 16);
+	m_btnGroup->addButton(m_pwdChanging, 17);
+	m_btnGroup->addButton(m_restoreSettings, 18);
+	m_btnGroup->addButton(m_verInfo, 19);
+
 	auto baseLayout = new QGridLayout(this);
 	baseLayout->addWidget(m_devOverview, 1, 1);
 	baseLayout->addWidget(m_bdsStatus, 3, 1);
@@ -1163,4 +1185,8 @@ StateMainTab::StateMainTab(QWidget *parent /*= 0*/)
 
 		baseLayout->setRowStretch(i, 1);		
 	}
+
+	setStyleSheet(QSS_StateMain.arg(LblWidth).arg(LblHeight));
+
+	connect(m_btnGroup, SIGNAL(buttonClicked(int)), this, SIGNAL(stateParamsButtonClicked(int)));
 }

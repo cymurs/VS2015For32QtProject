@@ -66,10 +66,12 @@ class MainTab : public QWidget
 
 public:
 	explicit MainTab(QWidget *parent = 0);
+	virtual ~MainTab();
 
 protected:
 	void resizeEvent(QResizeEvent *event) override;
 	void	paintEvent(QPaintEvent *event) override;
+	void mousePressEvent(QMouseEvent *event) override;
 
 private:
 	void connectSlots();
@@ -77,6 +79,9 @@ private:
 private Q_SLOTS:
 	// 想要在connect中使用SLOT, 必须将槽函数声明为Q_SLOTS
 	void slotOnRefSrcTimeOut();
+
+signals:
+	void fadeOut();
 
 private:
 	QLabel *m_deviceModel;
@@ -88,6 +93,7 @@ private:
 	QLabel *m_refSrcTime;
 	QLabel *m_refSrcDate;
 	QLabel *m_position;	
+	QPropertyAnimation *m_animation;
 
 private:
 	// 测试
@@ -163,6 +169,9 @@ public:
 
 protected:
 	void resizeEvent(QResizeEvent *event) override;
+
+private:
+	void setChildrenGeometry(int w, int h);
 
 private:
 	QLabel *m_debugLabel;

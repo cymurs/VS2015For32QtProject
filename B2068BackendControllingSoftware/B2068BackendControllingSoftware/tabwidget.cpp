@@ -145,6 +145,9 @@ SignInWidget::SignInWidget(QWidget *parent /* = 0 */)
 	setObjectName(objName);
 	setStyleSheet(QSS_SignInWidget.arg(objName));
 	connectSlots();
+
+	setTabOrder(m_user, m_pwd);
+	setTabOrder(m_pwd, m_login);
 }
 
 void SignInWidget::resizeEvent(QResizeEvent *event)
@@ -185,6 +188,12 @@ void SignInWidget::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
 
 void SignInWidget::connectSlots()
 {
+	connect(m_user, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), 
+		[=](int) {	m_pwd->setFocus();	}
+	);
+	connect(m_pwd, &QLineEdit::returnPressed, [=]() {
+		m_login->click();
+	});
 	connect(m_login, SIGNAL(clicked(bool)), this, SLOT(slotOnLoginClicked(bool)));
 	connect(m_quit, SIGNAL(clicked(bool)), this, SLOT(slotOnQuitClicked()));
 }
@@ -195,7 +204,11 @@ void SignInWidget::slotOnLoginClicked(bool checked)
 	QString pwd = m_pwd->text();
 
 	if (0 != pwd.compare(userPwd.user2pwd[user])) {
-		QMessageBox::critical(this, tr("错误"), tr("密码不正确"));
+		QMessageBox msgBox(QMessageBox::Critical, tr("提示"), tr("密码不正确!"), QMessageBox::NoButton);
+		msgBox.addButton(tr("确认"), QMessageBox::AcceptRole);
+		msgBox.setStyleSheet(QSS_MsgBox + QSS_PushButton);
+		msgBox.exec();
+
 		m_pwd->setFocus(Qt::MouseFocusReason);
 		return;
 	}
@@ -285,6 +298,12 @@ MainTab::MainTab(QWidget *parent)
 	setStyleSheet(QSS_MainTabBackground.arg(objName) 
 		+ QSS_TimesMainTabLabel.arg(smallLabelQss).arg(mediumLabelQss).arg(largeLabelQss));
 	
+	m_animation = new QPropertyAnimation(this, "geometry");
+	m_animation->setDuration(600);
+	m_animation->setStartValue(geometry());
+	m_animation->setEndValue(QRect(-width(), 0, width(), height()));
+	m_animation->setEasingCurve(QEasingCurve::Linear);
+
 	// 测试	
 	// 设置精度，最精确的一个
 	QString curDate = QDate::currentDate().toString("yyyy 年 MM 月 dd 日");
@@ -292,6 +311,14 @@ MainTab::MainTab(QWidget *parent)
 	m_refSrcTimer.setTimerType(Qt::PreciseTimer);  
 	connectSlots();
 	m_refSrcTimer.start(100);
+}
+
+MainTab::~MainTab()
+{
+	if (m_animation != Q_NULLPTR) {
+		delete m_animation;
+		m_animation = Q_NULLPTR;
+	}		
 }
 
 void MainTab::resizeEvent(QResizeEvent *event)
@@ -325,8 +352,23 @@ void MainTab::paintEvent(QPaintEvent *event)
 	QWidget::paintEvent(event);
 }
 
+void MainTab::mousePressEvent(QMouseEvent *event)
+{
+	//QPropertyAnimation *animation = new QPropertyAnimation(this, "geometry");
+	//animation->setDuration(600);
+	//animation->setStartValue(geometry());
+	//animation->setEndValue(QRect(width(), 0, width(), height()));
+	//animation->setEasingCurve(QEasingCurve::Linear);
+	//animation->start(QAbstractAnimation::DeleteWhenStopped);
+	//connect(animation, SIGNAL(finished()), this, SIGNAL(fadeOut()));
+
+	m_animation->start();			
+}
+
 void MainTab::connectSlots()
 {
+	connect(m_animation, SIGNAL(finished()), this, SIGNAL(fadeOut()));
+	
 	//connect(&m_refSrcTimer, &QTimer::timeout, this, &MainTab::slotOnRefSrcTimeOut);	
 	QMetaObject::Connection result = connect(&m_refSrcTimer, SIGNAL(timeout()), this, SLOT(slotOnRefSrcTimeOut()));
 	if (Q_NULLPTR == result) {
@@ -647,30 +689,24 @@ ComSettingsTab::ComSettingsTab(QWidget *parent /*= 0*/)
 		<< QString::number(QSerialPort::Baud19200) 
 		<< QString::number(QSerialPort::Baud57600);
 
-	m_debugLabel = new QLabel(tr("调试串口"), this);
-	m_debugLabel->setGeometry(w / 4, (h - m_lblHeight * 8) / 2, m_lblWidth, m_lblHeight);
+	m_debugLabel = new QLabel(tr("调试串口"), this);	
 
 	m_debugCom = new QComboBox(this);
 	m_debugCom->addItems(baud);
 	m_debugCom->setCurrentIndex(2);
-	m_debugCom->setGeometry(w / 2, (h - m_lblHeight * 8) / 2, m_lblWidth, m_lblHeight);
 
 	m_firstLabel = new QLabel(tr("定时/串口1"), this);
-	m_firstLabel->setGeometry(w / 4, (h - m_lblHeight * 4) / 2, m_lblWidth, m_lblHeight);
 
 	m_timingFirst = new QComboBox(this);
 	m_timingFirst->addItems(baud);
-	m_timingFirst->setGeometry(w / 2, (h - m_lblHeight * 4) / 2, m_lblWidth, m_lblHeight);
 
 	m_secondLabel = new QLabel(tr("定时/串口2"), this);
-	m_secondLabel->setGeometry(w / 4, h / 2, m_lblWidth, m_lblHeight);
 
 	m_timingSecond = new QComboBox(this);
 	m_timingSecond->addItems(baud);
-	m_timingSecond->setGeometry(w / 2, h / 2, m_lblWidth, m_lblHeight);
 
 	m_confirm = new QPushButton(tr("确认设置"), this);
-	m_confirm->setGeometry(w / 2 + m_lblWidth / 2, h * 3 / 4 - m_lblHeight, m_lblWidth, m_lblHeight);
+	setChildrenGeometry(w, h);
 
 	setStyleSheet(QSS_ComSettingsLabel);
 }
@@ -684,6 +720,13 @@ void ComSettingsTab::resizeEvent(QResizeEvent *event)
 		QWidget::resizeEvent(event);
 		return;
 	}
+
+	setChildrenGeometry(w, h);
+}
+
+void ComSettingsTab::setChildrenGeometry(int w, int h)
+{
+	if (0 == w && 0 == h) return;
 
 	m_debugLabel->setGeometry(w / 4, (h - m_lblHeight * 8) / 2, m_lblWidth, m_lblHeight);
 	m_debugCom->setGeometry(w / 2, (h - m_lblHeight * 8) / 2, m_lblWidth, m_lblHeight);

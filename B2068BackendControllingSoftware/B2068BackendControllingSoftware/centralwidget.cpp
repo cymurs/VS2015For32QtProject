@@ -13,16 +13,24 @@ CentralWidget::CentralWidget(QWidget *parent)
 	
 	m_left = new LeftWidget(this);
 
-	m_timeSrc = new TimeSrcTab();
-	m_comSettings = new ComSettingsTab();
-	m_netSettings = new NetSettingsTab();
-	m_stateMain = new StateMainTab();
+	m_timeSrc = new TimeSrcTab;
+	m_comSettings = new ComSettingsTab;
+	m_netSettings = new NetSettingsTab;
+	m_stateMain = new StateMainTab;
+	m_dev = new DeviceOverviewTab;
+	m_bds = new SatTypeStateTab;
+	m_gps = new SatTypeStateTab;
+	m_glo = new SatTypeStateTab;
 	m_center = new QFrame(this);
 	m_centerLayout = new QStackedLayout;
 	m_centerLayout->addWidget(m_timeSrc);
 	m_centerLayout->addWidget(m_comSettings);
 	m_centerLayout->addWidget(m_netSettings);
 	m_centerLayout->addWidget(m_stateMain);
+	m_centerLayout->addWidget(m_dev);
+	m_centerLayout->addWidget(m_bds);
+	m_centerLayout->addWidget(m_gps);
+	m_centerLayout->addWidget(m_glo);
 	m_centerLayout->setCurrentWidget(m_timeSrc);
 	m_center->setLayout(m_centerLayout);
 
@@ -62,8 +70,12 @@ void CentralWidget::setChildrenGeometry(int w, int h)
 }
 
 void CentralWidget::connectSlots()
-{
+{	
+	connect(m_top, SIGNAL(homeBtn()), this, SIGNAL(home()));
+	connect(m_top, SIGNAL(backBtn()), this, SIGNAL(back()));
+	connect(m_top, SIGNAL(backBtn()), this, SLOT(slotOnBackBtnClicked()));
 	connect(m_left, SIGNAL(leftButtonClicked(int)), this, SLOT(slotOnLeftBtnClicked(int)));
+	connect(m_stateMain, SIGNAL(stateParamsButtonClicked(int)), this, SLOT(slotOnStateParamsBtnClicked(int)));
 }
 
 void CentralWidget::slotOnLeftBtnClicked(int id)
@@ -86,4 +98,17 @@ void CentralWidget::slotOnLeftBtnClicked(int id)
 	default:
 		break;
 	}
+}
+
+void CentralWidget::slotOnStateParamsBtnClicked(int id)
+{
+	m_centerLayout->setCurrentIndex(id + 4);
+}
+
+void CentralWidget::slotOnBackBtnClicked()
+{
+	if (m_centerLayout->currentIndex() < 4)
+		emit home();
+	else
+		m_centerLayout->setCurrentIndex(3);
 }

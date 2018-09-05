@@ -39,7 +39,13 @@ private:
 	void connectSlots();
 
 private slots:
+	void slotOnBackBtnClicked();
 	void slotOnLeftBtnClicked(int id);
+	void slotOnStateParamsBtnClicked(int id);
+
+signals:
+	void home();
+	void back();
 
 private:
 	TopWidget *m_top;
@@ -51,4 +57,21 @@ private:
 	ComSettingsTab *m_comSettings;
 	NetSettingsTab *m_netSettings;
 	StateMainTab *m_stateMain;
+
+	DeviceOverviewTab *m_dev;
+	SatTypeStateTab *m_bds;
+	SatTypeStateTab *m_gps;
+	SatTypeStateTab *m_glo;
+	DCBStateTab *m_dcb;
+	ACBStateTab *m_acb;
+	DelayCompensationTab *m_delay;
+	PulseSettingsTab *m_pulse;
+	TimezoneTab *m_timezone;
+	LogInfoTab *m_log;
+	LogInfoTab *m_alarm;
+	ScreenSettingTab *m_buzz;	 // ·äÃùÆ÷
+	FactorySettingTab *m_factory;
+	PasswordChangeTab *m_pwd;
+	RestoreTab *m_restore;
+	VersionInfoTab *m_ver;
 };

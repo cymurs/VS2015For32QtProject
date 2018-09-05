@@ -416,6 +416,9 @@ class StateMainTab : public QWidget
 public:
 	StateMainTab(QWidget *parent = 0);
 
+signals:
+	void stateParamsButtonClicked(int id);
+
 private:
 	QPushButton *m_devOverview;
 	QPushButton *m_bdsStatus;
@@ -440,4 +443,5 @@ private:
 	QPushButton *m_restoreSettings;
 	QPushButton *m_verInfo;
 
+	QButtonGroup *m_btnGroup;
 };

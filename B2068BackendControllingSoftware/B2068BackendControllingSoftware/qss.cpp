@@ -1,6 +1,37 @@
 #include "qss.h"
 
 /****************************************************************************************
+QPushButton
+*****************************************************************************************/
+const QString QSS_PushButton =
+"QPushButton {"
+		"border-image: url(:/BackendControlling/images/button_normal.png) 5px;"
+		"border-width: 5px;"
+		"color: rgb(240, 240, 240);"
+		"font: bold normal 12px \"times\";"
+		"min-width: 35px;"
+	"}"
+	"QPushButton:hover {"
+		"border-image: url(:/BackendControlling/images/button_hover.png) 5px;"
+	"}"
+	"QPushButton:pressed {"
+		"border-image: url(:/BackendControlling/images/button_pressed.png) 5px;"
+		"padding-top: 2px;"
+	"}"
+	"QPushButton:disabled {"
+		"border-image: url(:/BackendControlling/images/button_disable.png) 5px;"
+		"color: rgb(200, 200, 200);"
+	"}";
+
+/****************************************************************************************
+QMessageBox
+*****************************************************************************************/
+const QString QSS_MsgBox =
+	"QMessageBox {"
+		"background-image: url(:/BackendControlling/images/bg_signal.png);"
+	"}";
+
+/****************************************************************************************
 TabWidget Style Sheet
 *****************************************************************************************/
 const QString QSS_TabWidget = 
@@ -61,7 +92,7 @@ const QString QSS_SignInWidget =
 const QString QSS_LeftWidget = "QWidget#%1 { background-color: #424642; }";
 const QString QSS_LeftWidgetDefaultButton =
 	"QPushButton {"
-		"font: bold normal 16px \"times\";"
+		"font: bold normal 18px \"times\";"
 		"color: white;"
 	"}"
 	"QPushButton:flat {"
@@ -266,6 +297,13 @@ const QString QSS_StateParams =
 	"QCheckBox::indicator::unchecked:hover {"
 		"background: grey;"
 		"border-radius: 10px;"
+	"}";
+
+const QString QSS_StateMain =
+	"QPushButton {"
+		"font: bold normal 16px \"times\";"
+		"min-width: %1px;"
+		"min-height: %2px;"
 	"}";
 
 /****************************************************************************************
