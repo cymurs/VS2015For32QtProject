@@ -6,7 +6,8 @@
 ChiefWidget::ChiefWidget(QWidget *parent)
 	: QWidget(parent)
 {
-	setFixedSize(720, 440);
+	//setFixedSize(720, 440);
+	setFixedSize(600, 400);
 
 	m_signIn = new SignInWidget;
 	m_main = new MainTab;

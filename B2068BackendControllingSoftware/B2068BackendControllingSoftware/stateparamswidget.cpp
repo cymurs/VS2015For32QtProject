@@ -194,18 +194,19 @@ SatTypeStateTab::SatTypeStateTab(QWidget *parent /*= 0*/)
 	baseLayout->addWidget(avlSatellitesLabel, 4, 1);
 	baseLayout->addWidget(m_avlSatellites, 4, 2);
 	baseLayout->addWidget(m_radar, 5, 1, 1, 2);
-	baseLayout->setColumnStretch(0, 1);
-	baseLayout->setColumnStretch(1, 3);
-	baseLayout->setColumnStretch(2, 3);
-	baseLayout->setColumnStretch(3, 1);
+	baseLayout->setColumnStretch(0, 0);
+	baseLayout->setColumnStretch(1, 2);
+	baseLayout->setColumnStretch(2, 2);
+	baseLayout->setColumnStretch(3, 0);
 	baseLayout->setColumnStretch(4, 6);
-	baseLayout->setColumnStretch(5, 1);
+	baseLayout->setColumnStretch(5, 0);
 	baseLayout->setRowStretch(0, 1);
 	baseLayout->setRowStretch(1, 1);
 	baseLayout->setRowStretch(2, 1);
 	baseLayout->setRowStretch(3, 1);
 	baseLayout->setRowStretch(4, 1);
 	baseLayout->setRowStretch(5, 6);
+	baseLayout->setContentsMargins(10, 5, 5, 5);
 }
 
 void SatTypeStateTab::setGnssstaInfo(const st_Gnsssta &gnsssta)
@@ -351,6 +352,13 @@ DCBStateTab::DCBStateTab(QWidget *parent /*= 0*/)
 
 	m_confirm = new QPushButton(tr("确认设置"), this);
 	
+	m_runState->setAlignment(Qt::AlignCenter);
+	m_synState->setAlignment(Qt::AlignCenter);
+	m_inFormat->setProperty("letterField", true);
+	m_outFormat->setProperty("letterField", true);
+	setTextAlignCenter(m_inFormat);
+	setTextAlignCenter(m_outFormat);
+
 	setChildrenGeometry(w, h);
 	
 }
@@ -368,19 +376,31 @@ void DCBStateTab::resizeEvent(QResizeEvent *event)
 	setChildrenGeometry(w, h);
 }
 
+void DCBStateTab::setTextAlignCenter(QComboBox *comboBox)
+{
+	int items = comboBox->count();
+	if (0 == items) return;
+
+	for (int i = 0; i < items; ++i) {
+		static_cast<QStandardItemModel *>(comboBox->model())->item(i)->setTextAlignment(Qt::AlignCenter);
+	}
+}
+
 void DCBStateTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
 {
 	if (0 == w && 0 == h) return;
 
-	m_runStateLabel->setGeometry(w / 6, (h - m_lblHeight * 10) / 2, m_lblWidth, m_lblHeight);
-	m_runState->setGeometry(w / 2, (h - m_lblHeight * 10) / 2, m_lblWidth, m_lblHeight);
-	m_synStateLabel->setGeometry(w / 6, (h - m_lblHeight * 6) / 2, m_lblWidth, m_lblHeight);
-	m_synState->setGeometry(w / 2, (h - m_lblHeight * 6) / 2, m_lblWidth, m_lblHeight);
-	m_inFormatLabel->setGeometry(w / 6, (h - m_lblHeight * 2) / 2, LblWidth * 2, m_lblHeight);
-	m_inFormat->setGeometry(w / 2, (h - m_lblHeight * 2) / 2, m_lblWidth, m_lblHeight);
-	m_outFormatLabel->setGeometry(w / 6, h / 2 + m_lblHeight, LblWidth * 2, m_lblHeight);
-	m_outFormat->setGeometry(w / 2, h / 2 + m_lblHeight, m_lblWidth, m_lblHeight);
-	m_confirm->setGeometry(w / 2 + m_lblWidth / 2, h / 2 + m_lblHeight * 4, m_lblWidth, m_lblHeight);
+	int wdth = LblWidth;	
+	int hght = LblHeight;
+	m_runStateLabel->setGeometry(w / 6, (h - hght * 10) / 2, m_lblWidth, m_lblHeight);
+	m_runState->setGeometry(w / 2, (h - hght * 10) / 2, wdth, m_lblHeight);
+	m_synStateLabel->setGeometry(w / 6, (h - hght * 6) / 2, m_lblWidth, m_lblHeight);
+	m_synState->setGeometry(w / 2, (h - hght * 6) / 2, wdth, m_lblHeight);
+	m_inFormatLabel->setGeometry(w / 6, (h - hght * 2) / 2, LblWidth * 2, m_lblHeight);
+	m_inFormat->setGeometry(w / 2, (h - hght * 2) / 2, wdth, m_lblHeight);
+	m_outFormatLabel->setGeometry(w / 6, h / 2 + hght, LblWidth * 2, m_lblHeight);
+	m_outFormat->setGeometry(w / 2, h / 2 + hght, wdth, m_lblHeight);
+	m_confirm->setGeometry(w / 2 + wdth / 2, h / 2 + hght * 4, m_lblWidth, m_lblHeight);
 }
 
 /****************************************************************************************
@@ -429,6 +449,16 @@ ACBStateTab::ACBStateTab(QWidget *parent /*= 0*/)
 
 	m_confirm = new QPushButton(tr("确认设置"), this);
 
+	m_runState->setAlignment(Qt::AlignCenter);
+	m_synState->setAlignment(Qt::AlignCenter);
+	m_outAmplitude->setAlignment(Qt::AlignCenter);
+	m_inFormat->setProperty("letterField", true);
+	m_outFormat->setProperty("letterField", true);
+	m_outMr->setProperty("numField", true);
+	setTextAlignCenter(m_inFormat);
+	setTextAlignCenter(m_outFormat);
+	setTextAlignCenter(m_outMr);
+	
 	setChildrenGeometry(w, h);
 
 }
@@ -446,27 +476,37 @@ void ACBStateTab::resizeEvent(QResizeEvent *event)
 	setChildrenGeometry(w, h);
 }
 
+void ACBStateTab::setTextAlignCenter(QComboBox *comboBox)
+{
+	int items = comboBox->count();
+	if (0 == items) return;
+
+	for (int i = 0; i < items; ++i) {
+		static_cast<QStandardItemModel *>(comboBox->model())->item(i)->setTextAlignment(Qt::AlignCenter);
+	}
+}
+
 void ACBStateTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
 {
 	if (0 == w && 0 == h)  return;
 
-	int wdth = LblWidth * 1.5;
+	int wdth = LblWidth;
 	int hght = LblHeight * 1.5;
 	int dblWdth = LblWidth * 2;
 	m_runStateLabel->setGeometry(w / 6, (h - m_lblHeight * 14) / 2, m_lblWidth, m_lblHeight);
 	m_runState->setGeometry(w / 2, (h - m_lblHeight * 14) / 2, m_lblWidth, m_lblHeight);
 	m_synStateLabel->setGeometry(w / 6, (h - m_lblHeight * 10) / 2, m_lblWidth, m_lblHeight);
 	m_synState->setGeometry(w / 2, (h - m_lblHeight * 10) / 2, m_lblWidth, m_lblHeight);
-	m_inFormatLabel->setGeometry(w / 6, (h - m_lblHeight * 6) / 2, dblWdth, m_lblHeight);
+	m_inFormatLabel->setGeometry(w / 6, (h - m_lblHeight * 6) / 2, dblWdth, hght);
 	m_inFormat->setGeometry(w / 2, (h - m_lblHeight * 6) / 2, wdth, hght);
-	m_outFormatLabel->setGeometry(w / 6, (h - m_lblHeight * 2) / 2, dblWdth, m_lblHeight);
+	m_outFormatLabel->setGeometry(w / 6, (h - m_lblHeight * 2) / 2, dblWdth, hght);
 	m_outFormat->setGeometry(w / 2, (h - m_lblHeight * 2) / 2, wdth, hght);
-	m_outAmpLabel->setGeometry(w / 6, h / 2 + m_lblHeight, dblWdth, m_lblHeight);
+	m_outAmpLabel->setGeometry(w / 6, h / 2 + m_lblHeight, dblWdth, hght);
 	m_outAmplitude->setGeometry(w / 2, h / 2 + m_lblHeight, wdth * 4 / 5, hght);
 	m_outAmpUnit->setGeometry(w / 2 + wdth * 5 / 6, h / 2 + m_lblHeight, wdth / 6, hght);
-	m_outMrLabel->setGeometry(w / 6, h / 2 + m_lblHeight * 3, dblWdth, m_lblHeight);
+	m_outMrLabel->setGeometry(w / 6, h / 2 + m_lblHeight * 3, dblWdth, hght);
 	m_outMr->setGeometry(w / 2, h / 2 + m_lblHeight * 3, wdth, hght);
-	m_confirm->setGeometry(w / 2 + wdth / 2, h / 2 + m_lblHeight * 6, wdth, hght);
+	m_confirm->setGeometry(w / 2 + wdth / 2, h / 2 + m_lblHeight * 6, LblWidth * 1.5, hght);
 }
 
 /****************************************************************************************
@@ -529,22 +569,23 @@ void DelayCompensationTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
 
 	int wdth = LblWidth * 1.5;
 	int hght = LblHeight * 1.5;
+	int mid = w / 4 + LblWidth * 1.2;
 	m_bdsLabel->setGeometry(w / 4, (h - m_lblHeight * 12) / 2, wdth, hght);
-	m_bds->setGeometry(w / 2, (h - m_lblHeight * 12) / 2, wdth, hght);
-	m_bdsUnit->setGeometry(w / 2 + wdth * 1.1, (h - m_lblHeight * 12) / 2, wdth, hght);
+	m_bds->setGeometry(mid, (h - m_lblHeight * 12) / 2, wdth, hght);
+	m_bdsUnit->setGeometry(mid + wdth * 1.1, (h - m_lblHeight * 12) / 2, wdth, hght);
 	m_gpsLabel->setGeometry(w / 4, (h - m_lblHeight * 8) / 2, wdth, hght);
-	m_gps->setGeometry(w / 2, (h - m_lblHeight * 8) / 2, wdth, hght);
-	m_gpsUnit->setGeometry(w / 2 + wdth * 1.1, (h - m_lblHeight * 8) / 2, wdth, hght);
+	m_gps->setGeometry(mid, (h - m_lblHeight * 8) / 2, wdth, hght);
+	m_gpsUnit->setGeometry(mid + wdth * 1.1, (h - m_lblHeight * 8) / 2, wdth, hght);
 	m_gloLabel->setGeometry(w / 4, (h - m_lblHeight * 4) / 2, wdth, hght);
-	m_glo->setGeometry(w / 2, (h - m_lblHeight * 4) / 2, wdth, hght);
-	m_gloUnit->setGeometry(w / 2 + wdth * 1.1, (h - m_lblHeight * 4) / 2, wdth, hght);
+	m_glo->setGeometry(mid, (h - m_lblHeight * 4) / 2, wdth, hght);
+	m_gloUnit->setGeometry(mid + wdth * 1.1, (h - m_lblHeight * 4) / 2, wdth, hght);
 	m_acbLabel->setGeometry(w / 4, h  / 2, wdth, hght);
-	m_acb->setGeometry(w / 2, h / 2, wdth, hght);
-	m_acbUnit->setGeometry(w / 2 + wdth * 1.1, h / 2, wdth, hght);
+	m_acb->setGeometry(mid, h / 2, wdth, hght);
+	m_acbUnit->setGeometry(mid + wdth * 1.1, h / 2, wdth, hght);
 	m_dcbLabel->setGeometry(w / 4, h / 2 + m_lblHeight * 2, wdth, hght);
-	m_dcb->setGeometry(w / 2, h / 2 + m_lblHeight * 2, wdth, hght);
-	m_dcbUnit->setGeometry(w / 2 + wdth * 1.1, h / 2 + m_lblHeight * 2, wdth, hght);
-	m_confirm->setGeometry(w / 2 + wdth / 2, h / 2 + m_lblHeight * 5, wdth, hght);
+	m_dcb->setGeometry(mid, h / 2 + m_lblHeight * 2, wdth, hght);
+	m_dcbUnit->setGeometry(mid + wdth * 1.1, h / 2 + m_lblHeight * 2, wdth, hght);
+	m_confirm->setGeometry(mid + wdth / 2, h / 2 + m_lblHeight * 5, wdth, hght);
 }
 
 /****************************************************************************************
@@ -613,13 +654,14 @@ void PulseSettingsTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
 	if (0 == w && 0 == h) return;
 	
 	int wdth = LblWidth;
+	int unitWdth = LblWidth * 0.6;
 	m_ppsWidthLabel->setGeometry(w / 4, (h - m_lblHeight * 6) / 2, wdth, m_lblHeight);
 	m_ppsWidth->setGeometry(w / 4 + wdth, (h - m_lblHeight * 6) / 2, m_lblWidth, m_lblHeight);
-	m_ppsWidthUnit->setGeometry(w / 4 + LblWidth*2.6, (h - m_lblHeight * 6) / 2, wdth, m_lblHeight);
+	m_ppsWidthUnit->setGeometry(w / 4 + LblWidth*2.6, (h - m_lblHeight * 6) / 2, unitWdth, m_lblHeight);
 	m_ppsDelayLabel->setGeometry(w / 4, (h - m_lblHeight * 2) / 2, wdth, m_lblHeight);
 	m_ppsDelay->setGeometry(w / 4 + wdth, (h - m_lblHeight * 2) / 2, m_lblWidth, m_lblHeight);
-	m_ppsDelayUnit->setGeometry(w / 4 + LblWidth*2.6, (h - m_lblHeight * 2) / 2, wdth, m_lblHeight);
-	m_confirm->setGeometry(w / 2 + wdth, h / 2 + m_lblHeight * 3, m_lblWidth, m_lblHeight);
+	m_ppsDelayUnit->setGeometry(w / 4 + LblWidth*2.6, (h - m_lblHeight * 2) / 2, unitWdth, m_lblHeight);
+	m_confirm->setGeometry(w / 2 + unitWdth, h / 2 + m_lblHeight * 3, m_lblWidth, m_lblHeight);
 }
 
 void PulseSettingsTab::connectSlots()
@@ -744,7 +786,7 @@ ScreenSettingTab::ScreenSettingTab(QWidget *parent /*= 0*/)
 	, m_lblWidth(LblWidth * 1.5)
 	, m_lblHeight(LblHeight * 1.5)
 {
-	m_buzzer = new QCheckBox(tr("蜂鸣器"), this);	
+	m_buzzer = new QCheckBox(tr("蜂鸣器          "), this);	
 	m_buzzer->setLayoutDirection(Qt::RightToLeft);	
 
 	m_confirm = new QPushButton(tr("确认设置"), this);
@@ -771,7 +813,7 @@ void ScreenSettingTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
 {
 	if (0 == w && 0 == h) return;
 
-	m_buzzer->setGeometry(w / 2 - m_lblWidth, h / 2 - m_lblHeight, m_lblWidth, m_lblHeight);
+	m_buzzer->setGeometry(w / 2 - LblWidth, h / 2 - m_lblHeight, m_lblWidth, m_lblHeight);
 	m_confirm->setGeometry((w + m_lblWidth) / 2, h / 2 + m_lblHeight * 2, m_lblWidth, m_lblHeight);
 }
 
@@ -826,24 +868,26 @@ void FactorySettingTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
 {
 	if (0 == w && 0 == h) return;
 
-	int left = m_lblHeight;
-	int top = LblHeight * 6 + LblHeight;
+	int left = LblHeight * 0.5;
+	int top = LblHeight * 6 + m_lblHeight;
+	int lineHght = LblHeight * 1.2;
+	int lineWdth = LblWidth * 2.6;
 	m_devTypeLabel->setGeometry(left, LblHeight, m_lblWidth, m_lblHeight);
 	m_b2d->setGeometry(left * 1.5, LblHeight * 3, m_lblWidth, m_lblHeight);
 	m_b3->setGeometry(left * 1.5, LblHeight * 5, m_lblWidth, m_lblHeight);
 	m_typeConfirm->setGeometry(left * 1.5 + m_lblWidth * 1.5, LblHeight * 4, m_lblWidth, m_lblHeight);
 	m_devIDLabel->setGeometry(left, top, m_lblWidth, m_lblHeight);
-	m_devID->setGeometry(left * 1.5 + m_lblWidth * 1.1, top, m_lblWidth * 2, m_lblHeight);
-	m_idConfirm->setGeometry(left * 1.5 + m_lblWidth * 3.3, top, m_lblWidth, m_lblHeight);
-	m_hwVersionLabel->setGeometry(left, top + m_lblHeight * 2, m_lblWidth, m_lblHeight);
-	m_hwVersion->setGeometry(left * 1.5 + m_lblWidth * 1.1, top + m_lblHeight * 2, m_lblWidth * 2, m_lblHeight);
-	m_verConfirm->setGeometry(left * 1.5 + m_lblWidth * 3.3, top + m_lblHeight * 2, m_lblWidth, m_lblHeight);
-	m_card1Label->setGeometry(left, top + m_lblHeight * 4, m_lblWidth * 1.5, m_lblHeight);
-	m_networkCard1->setGeometry(left * 1.5 + m_lblWidth * 1.1, top + m_lblHeight * 4, m_lblWidth * 2, m_lblHeight);
-	m_card1Confirm->setGeometry(left * 1.5 + m_lblWidth * 3.3, top + m_lblHeight * 4, m_lblWidth, m_lblHeight);
-	m_card2Label->setGeometry(left, top + m_lblHeight * 6, m_lblWidth * 1.5, m_lblHeight);
-	m_networkCard2->setGeometry(left * 1.5 + m_lblWidth * 1.1, top + m_lblHeight * 6, m_lblWidth * 2, m_lblHeight);
-	m_card2Confirm->setGeometry(left * 1.5 + m_lblWidth * 3.3, top + m_lblHeight * 6, m_lblWidth, m_lblHeight);
+	m_devID->setGeometry(left + m_lblWidth * 1.1, top, lineWdth, m_lblHeight);
+	m_idConfirm->setGeometry(left + m_lblWidth * 2.9, top, m_lblWidth, m_lblHeight);
+	m_hwVersionLabel->setGeometry(left, top + lineHght * 2, m_lblWidth, m_lblHeight);
+	m_hwVersion->setGeometry(left + m_lblWidth * 1.1, top + lineHght * 2, lineWdth, m_lblHeight);
+	m_verConfirm->setGeometry(left + m_lblWidth * 2.9, top + lineHght * 2, m_lblWidth, m_lblHeight);
+	m_card1Label->setGeometry(left, top + lineHght * 4, m_lblWidth * 1.5, m_lblHeight);
+	m_networkCard1->setGeometry(left + m_lblWidth * 1.1, top + lineHght * 4, lineWdth, m_lblHeight);
+	m_card1Confirm->setGeometry(left + m_lblWidth * 2.9, top + lineHght * 4, m_lblWidth, m_lblHeight);
+	m_card2Label->setGeometry(left, top + lineHght * 6, m_lblWidth * 1.5, m_lblHeight);
+	m_networkCard2->setGeometry(left + m_lblWidth * 1.1, top + lineHght * 6, lineWdth, m_lblHeight);
+	m_card2Confirm->setGeometry(left + m_lblWidth * 2.9, top + lineHght * 6, m_lblWidth, m_lblHeight);
 }
 
 /****************************************************************************************
@@ -920,26 +964,50 @@ void PasswordChangeTab::slotOnConfirmClicked()
 	QString newPwd = m_newPwd->text();
 	QString againPwd = m_againPwd->text();
 
+	QMessageBox msgBox(QMessageBox::Critical, tr(""), tr(""));
+	msgBox.setStyleSheet(QSS_MsgBox + QSS_PushButton);
+
 	if (0 != oldPwd.compare(userPwd.user2pwd[userPwd.curUser])) {
-		QMessageBox::critical(this, tr("错误"), tr("旧密码不正确"));
+		msgBox.setIcon(QMessageBox::Critical);
+		msgBox.setWindowTitle(tr("错误"));
+		msgBox.setText(tr("旧密码不正确!"));
+		msgBox.addButton(tr("确认"), QMessageBox::AcceptRole);
+		msgBox.exec();
+		//QMessageBox::critical(this, tr("错误"), tr("旧密码不正确"));
 		m_oldPwd->setFocus(Qt::MouseFocusReason);
 		return;
 	}
 
 	if (6 != newPwd.length()) {
-		QMessageBox::warning(this, tr("警告"), tr("密码必须为6位数字"));
+		msgBox.setIcon(QMessageBox::Warning);
+		msgBox.setWindowTitle(tr("警告"));
+		msgBox.setText(tr("密码必须为6位数字."));
+		msgBox.addButton(tr("确认"), QMessageBox::AcceptRole);
+		msgBox.exec();
+		//QMessageBox::warning(this, tr("警告"), tr("密码必须为6位数字"));
 		m_newPwd->setFocus(Qt::MouseFocusReason);
 		return;
 	}
 
 	if (0 != newPwd.compare(againPwd)) {
-		QMessageBox::warning(this, tr("警告"), tr("两次输入密码不一致"));
+		//QMessageBox::warning(this, tr("警告"), tr("两次输入密码不一致"));
+		msgBox.setIcon(QMessageBox::Warning);
+		msgBox.setWindowTitle(tr("警告"));
+		msgBox.setText(tr("两次输入密码不一致!"));
+		msgBox.addButton(tr("确认"), QMessageBox::AcceptRole);
+		msgBox.exec();
 		m_newPwd->setFocus(Qt::MouseFocusReason);
 		return;
 	}
 	
 	userPwd.user2pwd[userPwd.curUser] = newPwd;
-	if (0 == QMessageBox::information(this, tr("信息"), tr("密码重设成功"), tr("重新登录"), tr("取消"))) {
+	msgBox.setIcon(QMessageBox::Information);
+	msgBox.setWindowTitle(tr("提示"));
+	msgBox.setText(tr("密码重设成功."));
+	msgBox.addButton(tr("重新登录"), QMessageBox::AcceptRole);
+	msgBox.addButton(tr("取消"), QMessageBox::RejectRole);
+	if (0 == msgBox.exec()) {
+	//if (0 == QMessageBox::information(this, tr("信息"), tr("密码重设成功"), tr("重新登录"), tr("取消"))) {
 		emit relogin();
 	}
 }
@@ -1015,13 +1083,25 @@ void RestoreTab::generateRandomValue()
 void RestoreTab::slotOnConfirmClicked()
 {
 	QString value = m_pwd->text();
+	QMessageBox msgBox;
+	msgBox.setStyleSheet(QSS_MsgBox + QSS_PushButton);
 	if (4 != value.length()) {
-		QMessageBox::warning(this, tr("警告"), tr("密码应为4位数字"));
+		//QMessageBox::warning(this, tr("警告"), tr("密码应为4位数字"));
+		msgBox.setIcon(QMessageBox::Warning);
+		msgBox.setWindowTitle(tr("警告"));
+		msgBox.setText(tr("密码应为4位数字."));
+		msgBox.addButton(tr("确认"), QMessageBox::AcceptRole);
+		msgBox.exec();
 		return;
 	}
 
 	if (0 != value.compare(m_value)) {
-		QMessageBox::warning(this, tr("警告"), tr("密码错误"));
+		//QMessageBox::warning(this, tr("警告"), tr("密码错误"));
+		msgBox.setIcon(QMessageBox::Warning);
+		msgBox.setWindowTitle(tr("警告"));
+		msgBox.setText(tr("密码错误!"));
+		msgBox.addButton(tr("确认"), QMessageBox::AcceptRole);
+		msgBox.exec();
 		return;
 	}
 
@@ -1186,7 +1266,7 @@ StateMainTab::StateMainTab(QWidget *parent /*= 0*/)
 		baseLayout->setRowStretch(i, 1);		
 	}
 
-	setStyleSheet(QSS_StateMain.arg(LblWidth).arg(LblHeight));
+	setStyleSheet(QSS_StateMain.arg(LblWidth * 1.5).arg(LblHeight));
 
 	connect(m_btnGroup, SIGNAL(buttonClicked(int)), this, SIGNAL(stateParamsButtonClicked(int)));
 }

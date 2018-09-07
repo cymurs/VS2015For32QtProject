@@ -8,7 +8,7 @@ const QString QSS_PushButton =
 		"border-image: url(:/BackendControlling/images/button_normal.png) 5px;"
 		"border-width: 5px;"
 		"color: rgb(240, 240, 240);"
-		"font: bold normal 12px \"times\";"
+		"font: bold normal 12px \"arial\";"
 		"min-width: 35px;"
 	"}"
 	"QPushButton:hover {"
@@ -77,13 +77,16 @@ const QString QSS_SignInWidget =
 		"font: bold normal 16px \"times\";"
 	"}"
 	"QLineEdit, QComboBox  {"
-		"font: 16px \"times\";"
+		"font: bold normal 16px \"times\";"
 	"}"
 	"QLineEdit, QComboBox  {"
 		"color: #0306A8;"
 	"}"
 	"QLineEdit[echoMode=\"2\"] {"
 		"lineedit-password-character: 42;"
+	"}"
+	"QComboBox{ "
+		"padding-left: 35px;"
 	"}";
 
 /****************************************************************************************
@@ -92,7 +95,7 @@ const QString QSS_SignInWidget =
 const QString QSS_LeftWidget = "QWidget#%1 { background-color: #424642; }";
 const QString QSS_LeftWidgetDefaultButton =
 	"QPushButton {"
-		"font: bold normal 18px \"times\";"
+		"font: bold normal 18px \"arial\";"
 		"color: white;"
 	"}"
 	"QPushButton:flat {"
@@ -130,12 +133,12 @@ const QString QSS_YaHeiMainTabLabel =
 const QString QSS_TimesMainTabLabel =
 	"QLabel#%1 {"
 		"color: white;"
-		"font: bold normal 16px \"times\";"
+		"font: bold normal 16px \"arial\";"
 	"}"
 
 	"QLabel#%2 {"
 		"color: white;"
-		"font: bold normal 20px \"times\";"
+		"font: bold normal 20px \"arial\";"
 	"}"
 
 	"QLabel#%3 {"
@@ -179,7 +182,7 @@ const QString QSS_YaHeiTimeSrcRadio =
 
 const QString QSS_TimesTimeSrcRadio =
 	"QRadioButton#%1 {"
-		"font: bold normal 20px \"times\";"
+		"font: bold normal 20px \"arial\";"
 	"}"
 	"QRadioButton#%1::indicator {"
 		"width: 20px;"
@@ -197,7 +200,7 @@ const QString QSS_TimesTimeSrcRadio =
 	"}"
 
 	"QRadioButton#%2 {"
-		"font: bold normal 15px \"times\";"
+		"font: bold normal 16px \"arial\";"		
 	"}"
 	"QRadioButton#%2::indicator {"
 		"width: 16px;"
@@ -207,33 +210,48 @@ const QString QSS_TimesTimeSrcRadio =
 		"background: grey;"
 		"border-radius: 8px;"
 	"}";
-
-const QString QSS_TimeSrcLabel =
-	"QLabel#%1, QLineEdit, QComboBox {"
-		"font: 16px \"times\";"
+	
+const QString QSS_TimeSrcOthers =
+	"*[autoField=\"true\"] { color: #4F004F; }"
+	"*[manualField=\"true\"] { color: #0306A8; }"
+	"QLabel#%1, QLineEdit {"
+		"font: bold normal 16px \"arial\";"
+		"color: #0306A8;"
 	"}"
-	"QLabel#%2, QPushButton {"
-		"font: bold normal 15px \"times\";"
+	"QLabel#%2, QPushButton, QComboBox {"
+		"font: bold normal 16px \"arial\";"
+		
+	"}"
+	// 字体居中折中办法
+	"QComboBox {"
+		"padding-left: 20px;"
+		"max-width: 40px;"
+	//"text-align: center;"
+	"}"
+	"QPushButton {"
+		"max-width: 55px;"
 	"}";
+
 
 /****************************************************************************************
 串口设置
 *****************************************************************************************/
 const QString QSS_ComSettingsLabel =
 	"QLabel, QPushButton {"
-		"font: bold normal 16px \"times\";"
+		"font: bold normal 16px \"arial\";"
 	"}"
 	"QComboBox {"
-		"font: 16px \"times\";"
+		"font: bold normal 16px \"arial\";"
 		"color: #0306A8;"
+		"padding-left: 15px;"
 	"}";
 
 /****************************************************************************************
-网口设置
+网络设置
 *****************************************************************************************/
 const QString QSS_NetSettings =
 	"QRadioButton, QLabel {"
-		"font: bold normal 20px \"times\";"
+		"font: bold normal 20px \"arial\";"
 	"}"
 	"QRadioButton::indicator {"
 		"width: 20px;"
@@ -250,11 +268,24 @@ const QString QSS_NetSettings =
 		"border-radius: 10px;"
 	"}"
 	"QPushButton {"
-		"font: bold normal 16px \"times\";"
+		"font: bold normal 16px \"arial\";"
+		"min-width: %1px;"
+		"min-height: %2px;"
 	"}"
 	"QLineEdit {"
-		"font: 16px \"times\";"
+		"font: bold normal 16px \"arial\";"
 		"color: #0306A8;"
+	"}"
+	"QGroupBox[netField=\"true\"] {"
+		"background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
+																"stop: 0 #2CBB2C, stop: 1 #00CC00); "
+		"border: 0px;"
+	"}"
+	"QGroupBox[commField=\"true\"] {"
+	/*"background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
+															"stop: 0 #FFE500, stop: 1 #E4E700); "*/
+		"background-color: #E4E700;"
+		"border: 0px;"
 	"}";
 
 /****************************************************************************************
@@ -269,16 +300,17 @@ const QString QSS_StateParams =
 		"margin-top: 0.5em;" 
 	"}"
 	"QLabel, QTableWidget, QTableView, QHeaderView, QPushButton, QCheckBox {"
-		"font: bold normal 16px \"times\";"
+		"font: bold normal 16px \"arial\";"
 	"}"
 	"QComboBox, QLineEdit, QTextEdit  {"
-		"font: 16px \"times\";"
-	"}"
+		//"font: 16px \"arial\";"
+		"font: bold normal 16px \"arial\";"
+	"}"	
 	"QLabel#%1, QTableView#%2, QComboBox, QLineEdit, QTextEdit  {"
 		"color: #0306A8;"
 	"}"
 	"QLabel#%3 {"
-		"font: 16px \"times\";"
+		"font: 16px \"arial\";"
 		"color: lightgray;"
 	"}"
 	"QLineEdit[echoMode=\"2\"] {"
@@ -297,11 +329,18 @@ const QString QSS_StateParams =
 	"QCheckBox::indicator::unchecked:hover {"
 		"background: grey;"
 		"border-radius: 10px;"
+	"}"
+	"QComboBox[letterField=\"true\"] {"
+		"padding-left: 12px;"
+	//"max-width: 40px;"	
+	"}"
+	"QComboBox[numField=\"true\"] {"
+		"padding-left: 18px;"	
 	"}";
 
 const QString QSS_StateMain =
 	"QPushButton {"
-		"font: bold normal 16px \"times\";"
+		"font: bold normal 16px \"arial\";"
 		"min-width: %1px;"
 		"min-height: %2px;"
 	"}";
@@ -311,7 +350,7 @@ const QString QSS_StateMain =
 *****************************************************************************************/
 const QString QSS_DeviceOverview =
 	"QLabel, QTableWidget, QHeaderView {"
-		"font: bold normal 16px \"times\";"
+		"font: bold normal 16px \"arial\";"
 	"}"
 	"QLabel#%1  {"
 		"color: #0306A8;"

@@ -36,6 +36,7 @@ protected:
 	void setChildrenGeometry(int w, int h);
 
 private:
+	void initTest();  // ½ö×ö²âÊÔ
 	void connectSlots();
 
 private slots:
@@ -62,8 +63,8 @@ private:
 	SatTypeStateTab *m_bds;
 	SatTypeStateTab *m_gps;
 	SatTypeStateTab *m_glo;
-	DCBStateTab *m_dcb;
 	ACBStateTab *m_acb;
+	DCBStateTab *m_dcb;	
 	DelayCompensationTab *m_delay;
 	PulseSettingsTab *m_pulse;
 	TimezoneTab *m_timezone;

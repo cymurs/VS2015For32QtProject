@@ -34,6 +34,9 @@ public:
 protected:
 	void resizeEvent(QResizeEvent *event) override;
 	void paintEvent(QPaintEvent *event) override;
+	void keyPressEvent(QKeyEvent *event) override;
+	
+	void setTextAlignCenter(QComboBox *comboBox);
 
 private:
 	void setChildrenGeometry(int w = 0, int h = 0);
@@ -108,6 +111,9 @@ class TimeSrcTab : public QWidget
 public:
 	explicit TimeSrcTab(QWidget *parent = 0);
 
+protected:
+	void setTextAlignCenter(QComboBox *comboBox);
+
 private:
 	void connectSlots();
 	void switchAutoManual(bool isAuto, bool isInitial = false);
@@ -169,6 +175,8 @@ public:
 
 protected:
 	void resizeEvent(QResizeEvent *event) override;
+
+	void setTextAlignCenter(QComboBox *comboBox);
 
 private:
 	void setChildrenGeometry(int w, int h);

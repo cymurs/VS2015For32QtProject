@@ -8,7 +8,8 @@
 CentralWidget::CentralWidget(QWidget *parent)
 	: QWidget(parent)
 {
-	setFixedSize(720, 440);
+	//setFixedSize(720, 440);
+	//setFixedSize(600, 400);
 	m_top = new TopWidget(this);
 	
 	m_left = new LeftWidget(this);
@@ -21,6 +22,19 @@ CentralWidget::CentralWidget(QWidget *parent)
 	m_bds = new SatTypeStateTab;
 	m_gps = new SatTypeStateTab;
 	m_glo = new SatTypeStateTab;
+	m_acb = new ACBStateTab;
+	m_dcb = new DCBStateTab;
+	m_delay = new DelayCompensationTab;
+	m_pulse = new PulseSettingsTab;
+	m_timezone = new TimezoneTab;
+	m_log = new LogInfoTab;
+	m_alarm = new LogInfoTab;
+	m_buzz = new ScreenSettingTab;
+	m_restore = new RestoreTab;
+	m_factory = new FactorySettingTab;
+	m_pwd = new PasswordChangeTab;
+	m_ver = new VersionInfoTab;
+
 	m_center = new QFrame(this);
 	m_centerLayout = new QStackedLayout;
 	m_centerLayout->addWidget(m_timeSrc);
@@ -31,14 +45,33 @@ CentralWidget::CentralWidget(QWidget *parent)
 	m_centerLayout->addWidget(m_bds);
 	m_centerLayout->addWidget(m_gps);
 	m_centerLayout->addWidget(m_glo);
+	m_centerLayout->addWidget(m_acb);
+	m_centerLayout->addWidget(m_dcb);
+	m_centerLayout->addWidget(new QWidget); // 占位 位置配置
+	m_centerLayout->addWidget(new QWidget); // 占位 运动配置
+	m_centerLayout->addWidget(new QWidget); // 占位 最小仰角
+	m_centerLayout->addWidget(new QWidget); // 占位 最小信噪比
+	m_centerLayout->addWidget(m_delay);
+	m_centerLayout->addWidget(m_pulse);
+	m_centerLayout->addWidget(m_timezone);
+	m_centerLayout->addWidget(m_log);
+	m_centerLayout->addWidget(m_alarm);
+	m_centerLayout->addWidget(m_buzz);
+	m_centerLayout->addWidget(m_factory);
+	m_centerLayout->addWidget(m_pwd);
+	m_centerLayout->addWidget(m_restore);
+	m_centerLayout->addWidget(m_ver);
 	m_centerLayout->setCurrentWidget(m_timeSrc);
 	m_center->setLayout(m_centerLayout);
 
+	initTest();   // 仅做测试
 	connectSlots();
 
 	int w = width();
 	int h = height();
 	setChildrenGeometry(w, h);
+
+	setStyleSheet(QSS_StateParams.arg(valueLabelQss).arg(valueTableViewQss).arg(valueLightgrayQss));
 }
 
 CentralWidget::~CentralWidget()
@@ -67,6 +100,47 @@ void CentralWidget::setChildrenGeometry(int w, int h)
 	m_top->setGeometry(cLeft, 0, w - cLeft, cTop);
 	m_left->setGeometry(0, 0, cLeft, h);
 	m_center->setGeometry(QRect(cLeft, cTop, w - cLeft, h - cTop));
+}
+
+void CentralWidget::initTest()
+{
+	st_Gnsssta gs;
+	strcpy_s(gs.satelliteType, 4, "bds");
+	m_bds->setGnssstaInfo(gs);
+
+	strcpy_s(gs.satelliteType, 4, "gps");
+	m_gps->setGnssstaInfo(gs);
+
+	strcpy_s(gs.satelliteType, 4, "glo");
+	m_glo->setGnssstaInfo(gs);
+
+	st_Gnssgsv gg;
+	strcpy_s(gg.satelliteType, 4, "bds");
+	m_bds->setGnssgsvInfo(gg);
+
+	strcpy_s(gg.satelliteType, 4, "gps");
+	gg.frameTotal = 1;
+	gg.count = 4;
+	gg.satelliteNo[0] = 1;
+	gg.satelliteNo[1] = 3;
+	gg.satelliteNo[2] = 6;
+	gg.satelliteNo[3] = 7;
+	gg.elevation[0] = 57;
+	gg.elevation[1] = 32;
+	gg.elevation[2] = 12;
+	gg.elevation[3] = 45;
+	gg.azimuth[0] = 34;
+	gg.azimuth[1] = 125;
+	gg.azimuth[2] = 225;
+	gg.azimuth[3] = 111;
+	gg.snr[0] = 52;
+	gg.snr[1] = 41;
+	gg.snr[2] = 35;
+	gg.snr[3] = 52;
+	m_gps->setGnssgsvInfo(gg);
+
+	strcpy_s(gg.satelliteType, 4, "glo");
+	m_glo->setGnssgsvInfo(gg);
 }
 
 void CentralWidget::connectSlots()

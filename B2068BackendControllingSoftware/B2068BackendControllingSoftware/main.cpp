@@ -8,6 +8,7 @@ int main(int argc, char *argv[])
 {
 	QApplication a(argc, argv);
 	ChiefWidget w;
+	//CentralWidget w;
 	w.show();
 	return a.exec();
 }

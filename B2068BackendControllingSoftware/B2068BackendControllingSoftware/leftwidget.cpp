@@ -68,10 +68,10 @@ void LeftWidget::setChildrenGeometry(int w, int h)
 
 	int left = LeftMargin * 0.25;
 	int height = LblHeight * 2.5;
-	int top = (h - BottomMargin) / 4 - height;
+	int top = h / 4 + BottomMargin / 2 - height;
 	m_timeSrcBtn->setGeometry(left, top, w - left, height); 
-	m_comBtn->setGeometry(left, (h - BottomMargin) * 2 / 4 - height, w - left, height);
-	m_netBtn->setGeometry(left, (h - BottomMargin) * 3 / 4 - height, w - left, height);
+	m_comBtn->setGeometry(left, h / 2 - height, w - left, height);
+	m_netBtn->setGeometry(left, h * 3 / 4 - BottomMargin / 2 - height, w - left, height);
 	m_stateParamsBtn->setGeometry(left, h - BottomMargin - height, w - left, height);
 }
 

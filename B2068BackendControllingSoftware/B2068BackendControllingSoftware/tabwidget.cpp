@@ -137,10 +137,14 @@ SignInWidget::SignInWidget(QWidget *parent /* = 0 */)
 	//m_pwdArray[1] = 888888;
 	//m_pwdArray[2] = 888888;		
 
+	// 下拉列表框中字体居中 
+	//static_cast<QStandardItemModel *>(m_user->view()->model())->item(0)->setTextAlignment(Qt::AlignCenter);
+
 	int w = width();
 	int h = height();
 	setChildrenGeometry(w, h);
 
+	setTextAlignCenter(m_user);
 	QString objName("signin");
 	setObjectName(objName);
 	setStyleSheet(QSS_SignInWidget.arg(objName));
@@ -170,6 +174,28 @@ void SignInWidget::paintEvent(QPaintEvent *event)
 	QPainter p(this);
 	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 	QWidget::paintEvent(event);
+}
+
+void SignInWidget::keyPressEvent(QKeyEvent *event) {
+	if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
+		if (dynamic_cast<QWidget *>(m_pwd) == QApplication::focusWidget() &&
+			m_pwd->text().length() < 6) {
+			QMessageBox msgBox(QMessageBox::Critical, tr("提示"), tr("密码必须为6位数字!"), QMessageBox::NoButton);
+			msgBox.addButton(tr("确认"), QMessageBox::AcceptRole);
+			msgBox.setStyleSheet(QSS_MsgBox + QSS_PushButton);
+			msgBox.exec();			
+		}
+	}	
+}
+
+void SignInWidget::setTextAlignCenter(QComboBox *comboBox)
+{
+	int items = comboBox->count();
+	if (0 == items) return;
+
+	for (int i = 0; i < items; ++i) {
+		static_cast<QStandardItemModel *>(comboBox->model())->item(i)->setTextAlignment(Qt::AlignCenter);
+	}
 }
 
 void SignInWidget::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
@@ -402,21 +428,21 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	QString smallRadioQss("smallradio");
 	QString normalLabelQss("normallabel");
 	QString boldLabelQss("boldlabel");
-
+	QString autoColorQss("autoField");
 
 	m_manual = new QRadioButton(tr("手动"), this);
 	m_manual->setObjectName(largeRadioQss);
 
 	m_auto = new QRadioButton(tr("自动"), this);
 	m_auto->setObjectName(largeRadioQss);
-	
+	m_auto->setProperty(qPrintable(autoColorQss), true);
 
 	m_bdsLock = new QLabel(this);		
 	m_bdsLock->setScaledContents(true);
 	m_bdsLock->setFixedSize(LockSize);
 	m_bdsLock->setPixmap(QPixmap(":/BackendControlling/images/lock_black_close.png", "PNG"));
 		
-	m_bds = new QRadioButton(tr("北斗"), this);
+	m_bds = new QRadioButton(tr("    北斗"), this);
 	m_bds->setObjectName(smallRadioQss);
 
 	m_bdsDateTime = new QLabel(tr("2018/08/17 11:35:10"), this);
@@ -429,14 +455,14 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 
 	m_bdsPriority = new QComboBox(this);
 	m_bdsPriority->addItems(priority);
-
+	m_bdsPriority->setProperty(qPrintable(autoColorQss), true);
 
 	m_gpsLock = new QLabel(this);
 	m_gpsLock->setScaledContents(true);
 	m_gpsLock->setFixedSize(LockSize);
 	m_gpsLock->setPixmap(QPixmap(":/BackendControlling/images/lock_black_open.png", "PNG"));
 
-	m_gps = new QRadioButton(tr("GPS"), this);
+	m_gps = new QRadioButton(tr("    GPS"), this);
 	m_gps->setObjectName(smallRadioQss);
 
 	m_gpsDateTime = new QLabel(tr("2018/08/17 11:35:10"), this);
@@ -449,13 +475,13 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 
 	m_gpsPriority = new QComboBox(this);
 	m_gpsPriority->addItems(priority);
-
+	m_gpsPriority->setProperty(qPrintable(autoColorQss), true);
 
 	m_gloLock = new QLabel(this);
 	m_gloLock->setScaledContents(true);
 	m_gloLock->setFixedSize(LockSize);
 
-	m_glo = new QRadioButton(tr("GLO"), this);
+	m_glo = new QRadioButton(tr("    GLO"), this);
 	m_glo->setObjectName(smallRadioQss);
 
 	m_gloDateTime = new QLabel(tr("2018/08/17 11:35:10"), this);
@@ -468,7 +494,7 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 
 	m_gloPriority = new QComboBox(this);
 	m_gloPriority->addItems(priority);
-
+	m_gloPriority->setProperty(qPrintable(autoColorQss), true);
 
 	m_dcbLock = new QLabel(this);
 	m_dcbLock->setScaledContents(true);
@@ -483,7 +509,7 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 
 	m_dcbPriority = new QComboBox(this);
 	m_dcbPriority->addItems(priority);
-
+	m_dcbPriority->setProperty(qPrintable(autoColorQss), true);
 
 	m_acbLock = new QLabel(this);
 	m_acbLock->setScaledContents(true);
@@ -498,7 +524,7 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 
 	m_acbPriority = new QComboBox(this);
 	m_acbPriority->addItems(priority);
-
+	m_acbPriority->setProperty(qPrintable(autoColorQss), true);
 
 	m_input = new QRadioButton(tr("输入时间"), this);
 	m_input->setObjectName(smallRadioQss);
@@ -523,7 +549,7 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 
 	QLabel *priorityLabel = new QLabel(tr("优先级"), this);
 	priorityLabel->setObjectName(boldLabelQss);
-
+	priorityLabel->setProperty(qPrintable(autoColorQss), true);
 	
 	// 分组
 	QButtonGroup *operatingGroup = new QButtonGroup(this);
@@ -546,6 +572,11 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	m_priorityGroup[3] = m_dcbPriority;
 	m_priorityGroup[4] = m_acbPriority;
 
+	setTextAlignCenter(m_bdsPriority);
+	setTextAlignCenter(m_gpsPriority);
+	setTextAlignCenter(m_gloPriority);
+	setTextAlignCenter(m_dcbPriority);
+	setTextAlignCenter(m_acbPriority);
 
 	auto topLayout = new QHBoxLayout;
 	topLayout->addStretch(1);
@@ -581,20 +612,27 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	mainLayout->addWidget(m_acbPriority, 5, 5, RowSpan, 1);
 	mainLayout->addWidget(m_input, 6, 2, RowSpan, 1);
 	mainLayout->addWidget(m_inputDateTime, 6, 3, RowSpan, 1);
-	mainLayout->addWidget(m_confirm, 6, 5, RowSpan+2, 1);
+	mainLayout->addWidget(m_confirm, 6, 5, RowSpan+1, 1);
 	mainLayout->addWidget(inputLabel, 7, 2, RowSpan, 1);
 	mainLayout->addWidget(m_inputSetting, 7, 3, RowSpan, 1);	
+	mainLayout->setHorizontalSpacing(15);
 	// 设置行距
 	for (int i = 1; i < 8; ++i) {
 		mainLayout->setRowMinimumHeight(i, MinRowHeight);
 	}
+	// 设置列距
 	for (int i = 0; i < 7; ++i) {
-		if (0 == i || i > 4) {
+		if (0 == i || i > 4 ) {
 			mainLayout->setColumnStretch(i, 1);
 			continue;
 		}
 
-		mainLayout->setColumnStretch(i, 2);
+		if (1 == i || 4 == i ) {
+			mainLayout->setColumnStretch(i, 2);
+			continue;
+		}
+
+		mainLayout->setColumnStretch(i, 3);
 	}
 
 	auto baseLayout = new QVBoxLayout;
@@ -602,14 +640,25 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	baseLayout->addLayout(topLayout, 1);
 	baseLayout->addLayout(mainLayout, 8);
 	//baseLayout->addStretch(1);
-	baseLayout->setMargin(15);
+	//baseLayout->setMargin(15);	
+	baseLayout->setContentsMargins(0, 20, 0, 10); // 替代旧版setMargin, 对应: 左 上 右 下
 	setLayout(baseLayout);
 
 	setStyleSheet(QSS_TimesTimeSrcRadio.arg(largeRadioQss).arg(smallRadioQss)
-		+ QSS_TimeSrcLabel.arg(normalLabelQss).arg(boldLabelQss));
+		+ QSS_TimeSrcOthers.arg(normalLabelQss).arg(boldLabelQss));
 
 	connectSlots();
 	switchAutoManual(false, true);
+}
+
+void TimeSrcTab::setTextAlignCenter(QComboBox *comboBox)
+{
+	int items = comboBox->count();
+	if (0 == items) return;
+
+	for (int i = 0; i < items; ++i) {
+		static_cast<QStandardItemModel *>(comboBox->model())->item(i)->setTextAlignment(Qt::AlignCenter);
+	}
 }
 
 void TimeSrcTab::connectSlots()
@@ -709,6 +758,10 @@ ComSettingsTab::ComSettingsTab(QWidget *parent /*= 0*/)
 	setChildrenGeometry(w, h);
 
 	setStyleSheet(QSS_ComSettingsLabel);
+
+	setTextAlignCenter(m_debugCom);
+	setTextAlignCenter(m_timingFirst);
+	setTextAlignCenter(m_timingSecond);
 }
 
 void ComSettingsTab::resizeEvent(QResizeEvent *event)
@@ -724,17 +777,28 @@ void ComSettingsTab::resizeEvent(QResizeEvent *event)
 	setChildrenGeometry(w, h);
 }
 
+void ComSettingsTab::setTextAlignCenter(QComboBox *comboBox)
+{
+	int items = comboBox->count();
+	if (0 == items) return;
+
+	for (int i = 0; i < items; ++i) {
+		static_cast<QStandardItemModel *>(comboBox->model())->item(i)->setTextAlignment(Qt::AlignCenter);
+	}
+}
+
 void ComSettingsTab::setChildrenGeometry(int w, int h)
 {
 	if (0 == w && 0 == h) return;
 
+	int wdth = LblWidth;
 	m_debugLabel->setGeometry(w / 4, (h - m_lblHeight * 8) / 2, m_lblWidth, m_lblHeight);
-	m_debugCom->setGeometry(w / 2, (h - m_lblHeight * 8) / 2, m_lblWidth, m_lblHeight);
+	m_debugCom->setGeometry(w / 2, (h - m_lblHeight * 8) / 2, wdth, m_lblHeight);
 	m_firstLabel->setGeometry(w / 4, (h - m_lblHeight * 4) / 2, m_lblWidth, m_lblHeight);
-	m_timingFirst->setGeometry(w / 2, (h - m_lblHeight * 4) / 2, m_lblWidth, m_lblHeight);
+	m_timingFirst->setGeometry(w / 2, (h - m_lblHeight * 4) / 2, wdth, m_lblHeight);
 	m_secondLabel->setGeometry(w / 4, h / 2, m_lblWidth, m_lblHeight);
-	m_timingSecond->setGeometry(w / 2, h / 2, m_lblWidth, m_lblHeight);
-	m_confirm->setGeometry(w / 2 + m_lblWidth / 2, h * 3 / 4 - m_lblHeight, m_lblWidth, m_lblHeight);
+	m_timingSecond->setGeometry(w / 2, h / 2, wdth, m_lblHeight);
+	m_confirm->setGeometry(w / 2 + wdth / 2, h * 3 / 4 - m_lblHeight, m_lblWidth, m_lblHeight);
 }
 
 /****************************************************************************************
@@ -1046,10 +1110,16 @@ NetSettingsTab::NetSettingsTab(QWidget *parent)
 	auto baseLayout = new QGridLayout;
 	baseLayout->addWidget(m_netBox, 0, 0, 1, 1);
 	baseLayout->addWidget(m_commBox, 0, 1, 1, 1);
-	baseLayout->addLayout(m_settingsLayout, 1, 0, 1, 2);
+	baseLayout->addLayout(m_settingsLayout, 1, 0, 1, 2);	
 	setLayout(baseLayout);
 	
-	setStyleSheet(QSS_NetSettings);
+	// 使得GroupBox占满
+	baseLayout->setMargin(0);
+	baseLayout->setSpacing(0);	
+
+	m_netBox->setProperty("netField", true);
+	m_commBox->setProperty("commField", true);
+	setStyleSheet(QSS_NetSettings.arg(LblWidth).arg(LblHeight));
 
 	connectSlots();
 }
@@ -1085,7 +1155,7 @@ QGroupBox * NetSettingsTab::createNetExclusiveGroup()
 	netLayout->addStretch(1);  // 使得button居中
 	netLayout->addWidget(m_firstNet, 2);
 	netLayout->addWidget(m_secondNet, 2);	
-	netBox->setLayout(netLayout);
+	netBox->setLayout(netLayout);	
 
 	return netBox;
 }

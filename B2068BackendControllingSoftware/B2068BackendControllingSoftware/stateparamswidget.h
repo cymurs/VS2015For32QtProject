@@ -66,6 +66,8 @@ public:
 protected:
 	void resizeEvent(QResizeEvent *event) override;
 
+	void setTextAlignCenter(QComboBox *comboBox);
+
 private:
 	void setChildrenGeometry(int w = 0, int h = 0);
 
@@ -94,6 +96,8 @@ public:
 
 protected:
 	void resizeEvent(QResizeEvent *event) override;
+
+	void setTextAlignCenter(QComboBox *comboBox);
 
 private:
 	void setChildrenGeometry(int w = 0, int h = 0);
