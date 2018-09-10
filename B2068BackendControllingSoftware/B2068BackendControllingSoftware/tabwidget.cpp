@@ -324,11 +324,19 @@ MainTab::MainTab(QWidget *parent)
 	setStyleSheet(QSS_MainTabBackground.arg(objName) 
 		+ QSS_TimesMainTabLabel.arg(smallLabelQss).arg(mediumLabelQss).arg(largeLabelQss));
 	
-	m_animation = new QPropertyAnimation(this, "geometry");
+	// 动画1
+	//m_animation = new QPropertyAnimation(this, "geometry");
+	//m_animation->setDuration(600);
+	//m_animation->setStartValue(geometry());
+	//m_animation->setEndValue(QRect(-width(), 0, width(), height()));
+	//m_animation->setEasingCurve(QEasingCurve::InOutSine);  // 有效
+
+	// 动画2
+	m_animation = new QPropertyAnimation(this, "pos");
 	m_animation->setDuration(600);
-	m_animation->setStartValue(geometry());
-	m_animation->setEndValue(QRect(-width(), 0, width(), height()));
-	m_animation->setEasingCurve(QEasingCurve::Linear);
+	m_animation->setStartValue(QPoint(rect().topLeft()) );
+	m_animation->setEndValue(QPoint(-width(), 0));
+	m_animation->setEasingCurve(QEasingCurve::InOutBack);
 
 	// 测试	
 	// 设置精度，最精确的一个

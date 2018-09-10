@@ -1,5 +1,10 @@
 #include "stdafx.h"
 #include "transportthread.h"
+#include "HandyTool.h"
+
+/****************************************************************************************/
+const char SepCharSpace = 0x20; // ¿Õ¸ñ: ' '
+const char SepCharComma = 0x2C; // ¶ººÅ: ','
 
 TransportThread *TransportThread::Get()
 {
@@ -33,7 +38,30 @@ void TransportThread::HandleFrameFromMasterBoard(const st_FrameData *pFrameData)
 	if (!pFrameData->m_bDataIsOK)
 		return;
 
+	QString strData(pFrameData->m_pFrameDataBuf);
+	QStringList dataLst = strData.split(SepCharComma);
+	if (1 >= dataLst.length())
+		dataLst = strData.split(SepCharSpace);
+	if (1 >= dataLst.length())
+		return;
 
+	QString strCmdName = dataLst[0];
+	switch (CHandyTool::hash_(qPrintable(dataLst[0]))) {
+	case "status"_hash:
+	{
+
+	}
+	case "gnsstime"_hash:
+	{
+
+	}
+	case "refuseok"_hash:
+	{
+
+	}
+	default:
+		break;
+	}
 }
 
 void TransportThread::run()

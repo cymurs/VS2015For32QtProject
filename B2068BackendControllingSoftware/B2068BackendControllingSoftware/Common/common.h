@@ -29,6 +29,8 @@ const int LoginInterval = 5 * 60 * 1000;
 
 /****************************************************************************************/
 extern const char *ConfigFile;
+extern const char SepCharSpace; // 空格: ' '
+extern const char SepCharComma; // 逗号: ','
 
 // 用户名和密码
 struct st_UserPwd
