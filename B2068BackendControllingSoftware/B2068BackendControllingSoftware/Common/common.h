@@ -31,6 +31,9 @@ const int LoginInterval = 5 * 60 * 1000;
 extern const char *ConfigFile;
 extern const char SepCharSpace; // 空格: ' '
 extern const char SepCharComma; // 逗号: ','
+extern const char *RefSource[];     // 参考源
+extern const char *RefDTName[]; //  参考源时间名称
+extern QMap<QString, QString> TamingState;  // 驯服状态
 
 // 用户名和密码
 struct st_UserPwd
@@ -40,7 +43,43 @@ struct st_UserPwd
 };
 extern st_UserPwd userPwd;
 
-// 帧数据
+/****************************************************************************************
+主板帧数据
+*****************************************************************************************/
+struct st_Status
+{
+	QString lockState;
+	QString oscType;
+	int oscLock;
+	int curRef;
+	int irig_b;
+	int day;
+	int hour;
+	int minute;
+	int second;
+};
+
+struct st_Gnsstime
+{
+	QString receiverTime;
+	QString UTCTime;
+	QString acbTime;
+	QString dcbTime;
+	QString inputTime;
+};
+
+struct st_RefAvailInfo
+{
+	bool bdsuse{ false };
+	bool gpsuse{ false };
+	bool glouse{ false };
+	bool acbuse{ false };
+	bool dcbuse{ false };
+};
+
+/****************************************************************************************
+接收机板帧数据
+*****************************************************************************************/
 struct st_Gnsssta
 {
 	char satelliteType[4] = { '\0' };	// 卫星类型
@@ -50,6 +89,11 @@ struct st_Gnsssta
 	float pdop{ 0.0 };						// PDOP值
 	int rmcStateFlag{0};					// RMC状态标志位
 	int snrFlag{0};							// 信噪比(Signal to noise ratio)标志位
+	QString longitude;					// 东西经 e:东经 w:西经
+	float lngValue{ 0.0 };				// 经度值
+	QString latitude;						// 南北纬 s:南纬 n:北纬
+	float latValue{ 0.0 };				// 纬度值
+	float elevation{ 0.0 };				// 高程
 };
 
 struct st_Gnssgsv
@@ -64,3 +108,7 @@ struct st_Gnssgsv
 	int snr[MaxAvlSatellites] = { 0 };						// 信噪比
 	int count{0};														// 可用卫星个数
 };
+
+/****************************************************************************************
+主板帧数据
+*****************************************************************************************/

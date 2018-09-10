@@ -1202,7 +1202,7 @@
 		<row><td>ALLUSERSPROFILE</td><td>TARGETDIR</td><td>.:ALLUSE~1|All Users</td><td/><td>0</td><td/></row>
 		<row><td>AdminToolsFolder</td><td>TARGETDIR</td><td>.:Admint~1|AdminTools</td><td/><td>0</td><td/></row>
 		<row><td>AppDataFolder</td><td>TARGETDIR</td><td>.:APPLIC~1|Application Data</td><td/><td>0</td><td/></row>
-		<row><td>B2068BACKENDCONTROLLINGSOFTWARESETUP</td><td>ROCKELEC</td><td>B2068B~1|B2068BackendControllingSoftwareSetup</td><td/><td>0</td><td/></row>
+		<row><td>B2068BACKENDCONTROLLINGSOFTWARESETUP</td><td>ROCKELEC1</td><td>B2068B~1|B2068BackendControllingSoftwareSetup</td><td/><td>0</td><td/></row>
 		<row><td>CommonAppDataFolder</td><td>TARGETDIR</td><td>.:Common~1|CommonAppData</td><td/><td>0</td><td/></row>
 		<row><td>CommonFiles64Folder</td><td>TARGETDIR</td><td>.:Common64</td><td/><td>0</td><td/></row>
 		<row><td>CommonFilesFolder</td><td>TARGETDIR</td><td>.:Common</td><td/><td>0</td><td/></row>
@@ -1219,7 +1219,7 @@
 		<row><td>ISMyProductDir</td><td>ISMyCompanyDir</td><td>MYPROD~1|My Product Name</td><td/><td>0</td><td/></row>
 		<row><td>ISYourDataBaseDir</td><td>INSTALLDIR</td><td>Database</td><td/><td>0</td><td/></row>
 		<row><td>LocalAppDataFolder</td><td>TARGETDIR</td><td>.:LocalA~1|LocalAppData</td><td/><td>0</td><td/></row>
-		<row><td>MY_PRODUCT_NAME</td><td>ROCKELEC</td><td>MYPROD~1|My Product Name</td><td/><td>0</td><td/></row>
+		<row><td>MY_PRODUCT_NAME</td><td>ROCKELEC1</td><td>MYPROD~1|My Product Name</td><td/><td>0</td><td/></row>
 		<row><td>MyPicturesFolder</td><td>TARGETDIR</td><td>.:MyPict~1|MyPictures</td><td/><td>0</td><td/></row>
 		<row><td>NetHoodFolder</td><td>TARGETDIR</td><td>.:NetHood</td><td/><td>0</td><td/></row>
 		<row><td>PLATFORMS</td><td>INSTALLDIR</td><td>PLATFO~1|platforms</td><td/><td>0</td><td/></row>
@@ -1229,7 +1229,7 @@
 		<row><td>ProgramFiles64Folder</td><td>TARGETDIR</td><td>.:Prog64~1|Program Files 64</td><td/><td>0</td><td/></row>
 		<row><td>ProgramFilesFolder</td><td>TARGETDIR</td><td>.:PROGRA~1|program files</td><td/><td>0</td><td/></row>
 		<row><td>ProgramMenuFolder</td><td>TARGETDIR</td><td>.:Programs</td><td/><td>3</td><td/></row>
-		<row><td>ROCKELEC</td><td>ProgramFilesFolder</td><td>rockelec</td><td/><td>0</td><td/></row>
+		<row><td>ROCKELEC1</td><td>ProgramFilesFolder</td><td>Rockelec</td><td/><td>0</td><td/></row>
 		<row><td>RecentFolder</td><td>TARGETDIR</td><td>.:Recent</td><td/><td>0</td><td/></row>
 		<row><td>SendToFolder</td><td>TARGETDIR</td><td>.:SendTo</td><td/><td>3</td><td/></row>
 		<row><td>StartMenuFolder</td><td>TARGETDIR</td><td>.:STARTM~1|Start Menu</td><td/><td>3</td><td/></row>
@@ -2778,7 +2778,7 @@
 		<col def="I2">Encoded</col>
 		<col def="S0">Comment</col>
 		<col def="I4">TimeStamp</col>
-		<row><td>COMPANY_NAME</td><td>2052</td><td>rockelec</td><td>0</td><td/><td>1420206633</td></row>
+		<row><td>COMPANY_NAME</td><td>2052</td><td>rockelec</td><td>0</td><td/><td>1420203081</td></row>
 		<row><td>DN_AlwaysInstall</td><td>2052</td><td>始终安装</td><td>0</td><td/><td>1017563985</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_COLOR</td><td>2052</td><td>系统颜色设置不足以运行 [ProductName]。</td><td>0</td><td/><td>1017563985</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_OS</td><td>2052</td><td>操作系统不足以运行 [ProductName]。</td><td>0</td><td/><td>1017563985</td></row>
@@ -3594,6 +3594,8 @@
 		<row><td>IDS_SHORTCUT_DISPLAY_NAME1</td><td>2052</td><td>Launch B2068BackendControllingSoftware.exe</td><td>0</td><td/><td>1017556081</td></row>
 		<row><td>IDS_SHORTCUT_DISPLAY_NAME2</td><td>1033</td><td/><td>0</td><td/><td>1017556145</td></row>
 		<row><td>IDS_SHORTCUT_DISPLAY_NAME2</td><td>2052</td><td>Launch msiexec.exe</td><td>0</td><td/><td>1017556145</td></row>
+		<row><td>IDS_SHORTCUT_DISPLAY_NAME3</td><td>1033</td><td/><td>0</td><td/><td>1420166249</td></row>
+		<row><td>IDS_SHORTCUT_DISPLAY_NAME3</td><td>2052</td><td>Launch B2068BackendControllingSoftware.exe</td><td>0</td><td/><td>1420166249</td></row>
 		<row><td>IDS_SQLBROWSE_INTRO</td><td>2052</td><td>从以下服务器列表中选择要连接的数据库服务器。</td><td>0</td><td/><td>1017563985</td></row>
 		<row><td>IDS_SQLBROWSE_INTRO_DB</td><td>2052</td><td>从以下的编录名称列表中，选择您希望将其作为目标的数据库编录。</td><td>0</td><td/><td>1017563985</td></row>
 		<row><td>IDS_SQLBROWSE_INTRO_TEMPLATE</td><td>2052</td><td>[IS_SQLBROWSE_INTRO]</td><td>0</td><td/><td>1017563985</td></row>
@@ -3882,8 +3884,8 @@
 		<row><td>IDS__TargetReq_DESC_PROCESSOR</td><td>2052</td><td>对于运行 [ProductName] 处理器不足。</td><td>0</td><td/><td>1017563985</td></row>
 		<row><td>IDS__TargetReq_DESC_RAM</td><td>2052</td><td>对于运行 [ProductName] 内存量不足。</td><td>0</td><td/><td>1017563985</td></row>
 		<row><td>IDS__TargetReq_DESC_RESOLUTION</td><td>2052</td><td>对于运行 [ProductName] 屏幕分辨率不足。</td><td>0</td><td/><td>1017563985</td></row>
-		<row><td>ID_STRING1</td><td>2052</td><td>http://www.rockelec.com</td><td>0</td><td/><td>1420206633</td></row>
-		<row><td>ID_STRING2</td><td>2052</td><td>rockelec</td><td>0</td><td/><td>1420206633</td></row>
+		<row><td>ID_STRING1</td><td>2052</td><td>http://www.rockelec.com</td><td>0</td><td/><td>1420203081</td></row>
+		<row><td>ID_STRING2</td><td>2052</td><td>rockelec</td><td>0</td><td/><td>1420203081</td></row>
 		<row><td>ID_STRING3</td><td>1033</td><td>Launch msiexec.exe</td><td>0</td><td/><td>1017521361</td></row>
 		<row><td>ID_STRING3</td><td>2052</td><td>Launch msiexec.exe</td><td>0</td><td/><td>1017521361</td></row>
 		<row><td>IIDS_UITEXT_FeatureUninstalled</td><td>2052</td><td>系统将不安装此功能。</td><td>0</td><td/><td>1017563985</td></row>
@@ -4001,6 +4003,7 @@
 		<col def="I2">ISIconIndex</col>
 		<row><td>ARPPRODUCTICON.exe</td><td/><td>&lt;VSSolutionFolder&gt;\B2068BackendControllingSoftware\images\90.ico</td><td>0</td></row>
 		<row><td>B2068BackendContro_75400A579AA94F5687A2501BC354F3DA.exe</td><td/><td>G:\Setup\B2068BackendControllingSoftware V2.0\B2068BackendControllingSoftware.exe</td><td>0</td></row>
+		<row><td>B2068BackendContro_AB462B4855CE4B279A1DC32A7050ED28.exe</td><td/><td>G:\Setup\B2068BackendControllingSoftware V2.0\B2068BackendControllingSoftware.exe</td><td>0</td></row>
 		<row><td>UNINST_Uninstall_B_D3E2B65257D340F5A0233F1BABDC3677.exe</td><td/><td>C:\Program Files (x86)\InstallShield\2015LE\Redist\Language Independent\OS Independent\uninstall.ico</td><td>0</td></row>
 		<row><td>msiexec.exe1_A13F7EDF26CF474288BA198A36539708.exe</td><td/><td>C:\Windows\System32\msiexec.exe</td><td>0</td></row>
 		<row><td>msiexec.exe_033D7FC74AAD4145AE23C20391C85B60.exe</td><td/><td>C:\Windows\System32\msiexec.exe</td><td>0</td></row>
@@ -4590,6 +4593,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<col def="L255">FileName</col>
 		<col def="s72">DirProperty</col>
 		<col def="i2">InstallMode</col>
+		<row><td>B2068BackendControllingSoftware.exe</td><td>B2068BackendControllingSoftware.exe2</td><td/><td>b2068backendcontrollingsoftwaresetup1</td><td>2</td></row>
 		<row><td>UNINST_Uninstall_B2068BackendControllingSoftwareSetup</td><td>IS_ININSTALL_SHORTCUT</td><td/><td>b2068backendcontrollingsoftwaresetup1</td><td>2</td></row>
 	</table>
 
@@ -4676,6 +4680,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<col def="S255">ISComments</col>
 		<col def="S255">ISShortcutName</col>
 		<col def="I4">ISAttributes</col>
+		<row><td>B2068BackendControllingSoftware.exe</td><td>b2068backendcontrollingsoftwaresetup1</td><td>##IDS_SHORTCUT_DISPLAY_NAME3##</td><td>B2068BackendControllingSoftware.exe2</td><td>AlwaysInstall</td><td/><td/><td/><td>B2068BackendContro_AB462B4855CE4B279A1DC32A7050ED28.exe</td><td>1</td><td>1</td><td>INSTALLDIR</td><td/><td/><td/><td/><td/><td/><td/></row>
 		<row><td>UNINST_Uninstall_B2068BackendControllingSoftwareSetup</td><td>b2068backendcontrollingsoftwaresetup1</td><td>UNINST|Uninstall B2068BackendControllingSoftwareSetup</td><td>IS_ININSTALL_SHORTCUT</td><td>[SystemFolder]msiexec.exe</td><td>/x {7C1DD870-038E-4867-BE7B-8476B72AD3F2}</td><td/><td/><td>UNINST_Uninstall_B_D3E2B65257D340F5A0233F1BABDC3677.exe</td><td>0</td><td>1</td><td/><td/><td/><td/><td/><td/><td/><td/></row>
 	</table>
 
@@ -4703,7 +4708,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>ArialBlueStrike10</td><td>Arial</td><td>10</td><td>16711680</td><td>8</td></row>
 		<row><td>CourierNew8</td><td>Courier New</td><td>8</td><td/><td/></row>
 		<row><td>CourierNew9</td><td>Courier New</td><td>9</td><td/><td/></row>
-		<row><td>ExpressDefault</td><td>Tahoma</td><td>8</td><td/><td/></row>
+		<row><td>ExpressDefault</td><td>微软雅黑</td><td>10</td><td>0</td><td>0</td></row>
 		<row><td>MSGothic9</td><td>MS Gothic</td><td>9</td><td/><td/></row>
 		<row><td>MSSGreySerif8</td><td>MS Sans Serif</td><td>8</td><td>8421504</td><td/></row>
 		<row><td>MSSWhiteSerif8</td><td>Tahoma</td><td>8</td><td>16777215</td><td/></row>
