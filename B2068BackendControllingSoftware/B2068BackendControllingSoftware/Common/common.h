@@ -26,6 +26,7 @@ const int MaxAvlSatellites = 10;
 const int LargeVer = 2;
 const int SmallVer = 0;
 const int LoginInterval = 5 * 60 * 1000;
+const int ResendInterval = 500;  // ms
 
 /****************************************************************************************/
 extern const char *ConfigFile;

@@ -92,9 +92,6 @@
     <ClInclude Include="Common\Libase.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="business.h">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -102,6 +99,9 @@
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="Common\TimeConvert.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\business.h">
       <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>

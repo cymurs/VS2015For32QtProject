@@ -12,6 +12,13 @@ public:
 	static TransportThread *Get();
 	virtual ~TransportThread();
 
+	void SetComPort(const QString &name, int baud, int dataBit = 8, int stopBit = 0, int check = 0);
+	bool OpenCom();
+	void CloseCom();
+	void SetNetPort(const QString &addr, int port);
+	bool OpenNet();
+	void CloseNet();
+
 	void stop();
 
 	void FrameHandleFunc(const st_FrameData &frameData);
@@ -20,6 +27,13 @@ public:
 	void HandleFrameFromNetBoard(const st_FrameData *pFrameData);
 	void HandleFrameFromDisplayBoard(const st_FrameData *pFrameData);
 
+	void SetSourceAddr(int iAddr, int iPort, int iResv);  // Step 1
+	void SetTargetAddr(int iAddr, int iPort, int iResv);   // Step 2
+	void SetCommand(int iCmd);	  // Step 3
+	void SetFrameDataFormat(bool bSendIs16Hex, bool bRecvIs16Hex, bool bHasFrame);   // Step 4
+	void SendComNetData(unsigned char chCommand, const char* pszDataBuf, int iDataLength);   // Step 5
+	
+
 protected:
 	TransportThread(QObject *parent = nullptr);
 	TransportThread(const TransportThread &) = delete;
@@ -27,11 +41,17 @@ protected:
 
 	virtual void run() override;
 
+private slots:
+	void ResendData();
+
 signals:
 	void b2068Signal(int);
 	void statusSignal(const st_Status&);
 	void gnsstimeSignal(const st_Gnsstime&);
 	void refavailinfoSignal(const st_RefAvailInfo&);
+	void intimeSignal(const QString&);
+	void prioritySignal(const QString&);
+	void baudSignal(const QString&);
 	void irigbaResultSignal(const QString&);
 	void irigbdResultSignal(const QString&);
 	void indelayResultSignal(const QString&);
@@ -55,10 +75,17 @@ signals:
 	void resetSignal(const QString&);
 	void displayVerSignal(const QString&);
 
-	void resultSignal(const QString&);
-	
+	//void resultSignal(const QString&);
+	void exceptionSignal(int);
 
 private:
 	QDoubleBufferedQueue<st_FrameData> m_frameQueue;
 	CMyComBasic *m_pMyComBasic;
+	QTimer *m_counterTimer;
+	int m_counter;
+	QMutex m_counterMutex;
+	QString m_sendingData;
+	bool m_comIsOpened;
+	bool m_netIsOpened;
+
 };

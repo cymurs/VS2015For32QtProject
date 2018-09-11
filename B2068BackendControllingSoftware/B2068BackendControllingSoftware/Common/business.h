@@ -24,3 +24,8 @@ const unsigned char g_BoardAddr[COUNT_OF_GENERAL_ADDR][2] = {
 	0x84,0x00,   // œ‘ æ∞Â
 	0xFF,0x00    // π„≤•µÿ÷∑
 };
+
+enum Exception {
+	BlockException,
+	SendFailedException,
+};

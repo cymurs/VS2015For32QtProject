@@ -26,7 +26,9 @@ const char *RefDTName[] = {
 	"输入时间"
 };
 QMap<QString, QString> TamingState;
-
+ 
+/****************************************全局函数****************************************/
+void FrameHanleFunc(const st_FrameData* pFrameData);
 
 TransportThread *TransportThread::Get()
 {
@@ -41,8 +43,19 @@ TransportThread::~TransportThread()
 TransportThread::TransportThread(QObject *parent)
 	: QThread(parent)
 	, m_frameQueue(50)
+	, m_sendingData()
 {
 	m_pMyComBasic = CreateComBasic();
+
+	m_pMyComBasic->SetFrameHandleFunc(::FrameHanleFunc);
+
+	m_counter = 0;
+	m_counterTimer = new QTimer(this);
+	m_counterTimer->setInterval(ResendInterval);
+	connect(m_counterTimer, SIGNAL(timeout()), this, SLOT(ResendData()));	
+
+	m_comIsOpened = false;
+	m_netIsOpened = false;
 
 	TamingState.insert("0x00", QObject::tr("快速捕获"));
 	TamingState.insert("0x01", QObject::tr("捕获"));
@@ -50,6 +63,58 @@ TransportThread::TransportThread(QObject *parent)
 	TamingState.insert("0x10", QObject::tr("上电"));
 	TamingState.insert("0x11", QObject::tr("估算频偏"));
 	TamingState.insert("0x12", QObject::tr("保持"));
+}
+
+void TransportThread::SetComPort(const QString &name, int baud, int dataBit /*= 8*/, int stopBit /*= 0*/, int check /*= 0*/)
+{
+	char szComName[1024] = { '\0' };
+	sprintf_s(szComName, sizeof(szComName), "\\\\.\\%s", name.toStdString().c_str());
+	m_pMyComBasic->SetComPort(szComName, baud, dataBit, stopBit, check);
+}
+
+bool TransportThread::OpenCom()
+{
+	if (m_comIsOpened) {
+		CloseCom();
+	}
+
+	CloseNet();
+	if (m_pMyComBasic->OpenComPort()) {
+		m_comIsOpened = true;
+	}
+
+	return m_comIsOpened;
+}
+
+void TransportThread::CloseCom()
+{
+	m_pMyComBasic->CloseComPort();
+	m_comIsOpened = false;
+}
+
+void TransportThread::SetNetPort(const QString &addr, int port)
+{
+	m_pMyComBasic->SetNetPort((char *)(addr.toStdString().c_str()), port);
+}
+
+bool TransportThread::OpenNet()
+{
+	if (m_netIsOpened) {
+		CloseNet();
+	}
+
+	CloseCom();
+	if (m_pMyComBasic->OpenNetPort()) {
+		m_netIsOpened = true;
+	}
+
+	return m_netIsOpened;
+}
+
+void TransportThread::CloseNet()
+{
+	m_pMyComBasic->CloseNetPort();
+	m_netIsOpened = false;
 }
 
 void TransportThread::stop()
@@ -64,9 +129,6 @@ void TransportThread::FrameHandleFunc(const st_FrameData &frameData)
 
 void TransportThread::HandleFrameFromMasterBoard(const st_FrameData *pFrameData)
 {
-	if (!pFrameData->m_bDataIsOK)
-		return;
-
 	QString strData(pFrameData->m_pFrameDataBuf);
 	QStringList dataLst = strData.split(SepCharComma);
 	if (1 >= dataLst.length()) {
@@ -76,6 +138,12 @@ void TransportThread::HandleFrameFromMasterBoard(const st_FrameData *pFrameData)
 	}
 
 	QString strCmdName = dataLst[0];
+	if (m_sendingData.contains(strCmdName)) {
+		m_counterMutex.lock();
+		m_counter = 0;
+		m_counterMutex.unlock();		
+	}
+
 	switch (CHandyTool::hash_(qPrintable(dataLst[0]))) {
 	case "status"_hash:
 	{
@@ -181,12 +249,21 @@ void TransportThread::HandleFrameFromMasterBoard(const st_FrameData *pFrameData)
 		break;
 	}
 	case "intime"_hash:
-	case "priority"_hash:
-	case "baud"_hash:
-		/*case "timezone"_hash:*/
 	{
 		QString res = dataLst.join(",");
-		emit resultSignal(res);
+		emit intimeSignal(res);
+		break;
+	}
+	case "priority"_hash:
+	{
+		QString res = dataLst.join(",");
+		emit prioritySignal(res);
+		break;
+	}
+	case "baud"_hash:
+	{
+		QString res = dataLst.join(",");
+		emit baudSignal(res);
 		break;
 	}
 	case "IRIG_BACiF"_hash:
@@ -275,15 +352,18 @@ void TransportThread::HandleFrameFromMasterBoard(const st_FrameData *pFrameData)
 
 void TransportThread::HandleFrameFromReceiverBoard(const st_FrameData *pFrameData)
 {
-	if (!pFrameData->m_bDataIsOK)
-		return;
-
 	QString strData(pFrameData->m_pFrameDataBuf);
 	QStringList dataLst = strData.split(SepCharComma);
 	if (1 >= dataLst.length()) {
 		dataLst = strData.split(SepCharSpace);
 		if (1 >= dataLst.length())
 			return;
+	}
+
+	if (m_sendingData.contains(dataLst[0])) {
+		m_counterMutex.lock();
+		m_counter = 0;
+		m_counterMutex.unlock();
 	}
 
 	switch (CHandyTool::hash_(qPrintable(dataLst[0]))) {
@@ -354,15 +434,18 @@ void TransportThread::HandleFrameFromReceiverBoard(const st_FrameData *pFrameDat
 
 void TransportThread::HandleFrameFromNetBoard(const st_FrameData *pFrameData)
 {
-	if (!pFrameData->m_bDataIsOK)
-		return;
-
 	QString strData(pFrameData->m_pFrameDataBuf);
 	QStringList dataLst = strData.split(SepCharComma);
 	if (1 >= dataLst.length()) {
 		dataLst = strData.split(SepCharSpace);
 		if (1 >= dataLst.length())
 			return;
+	}
+
+	if (m_sendingData.contains(dataLst[0])) {
+		m_counterMutex.lock();
+		m_counter = 0;
+		m_counterMutex.unlock();
 	}
 
 	QString res = dataLst.join(",");
@@ -401,9 +484,6 @@ void TransportThread::HandleFrameFromNetBoard(const st_FrameData *pFrameData)
 
 void TransportThread::HandleFrameFromDisplayBoard(const st_FrameData *pFrameData)
 {
-	if (!pFrameData->m_bDataIsOK)
-		return;
-
 	QString strData(pFrameData->m_pFrameDataBuf);
 	QStringList dataLst = strData.split(SepCharComma);
 	if (1 >= dataLst.length()) {
@@ -411,7 +491,13 @@ void TransportThread::HandleFrameFromDisplayBoard(const st_FrameData *pFrameData
 		if (1 >= dataLst.length())
 			return;
 	}
-		
+	
+	if (m_sendingData.contains(dataLst[0])) {
+		m_counterMutex.lock();
+		m_counter = 0;
+		m_counterMutex.unlock();
+	}
+
 	switch (CHandyTool::hash_(qPrintable(dataLst[0]))) {
 	case "sn"_hash:
 	{
@@ -450,6 +536,7 @@ void TransportThread::run()
 		for (int i = 0; i < num; ++i) {
 			st_FrameData *pFrame = pFrameData + i;
 
+			if (!pFrameData->m_bDataIsOK) continue;
 			if (g_BoardAddr[PCAddr][0] != pFrame->m_chTargetAddr) continue;
 			
 			if (pFrame->m_chSourceAddr == g_BoardAddr[MasterControlAddr][0]) {
@@ -481,4 +568,62 @@ void TransportThread::run()
 	}
 }
 
+void TransportThread::SetSourceAddr(int iAddr, int iPort, int iResv)
+{
+	m_pMyComBasic->SetSourceAddr(iAddr, iPort, iResv);
+}
 
+void TransportThread::SetTargetAddr(int iAddr, int iPort, int iResv)
+{
+	m_pMyComBasic->SetTargetAddr(iAddr, iPort, iResv);
+}
+
+void TransportThread::SetCommand(int iCmd)
+{
+	int iFrameNo(0x01);
+	m_pMyComBasic->SetCommand(iFrameNo, iCmd);
+}
+
+void TransportThread::SetFrameDataFormat(bool bSendIs16Hex, bool bRecvIs16Hex, bool bHasFrame)
+{
+	m_pMyComBasic->SetSendDataIs16Hex(bSendIs16Hex);
+	m_pMyComBasic->SetRecvDataIs16Hex(bRecvIs16Hex);
+	m_pMyComBasic->SetDataHasFrame(bHasFrame);
+}
+
+void TransportThread::SendComNetData(unsigned char chCommand, const char* pszDataBuf, int iDataLength)
+{
+	if (0 != m_counter) {
+		emit exceptionSignal(BlockException);
+		return;
+	}
+	
+	m_pMyComBasic->SendComNetData(chCommand, pszDataBuf, iDataLength);
+	m_sendingData = QString::fromLatin1(pszDataBuf, iDataLength);
+	m_counterTimer->start();
+	++m_counter;
+}
+
+void TransportThread::ResendData()
+{
+	m_counterTimer->stop();	
+	QMutexLocker locker(&m_counterMutex);
+	if (0 != m_counter) {
+		if (m_counter < 3) {
+			m_pMyComBasic->SendComNetData(0, m_sendingData.toStdString().c_str(), m_sendingData.length());
+			m_counterTimer->start();
+			++m_counter;
+		}
+		else {
+			m_counter = 0;
+			emit exceptionSignal(SendFailedException);
+		}
+	}
+}
+
+
+/****************************************全局函数****************************************/
+void FrameHanleFunc(const st_FrameData* pFrameData)
+{
+	TransportThread::Get()->FrameHandleFunc(*pFrameData);
+}
