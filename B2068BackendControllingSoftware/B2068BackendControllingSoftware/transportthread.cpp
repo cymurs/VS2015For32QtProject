@@ -243,6 +243,31 @@ void TransportThread::HandleFrameFromMasterBoard(const st_FrameData *pFrameData)
 		emit hardwareSignal(dataLst[1]);
 		break;
 	}
+	case "ver"_hash:
+	{
+		for (auto &data : dataLst) {
+			int idx(0);
+			if (-1 != (idx = data.indexOf("ver:"))) {
+				QString ret("ver,");
+				ret.append(data.right(data.length() - idx - 4));
+				emit masterVerSignal(ret);
+				continue;
+			}
+			if (-1 != (idx = data.indexOf("main:"))) {
+				QString ret("main,");
+				ret.append(data.right(data.length() - idx - 5));
+				emit masterVerSignal(ret);
+				continue;
+			}
+			if (-1 != (idx = data.indexOf("number:"))) {
+				QString ret("number,");
+				ret.append(data.right(data.length() - idx - 7));
+				emit masterVerSignal(ret);
+				continue;
+			}
+		}
+		break;
+	}
 	default:
 		break;
 	}
@@ -312,7 +337,15 @@ void TransportThread::HandleFrameFromReceiverBoard(const st_FrameData *pFrameDat
 	}
 	case "ver"_hash:
 	{
-
+		for (auto &data : dataLst) {
+			int idx(0);
+			if (-1 != (idx = data.indexOf("ref:"))) {
+				QString ret(data.right(data.length() - idx - 4));
+				emit receiverVerSignal(ret);
+				break;
+			}
+		}
+		break;
 	}
 	default:
 		break;
@@ -337,6 +370,25 @@ void TransportThread::HandleFrameFromNetBoard(const st_FrameData *pFrameData)
 	case "macaddr"_hash:
 	{
 		emit macaddrSignal(res);
+		break;
+	}
+	case "ver"_hash:
+	{
+		for (auto &data : dataLst) {
+			int idx(0);
+			if (-1 != (idx = data.indexOf("net1:"))) {
+				QString ret("net1,");
+				ret.append(data.right(data.length() - idx - 5));
+				emit netVerSignal(ret);
+				continue;
+			}
+			if (-1 != (idx = data.indexOf("net2:"))) {
+				QString ret("net2,");
+				ret.append(data.right(data.length() - idx - 5));
+				emit netVerSignal(ret);
+				continue;
+			}
+		}
 		break;
 	}
 	default:
@@ -369,6 +421,18 @@ void TransportThread::HandleFrameFromDisplayBoard(const st_FrameData *pFrameData
 	case "reset"_hash:
 	{
 		emit resetSignal(dataLst[1]);
+		break;
+	}
+	case "ver"_hash:
+	{
+		for (auto &data : dataLst) {
+			int idx(0);
+			if (-1 != (idx = data.indexOf("view:"))) {
+				QString ret(data.right(data.length() - idx - 5));
+				emit displayVerSignal(ret);
+				break;
+			}						
+		}		
 		break;
 	}
 	default:
@@ -412,8 +476,7 @@ void TransportThread::run()
 				HandleFrameFromDisplayBoard(pFrame);
 				continue;				
 			}
-			
-			
+						
 		}
 	}
 }

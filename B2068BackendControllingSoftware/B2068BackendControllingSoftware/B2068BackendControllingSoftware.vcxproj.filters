@@ -69,10 +69,10 @@
     <ClCompile Include="chiefwidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Common\TimeConvert.c">
+    <ClCompile Include="Common\HandyTool.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="Common\HandyTool.cpp">
+    <ClCompile Include="Common\TimeConvert.cpp">
       <Filter>Common</Filter>
     </ClCompile>
   </ItemGroup>
@@ -98,10 +98,10 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Common\TimeConvert.h">
+    <ClInclude Include="Common\HandyTool.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="Common\HandyTool.h">
+    <ClInclude Include="Common\TimeConvert.h">
       <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>

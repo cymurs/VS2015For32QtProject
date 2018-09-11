@@ -40,16 +40,20 @@ signals:
 	void addlogSignal(const QString&);
 	void addalarmSignal(const QString&);
 	void hardwareSignal(const QString&);
+	void masterVerSignal(const QString&);
 
 	void gnssstaSignal(const st_Gnsssta&);
 	void gnssleapSignal(const QString&);
 	void gnssgsvSignal(const st_Gnssgsv&);
+	void receiverVerSignal(const QString&);
 
 	void macaddrSignal(const QString&);
 	void netResultSignal(const QString&);
+	void netVerSignal(const QString&);
 
 	void snResultSignal(const QString&);
 	void resetSignal(const QString&);
+	void displayVerSignal(const QString&);
 
 	void resultSignal(const QString&);
 	
