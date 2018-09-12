@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "transportthread.h"
 #include "Common/HandyTool.h"
+#include "Common/singlelogger.h"
 
 /****************************************************************************************/
 const char SepCharSpace = 0x20; // 空格: ' '
@@ -63,6 +64,8 @@ TransportThread::TransportThread(QObject *parent)
 	TamingState.insert("0x10", QObject::tr("上电"));
 	TamingState.insert("0x11", QObject::tr("估算频偏"));
 	TamingState.insert("0x12", QObject::tr("保持"));
+
+	SingleLogger::instance().start();
 }
 
 void TransportThread::SetComPort(const QString &name, int baud, int dataBit /*= 8*/, int stopBit /*= 0*/, int check /*= 0*/)
@@ -136,6 +139,7 @@ void TransportThread::HandleFrameFromMasterBoard(const st_FrameData *pFrameData)
 		if (1 >= dataLst.length())
 			return;
 	}
+	TRACE_INFO(tr("---READ---%1").arg(strData));
 
 	QString strCmdName = dataLst[0];
 	if (m_sendingData.contains(strCmdName)) {
@@ -359,6 +363,7 @@ void TransportThread::HandleFrameFromReceiverBoard(const st_FrameData *pFrameDat
 		if (1 >= dataLst.length())
 			return;
 	}
+	TRACE_INFO(tr("---READ---%1").arg(strData));
 
 	if (m_sendingData.contains(dataLst[0])) {
 		m_counterMutex.lock();
@@ -441,6 +446,7 @@ void TransportThread::HandleFrameFromNetBoard(const st_FrameData *pFrameData)
 		if (1 >= dataLst.length())
 			return;
 	}
+	TRACE_INFO(tr("---READ---%1").arg(strData));
 
 	if (m_sendingData.contains(dataLst[0])) {
 		m_counterMutex.lock();
@@ -491,6 +497,7 @@ void TransportThread::HandleFrameFromDisplayBoard(const st_FrameData *pFrameData
 		if (1 >= dataLst.length())
 			return;
 	}
+	TRACE_INFO(tr("---READ---%1").arg(strData));
 	
 	if (m_sendingData.contains(dataLst[0])) {
 		m_counterMutex.lock();
@@ -602,6 +609,8 @@ void TransportThread::SendComNetData(unsigned char chCommand, const char* pszDat
 	m_sendingData = QString::fromLatin1(pszDataBuf, iDataLength);
 	m_counterTimer->start();
 	++m_counter;
+
+	TRACE_INFO(tr("---WRITE---%1").arg(m_sendingData));
 }
 
 void TransportThread::ResendData()
