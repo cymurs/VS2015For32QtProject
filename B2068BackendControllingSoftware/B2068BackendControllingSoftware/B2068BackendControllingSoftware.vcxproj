@@ -226,6 +226,7 @@
     <ClCompile Include="centralwidget.cpp" />
     <ClCompile Include="chiefwidget.cpp" />
     <ClCompile Include="Common\HandyTool.cpp" />
+    <ClCompile Include="Common\RockelecProtocol.cpp" />
     <ClCompile Include="Common\singlelogger.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
@@ -286,6 +287,8 @@
     </QtMoc>
     <ClInclude Include="Common\business.h" />
     <ClInclude Include="Common\HandyTool.h" />
+    <ClInclude Include="Common\rockelec.h" />
+    <ClInclude Include="Common\RockelecProtocol.h" />
     <ClInclude Include="Common\singlelogger.h" />
     <ClInclude Include="Common\TimeConvert.h" />
     <ClInclude Include="resource.h" />

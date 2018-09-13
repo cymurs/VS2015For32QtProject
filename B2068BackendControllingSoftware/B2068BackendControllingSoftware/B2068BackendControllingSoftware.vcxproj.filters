@@ -78,6 +78,9 @@
     <ClCompile Include="Common\singlelogger.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="Common\RockelecProtocol.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="qss.h">
@@ -108,6 +111,12 @@
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="Common\singlelogger.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\RockelecProtocol.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\rockelec.h">
       <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
