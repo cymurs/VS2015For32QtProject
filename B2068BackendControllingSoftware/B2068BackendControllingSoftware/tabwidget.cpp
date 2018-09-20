@@ -118,7 +118,7 @@ SignInWidget::SignInWidget(QWidget *parent /* = 0 */)
 	, m_lblWidth(LblWidth * 1.5)
 	, m_lblHeight(LblHeight * 1.5)
 {
-	QStringList users = { "USER1", "USER2", "USER3" };
+	QStringList users = { "user1", "user2", "user3" };
 	QRegExp rx("^\\d{6}$");
 	QValidator *validator = new QRegExpValidator(rx, this);
 	

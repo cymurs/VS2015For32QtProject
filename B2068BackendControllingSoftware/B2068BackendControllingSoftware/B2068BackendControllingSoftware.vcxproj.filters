@@ -84,6 +84,9 @@
     <ClCompile Include="Common\rockeleccomm.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="commwidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="qss.h">
@@ -153,6 +156,9 @@
     </QtMoc>
     <QtMoc Include="Common\rockeleccomm.h">
       <Filter>Common</Filter>
+    </QtMoc>
+    <QtMoc Include="commwidget.h">
+      <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

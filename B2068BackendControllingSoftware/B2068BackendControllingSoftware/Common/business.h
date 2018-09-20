@@ -1,5 +1,9 @@
 #pragma once
 
+#define COMMAND_IS_AT		0x01
+#define COMMAND_IS_HEX		0x05
+#define COMMAND_IS_UPDATE 0x70
+
 const int COUNT_OF_GENERAL_ADDR = 8;
 
 enum BoardAddrFlag {
@@ -29,3 +33,17 @@ enum Exception {
 	BlockException,
 	SendFailedException,
 };
+
+enum CmdKeywordsFlag {
+	B2068,
+	Main,
+	Net1,
+	Net2, 
+	Ref_,
+	View,
+	FPGA,
+	Hard,
+	RN,
+};
+
+extern const char *g_CmdKeywords[];

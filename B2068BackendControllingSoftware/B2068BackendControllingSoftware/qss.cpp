@@ -69,6 +69,31 @@ const QString QSS_TabWidget =
 	"}";
 
 /****************************************************************************************
+通信界面
+*****************************************************************************************/
+const QString QSS_CommWidget =
+	"QWidget#%1 {border-image: url(:/BackendControlling/images/timg.jpg);}"
+	"QLabel, QPushButton, QGroupBox {"
+		"font: bold normal 16px \"arial\";"
+	"}"
+	"QLineEdit, QComboBox  {"
+		"font: bold normal 16px \"times\";"
+	"}"
+	"QLineEdit, QComboBox, QGroupBox  {"
+		"color: #0306A8;"
+	"}"
+	"QLineEdit[echoMode=\"2\"] {"
+		"lineedit-password-character: 42;"
+	"}"
+	"QComboBox{ "
+		"padding-left: 35px;"
+	"}"
+	"QLabel[statusFlag=\"true\"] {"
+		//"font: 16px \"arial\";"
+		"color: 	#FF4040;"		
+	"}";
+
+/****************************************************************************************
 登录界面
 *****************************************************************************************/
 const QString QSS_SignInWidget =

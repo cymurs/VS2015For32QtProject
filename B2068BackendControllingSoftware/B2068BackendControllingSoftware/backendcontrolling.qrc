@@ -26,5 +26,6 @@
         <file>images/button_hover.png</file>
         <file>images/button_normal.png</file>
         <file>images/button_pressed.png</file>
+        <file>images/bg_update.png</file>
     </qresource>
 </RCC>

@@ -27,6 +27,11 @@ public:
 	void HandleFrameFromNetBoard(const st_FrameData *pFrameData);
 	void HandleFrameFromDisplayBoard(const st_FrameData *pFrameData);
 
+	void HandleFrameFromMasterBoardEx(const st_FrameData *pFrameData);
+	void HandleFrameFromReceiverBoardEx(const st_FrameData *pFrameData);
+	void HandleFrameFromNetBoardEx(const st_FrameData *pFrameData);
+	void HandleFrameFromDisplayBoardEx(const st_FrameData *pFrameData);
+
 	void SetSourceAddr(int iAddr, int iPort, int iResv);  // Step 1
 	void SetTargetAddr(int iAddr, int iPort, int iResv);   // Step 2
 	void SetCommand(int iCmd);	  // Step 3
@@ -40,6 +45,7 @@ protected:
 	TransportThread& operator=(const TransportThread &) = delete;
 
 	virtual void run() override;
+	virtual QString mid(const QString &str, const QString &head, int offset = 0, const QString &tail = "\r\n");
 
 private slots:
 	void ResendData();
@@ -61,6 +67,8 @@ signals:
 	void addalarmSignal(const QString&);
 	void hardwareSignal(const QString&);
 	void masterVerSignal(const QString&);
+	void verSignal(const st_MasterVer&);
+	void qumarkSignal(const QString &);
 
 	void gnssstaSignal(const st_Gnsssta&);
 	void gnssleapSignal(const QString&);
@@ -76,7 +84,7 @@ signals:
 	void displayVerSignal(const QString&);
 
 	//void resultSignal(const QString&);
-	void exceptionSignal(int);
+	void exceptionSignal(int);	
 
 private:
 	QDoubleBufferedQueue<st_FrameData> m_frameQueue;
@@ -85,6 +93,8 @@ private:
 	int m_counter;
 	QMutex m_counterMutex;
 	QString m_sendingData;
+	QString m_multiFrameBuffer;
+	bool m_isMultiFrame;
 	bool m_comIsOpened;
 	bool m_netIsOpened;
 

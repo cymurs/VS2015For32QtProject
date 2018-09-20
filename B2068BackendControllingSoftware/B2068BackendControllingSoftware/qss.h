@@ -7,6 +7,8 @@ extern const QString QSS_MsgBox;
 
 extern const QString QSS_TabWidget;
 
+extern const QString QSS_CommWidget;
+
 extern const QString QSS_SignInWidget;
 
 extern const QString QSS_LeftWidget;

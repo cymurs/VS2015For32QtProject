@@ -4,6 +4,7 @@
 #include "Common/singlelogger.h"
 
 /****************************************************************************************/
+QMap<QString, QString> TamingState;
 const char SepCharSpace = 0x20; // 空格: ' '
 const char SepCharComma = 0x2C; // 逗号: ','
 const char *RefSource[] = {
@@ -26,7 +27,18 @@ const char *RefDTName[] = {
 	"", "",
 	"输入时间"
 };
-QMap<QString, QString> TamingState;
+const char *g_CmdKeywords[] = {
+	"b2068",
+	"-main:",
+	"-net1:",
+	"-net2:",
+	"-ref:",
+	"-view:",
+	"fpga ver:",
+	"hardware number:",
+	"\r\n",
+};
+
  
 /****************************************全局函数****************************************/
 void FrameHanleFunc(const st_FrameData* pFrameData);
@@ -38,13 +50,20 @@ TransportThread *TransportThread::Get()
 }
 
 TransportThread::~TransportThread()
-{
+{	
+	SingleLogger::instance().stop();
+
+	if (nullptr != m_pMyComBasic) {
+		delete m_pMyComBasic;
+		m_pMyComBasic = nullptr;
+	}
 }
 
 TransportThread::TransportThread(QObject *parent)
 	: QThread(parent)
 	, m_frameQueue(50)
 	, m_sendingData()
+	, m_multiFrameBuffer()
 {
 	m_pMyComBasic = CreateComBasic();
 
@@ -55,6 +74,7 @@ TransportThread::TransportThread(QObject *parent)
 	m_counterTimer->setInterval(ResendInterval);
 	connect(m_counterTimer, SIGNAL(timeout()), this, SLOT(ResendData()));	
 
+	m_isMultiFrame = false;
 	m_comIsOpened = false;
 	m_netIsOpened = false;
 
@@ -83,6 +103,7 @@ bool TransportThread::OpenCom()
 
 	CloseNet();
 	if (m_pMyComBasic->OpenComPort()) {
+		m_pMyComBasic->SetCurrentIsCom(true);
 		m_comIsOpened = true;
 	}
 
@@ -108,6 +129,7 @@ bool TransportThread::OpenNet()
 
 	CloseCom();
 	if (m_pMyComBasic->OpenNetPort()) {
+		m_pMyComBasic->SetCurrentIsCom(false);
 		m_netIsOpened = true;
 	}
 
@@ -132,7 +154,7 @@ void TransportThread::FrameHandleFunc(const st_FrameData &frameData)
 
 void TransportThread::HandleFrameFromMasterBoard(const st_FrameData *pFrameData)
 {
-	QString strData(pFrameData->m_pFrameDataBuf);
+	QString strData(pFrameData->m_pFrameDataBuf); 
 	QStringList dataLst = strData.split(SepCharComma);
 	if (1 >= dataLst.length()) {
 		dataLst = strData.split(SepCharSpace);
@@ -534,6 +556,91 @@ void TransportThread::HandleFrameFromDisplayBoard(const st_FrameData *pFrameData
 
 }
 
+void TransportThread::HandleFrameFromMasterBoardEx(const st_FrameData *pFrameData)
+{
+	QString strData;
+	if (m_isMultiFrame) {
+		strData = m_multiFrameBuffer;
+		m_multiFrameBuffer.clear();
+		m_isMultiFrame = false;
+	}
+	else {
+		strData = pFrameData->m_pFrameDataBuf;
+	}	
+	TRACE_INFO(tr("---READ---%1").arg(strData));
+	strData = strData.toLower();
+
+	if (strData.contains(m_sendingData.toLower())) {
+		m_counterMutex.lock();
+		m_counter = 0;
+		m_counterMutex.unlock();
+	}
+
+	int found(-1);
+	if (strData.contains("B2068 Main_Control", Qt::CaseInsensitive)) {
+		emit qumarkSignal(strData);
+		return;
+	}
+	if (-1 != (found = strData.indexOf(g_CmdKeywords[Main], Qt::CaseInsensitive))) {
+		st_MasterVer masterver;		
+		masterver.mainv = mid(strData, g_CmdKeywords[Main], 2, g_CmdKeywords[RN]).toFloat();
+		masterver.net1v = mid(strData, g_CmdKeywords[Net1], 2, g_CmdKeywords[RN]).toFloat();
+		masterver.net2v = mid(strData, g_CmdKeywords[Net2], 2, g_CmdKeywords[RN]).toFloat();
+		masterver.refv = mid(strData, g_CmdKeywords[Ref_], 2, g_CmdKeywords[RN]).toFloat();
+		masterver.viewv = mid(strData, g_CmdKeywords[View], 2, g_CmdKeywords[RN]).toFloat();
+		masterver.firmware = mid(strData, g_CmdKeywords[FPGA], 1, g_CmdKeywords[RN]);
+		masterver.hardware = mid(strData, g_CmdKeywords[Hard], 2, g_CmdKeywords[RN]);
+		emit verSignal(masterver);
+		return;
+	}
+	if (-1 != (found = strData.indexOf(g_CmdKeywords[B2068], Qt::CaseInsensitive))) {
+		if (strData.contains("2d", Qt::CaseInsensitive))
+			emit b2068Signal(2);
+		if (strData.contains("-3"))
+			emit b2068Signal(3);
+		return;
+	}
+}
+
+void TransportThread::HandleFrameFromReceiverBoardEx(const st_FrameData *pFrameData)
+{
+	QString strData(pFrameData->m_pFrameDataBuf);
+	TRACE_INFO(tr("---READ---%1").arg(strData));
+	strData = strData.toLower();
+
+	if (strData.contains(m_sendingData.toLower())) {
+		m_counterMutex.lock();
+		m_counter = 0;
+		m_counterMutex.unlock();
+	}
+}
+
+void TransportThread::HandleFrameFromNetBoardEx(const st_FrameData *pFrameData)
+{
+	QString strData(pFrameData->m_pFrameDataBuf);
+	TRACE_INFO(tr("---READ---%1").arg(strData));
+	strData = strData.toLower();
+
+	if (strData.contains(m_sendingData.toLower())) {
+		m_counterMutex.lock();
+		m_counter = 0;
+		m_counterMutex.unlock();
+	}
+}
+
+void TransportThread::HandleFrameFromDisplayBoardEx(const st_FrameData *pFrameData)
+{
+	QString strData(pFrameData->m_pFrameDataBuf);
+	TRACE_INFO(tr("---READ---%1").arg(strData));
+	strData = strData.toLower();
+
+	if (strData.contains(m_sendingData.toLower())) {
+		m_counterMutex.lock();
+		m_counter = 0;
+		m_counterMutex.unlock();
+	}
+}
+
 void TransportThread::run()
 {
 	while (!isInterruptionRequested()) {
@@ -543,11 +650,37 @@ void TransportThread::run()
 		for (int i = 0; i < num; ++i) {
 			st_FrameData *pFrame = pFrameData + i;
 
-			if (!pFrameData->m_bDataIsOK) continue;
-			if (g_BoardAddr[PCAddr][0] != pFrame->m_chTargetAddr) continue;
+			if (!pFrame->m_bDataIsOK) continue;
+			if (0 == pFrame->m_iFrameDataLength
+				&& 0 == strlen(pFrame->m_pFrameDataBuf)) continue;
+			// 除了 60 00, 还必须处理 00 00 的数据
+			if (g_BoardAddr[PCAddr][0] != pFrame->m_chTargetAddr
+				&& g_BoardAddr[GeneralAddr][0] != pFrame->m_chTargetAddr) continue;
+			// 处理多帧
+			if (0x11 == pFrame->m_chTargetUse) {
+				m_multiFrameBuffer.append(pFrame->m_pFrameDataBuf);
+				if (260 == pFrame->m_iFrameDataLength) {
+					/*if (!m_multiFrameBuffer.isEmpty()) {
+						m_multiFrameBuffer.append(pFrame->m_pFrameDataBuf);
+					}
+					else {
+						m_multiFrameBuffer = pFrame->m_pFrameDataBuf;
+					}*/					
+					continue;
+				}
+				else {					
+					m_isMultiFrame = true;
+				}
+			}
+
+			if (g_BoardAddr[PCAddr][0] == pFrame->m_chTargetAddr) {
+				m_counterMutex.lock();
+				m_counter = 0;
+				m_counterMutex.unlock();
+			}
 			
 			if (pFrame->m_chSourceAddr == g_BoardAddr[MasterControlAddr][0]) {
-				HandleFrameFromMasterBoard(pFrame);
+				HandleFrameFromMasterBoardEx(pFrame);
 				continue;
 			}
 
@@ -573,6 +706,24 @@ void TransportThread::run()
 						
 		}
 	}
+}
+
+QString TransportThread::mid(const QString &str, const QString &head, int offset /*= 0*/, const QString &tail /*= "\r\n"*/)
+{
+	QString ret;
+	int found = str.indexOf(head);
+	if (-1 == found) {
+		return ret;
+	}
+
+	found += head.size() + offset;
+	int lastPos = str.indexOf(tail, found);
+	if (-1 != lastPos)
+		ret = str.mid(found, lastPos - found);
+	else
+		ret = str.mid(found);
+
+	return ret;
 }
 
 void TransportThread::SetSourceAddr(int iAddr, int iPort, int iResv)

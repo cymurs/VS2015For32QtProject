@@ -1,3 +1,4 @@
+#include <WinSock2.h>  // WSAStartup
 #include "common.h"
 #include "business.h"
 #include "qss.h"

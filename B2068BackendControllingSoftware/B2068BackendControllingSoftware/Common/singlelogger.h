@@ -95,7 +95,7 @@ protected:
 
 private:
 	virtual ~SingleLogger() {
-		mIsRunning = true;
+		mIsRunning = false;
 	}
 
 private:

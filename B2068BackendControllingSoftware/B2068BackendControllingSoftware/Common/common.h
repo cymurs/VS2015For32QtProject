@@ -78,6 +78,17 @@ struct st_RefAvailInfo
 	bool dcbuse{ false };
 };
 
+struct st_MasterVer
+{
+	float mainv{ 0.0 };
+	float net1v{ 0.0 };
+	float net2v{ 0.0 };
+	float refv{ 0.0 };
+	float viewv{ 0.0 };
+	QString firmware;
+	QString hardware;
+};
+
 /****************************************************************************************
 接收机板帧数据
 *****************************************************************************************/

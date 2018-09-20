@@ -2,6 +2,7 @@
 
 #include <QWidget>
 
+class CommWidget;
 class SignInWidget;
 class MainTab;
 class CentralWidget;
@@ -24,6 +25,7 @@ private:
 	void storeConfig();
 
 private slots:
+	void slotOnConnect();
 	void slotOnSignIn(bool signin);
 	void slotOnLoginTimeout();
 	void slotOnMainFadeOut();
@@ -31,6 +33,7 @@ private slots:
 	void slotOnGoHome();
 
 private:
+	CommWidget *m_comm;
 	SignInWidget *m_signIn;
 	MainTab *m_main;
 	CentralWidget *m_center;
