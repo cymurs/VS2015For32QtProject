@@ -10,6 +10,8 @@ public:
 	CommWidget(QWidget *parent = nullptr);
 	~CommWidget();
 
+	bool ConnectUseCom() const { return m_bUseCom;  }
+
 protected:
 	void resizeEvent(QResizeEvent *event) override;
 	void paintEvent(QPaintEvent *event) override;   // 使得设置背景生效 的关键操作

@@ -3,6 +3,7 @@
 #include "tabwidget.h"
 #include "centralwidget.h"
 #include "commwidget.h"
+#include "timepositiondatabase.h"
 
 ChiefWidget::ChiefWidget(QWidget *parent)
 	: QWidget(parent)
@@ -35,6 +36,7 @@ ChiefWidget::ChiefWidget(QWidget *parent)
 	m_animation->setDuration(5000);
 	
 	connectSlots();
+	// queryBoardInfo(); // 此处的执行在连接成功之前
 	loadConfig();
 	m_firstTime = true;
 }
@@ -78,6 +80,24 @@ void ChiefWidget::connectSlots()
 	connect(m_center, SIGNAL(home()), this, SLOT(slotOnGoHome()));
 }
 
+void ChiefWidget::queryBoardInfo()
+{
+	TimePositionDatabase timePositionDB;
+	unsigned char chCmd = COMMAND_IS_AT;
+
+	QString data("sn");
+	timePositionDB.selectFromDisplayBoard(chCmd, data);
+
+	data = "ver";
+	timePositionDB.selectFromMasterBoard(chCmd, data);
+
+	data = "ip,1";
+	timePositionDB.selectFromNetBoard(chCmd, data, Net1Addr);
+
+	data = "ip,2";
+	timePositionDB.selectFromNetBoard(chCmd, data, Net2Addr);
+}
+
 void ChiefWidget::loadConfig()
 {
 	if (!QFile::exists(ConfigFile)) {
@@ -104,6 +124,7 @@ void ChiefWidget::storeConfig()
 
 void ChiefWidget::slotOnConnect()
 {
+	queryBoardInfo();
 	m_baseLayout->setCurrentIndex(1);
 }
 

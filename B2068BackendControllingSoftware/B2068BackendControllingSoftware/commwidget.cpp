@@ -12,6 +12,9 @@ const QString ComClose = QObject::tr("关闭串口");
 const QString NetOpen = QObject::tr("打开网口");
 const QString NetClose = QObject::tr("关闭网口");
 
+// --------------------------------------------------------------------------------------
+un_ConnectInfo connInfo;
+
 CommWidget::CommWidget(QWidget *parent)
 	: QWidget(parent)
 {	
@@ -120,7 +123,7 @@ QGroupBox * CommWidget::createNetInfo()
 	m_addrLabel = new QLabel(tr("IP地址"), m_netGroup);
 	m_addr = new QLineEdit(m_netGroup);	
 	m_recvPortLabel = new QLabel(tr("IP端口"), m_netGroup);
-	m_recvPort = new QLineEdit(m_netGroup);		
+	m_recvPort = new QLineEdit(tr("20212"), m_netGroup);		
 	//m_sendPortLabel = new QLabel(tr("发送端口"), m_netGroup);
 	//m_sendPort = new QLineEdit(m_netGroup);	
 	m_connNet = new QPushButton(NetOpen, m_netGroup);	
@@ -185,7 +188,8 @@ void CommWidget::checkConnect()
 	char chTest[16] = "?";
 	pTransport->SendComNetData(COMMAND_IS_AT, chTest, strlen(chTest));
 
-	QTimer::singleShot(2000, this, &CommWidget::slotOnCheckTimeOut);
+	// 串口和网口的反应最快为 400ms
+	QTimer::singleShot(400, this, &CommWidget::slotOnCheckTimeOut);
 }
 
 void CommWidget::slotOnSelectCom()
@@ -229,7 +233,7 @@ void CommWidget::slotOnConnectCom()
 	}	
 
 	QString comName = m_comName->currentText();
-	int baud = m_comName->currentText().toInt();
+	int baud = m_comBaud->currentText().toInt();
 		
 	m_connCom->setEnabled(false);
 	pTransport->SetComPort(comName, baud, 8, 1, 0);
@@ -244,6 +248,8 @@ void CommWidget::slotOnConnectCom()
 		//emit connectSuccess();
 	}
 	//m_connCom->setEnabled(true);
+	strcpy_s(connInfo.comConn.comName, 64, comName.toLatin1().data());
+	connInfo.comConn.baud = baud;
 }
 
 void CommWidget::slotOnConnectNet()
@@ -284,6 +290,8 @@ void CommWidget::slotOnConnectNet()
 		checkConnect();
 	}
 	//m_connNet->setEnabled(true);
+	strcpy_s(connInfo.netConn.netIP, 64, addr.toLatin1().data());
+	connInfo.netConn.netPort = port;
 }
 
 void CommWidget::slotOnSendResult(const QString &ret)
@@ -292,7 +300,8 @@ void CommWidget::slotOnSendResult(const QString &ret)
 	m_bHasResult = true;
 
 	QString strRet = ret;
-	if (!m_bConnectFailed && strRet.contains("look ------- look input or output message", Qt::CaseInsensitive)) {
+	if (!m_bConnectFailed && 
+		strRet.contains("- look input or output message"/*"look ------- look input or output message"*/, Qt::CaseInsensitive)) {
 		if (m_bUseCom) {
 			m_statusLabel->setText(tr("连接串口成功!"));
 			m_connCom->setText(ComClose);

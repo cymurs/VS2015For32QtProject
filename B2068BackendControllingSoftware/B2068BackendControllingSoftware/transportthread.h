@@ -36,7 +36,7 @@ public:
 	void SetTargetAddr(int iAddr, int iPort, int iResv);   // Step 2
 	void SetCommand(int iCmd);	  // Step 3
 	void SetFrameDataFormat(bool bSendIs16Hex, bool bRecvIs16Hex, bool bHasFrame);   // Step 4
-	void SendComNetData(unsigned char chCommand, const char* pszDataBuf, int iDataLength);   // Step 5
+	void SendComNetData(unsigned char chCommand, const char* pszDataBuf, int iDataLength, bool bResend = false/* «∑Ò÷ÿ∑¢*/);   // Step 5
 	
 
 protected:
@@ -78,6 +78,9 @@ signals:
 	void macaddrSignal(const QString&);
 	void netResultSignal(const QString&);
 	void netVerSignal(const QString&);
+	void netGroupportSignal(const QString &);
+	void net1InfoSignal(const st_NetInfo&);
+	void net2InfoSignal(const st_NetInfo&);
 
 	void snResultSignal(const QString&);
 	void resetSignal(const QString&);

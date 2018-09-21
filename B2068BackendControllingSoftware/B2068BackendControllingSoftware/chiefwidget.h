@@ -21,6 +21,7 @@ protected:
 
 private:
 	void connectSlots();
+	void queryBoardInfo();
 	void loadConfig();
 	void storeConfig();
 

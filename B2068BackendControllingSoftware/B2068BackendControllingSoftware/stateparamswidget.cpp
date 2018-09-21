@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "stateparamswidget.h"
 #include "cradar.h"
+#include "transportthread.h"
 
 
 /****************************************************************************************
@@ -1135,6 +1136,10 @@ VersionInfoTab::VersionInfoTab(QWidget *parent /*= 0*/)
 	int w = width();
 	int h = height();
 	setChildrenGeometry(w, h);
+
+	TransportThread *pTrans = TransportThread::Get();
+	connect(pTrans, SIGNAL(verSignal(const st_MasterVer)), this, SLOT(slotOnMasterVer(const st_MasterVer)));
+	connect(pTrans, SIGNAL(snResultSignal(QString)), this, SLOT(slotOnSnResult(QString)));
 }
 
 void VersionInfoTab::resizeEvent(QResizeEvent *event)
@@ -1165,6 +1170,32 @@ void VersionInfoTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
 	m_hardVer->setGeometry(mid, top + m_lblHeight * 4, m_lblWidth, m_lblHeight);
 	m_devSNLabel->setGeometry(left, top + m_lblHeight * 6, m_lblWidth, m_lblHeight);
 	m_devSN->setGeometry(mid, top + m_lblHeight * 6, m_lblWidth, m_lblHeight);
+}
+
+void VersionInfoTab::slotOnMasterVer(const st_MasterVer&ret)
+{
+	QString softVer = QString("A%1-B%2-C%3-D%4-E%5")
+		.arg(ret.mainv).arg(ret.net1v).arg(ret.net2v).arg(ret.refv).arg(ret.viewv);
+	m_softVer->setText(softVer);
+	m_firmVer->setText(ret.firmware);
+	m_hardVer->setText(ret.hardware.toUpper());
+}
+
+void VersionInfoTab::slotOnSnResult(const QString &ret)
+{
+	m_devSN->setText(ret.toUpper());
+}
+
+void VersionInfoTab::slotOnNetVer(const QString &ver)
+{	
+	QStringList lst = ver.split(SepCharComma);
+	if (lst.size() < 2) return;
+	if (0 == lst.at(0).compare("net1")) {
+		m_net1Ver = lst.at(1).toFloat();
+	}
+	else {
+		m_net2Ver = lst.at(1).toFloat();
+	}
 }
 
 /****************************************************************************************

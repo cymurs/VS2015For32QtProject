@@ -7,6 +7,8 @@
 QMap<QString, QString> TamingState;
 const char SepCharSpace = 0x20; // 空格: ' '
 const char SepCharComma = 0x2C; // 逗号: ','
+const char *SepCrLf = "\r\n";
+
 const char *RefSource[] = {
 	"未定位",
 	"GPS",
@@ -558,15 +560,12 @@ void TransportThread::HandleFrameFromDisplayBoard(const st_FrameData *pFrameData
 
 void TransportThread::HandleFrameFromMasterBoardEx(const st_FrameData *pFrameData)
 {
-	QString strData;
+	QString strData(pFrameData->m_pFrameDataBuf);
 	if (m_isMultiFrame) {
 		strData = m_multiFrameBuffer;
 		m_multiFrameBuffer.clear();
 		m_isMultiFrame = false;
 	}
-	else {
-		strData = pFrameData->m_pFrameDataBuf;
-	}	
 	TRACE_INFO(tr("---READ---%1").arg(strData));
 	strData = strData.toLower();
 
@@ -577,7 +576,8 @@ void TransportThread::HandleFrameFromMasterBoardEx(const st_FrameData *pFrameDat
 	}
 
 	int found(-1);
-	if (strData.contains("B2068 Main_Control", Qt::CaseInsensitive)) {
+	if (strData.contains("B2068 Main_Control", Qt::CaseInsensitive) || 
+		strData.contains("- look input or output message", Qt::CaseInsensitive)) {
 		emit qumarkSignal(strData);
 		return;
 	}
@@ -605,6 +605,11 @@ void TransportThread::HandleFrameFromMasterBoardEx(const st_FrameData *pFrameDat
 void TransportThread::HandleFrameFromReceiverBoardEx(const st_FrameData *pFrameData)
 {
 	QString strData(pFrameData->m_pFrameDataBuf);
+	if (m_isMultiFrame) {
+		strData = m_multiFrameBuffer;
+		m_multiFrameBuffer.clear();
+		m_isMultiFrame = false;
+	}
 	TRACE_INFO(tr("---READ---%1").arg(strData));
 	strData = strData.toLower();
 
@@ -618,6 +623,11 @@ void TransportThread::HandleFrameFromReceiverBoardEx(const st_FrameData *pFrameD
 void TransportThread::HandleFrameFromNetBoardEx(const st_FrameData *pFrameData)
 {
 	QString strData(pFrameData->m_pFrameDataBuf);
+	if (m_isMultiFrame) {
+		strData = m_multiFrameBuffer;
+		m_multiFrameBuffer.clear();
+		m_isMultiFrame = false;
+	}
 	TRACE_INFO(tr("---READ---%1").arg(strData));
 	strData = strData.toLower();
 
@@ -626,11 +636,124 @@ void TransportThread::HandleFrameFromNetBoardEx(const st_FrameData *pFrameData)
 		m_counter = 0;
 		m_counterMutex.unlock();
 	}
+
+	const char *strKeys[] = {
+		"ip,1,",   // 0
+		"submask,1,",
+		"gateway,1,",
+		"workport,1,",
+		"remoteip,1,",
+		"groupipaddr,1,",
+		"groupport,1,",   // 6
+		"broadcastipaddr,1,",
+		"broadcastport,1,",
+		"debugport,1,",
+		"delay,1,",
+		"macaddr,1,",		
+		"ip,2,",  // 12
+		"submask,2,",
+		"gateway,2,",
+		"workport,2,",
+		"remoteip,2,",
+		"groupipaddr,2,",
+		"groupport,2,", // 18
+		"broadcastipaddr,2,",
+		"broadcastport,2,",
+		"debugport,2,",
+		"delay,2,",
+		"macaddr,2,",
+		"current groupport is:",  // 24
+		"b20682d-net1:",  // 25
+		"b20682d-net2:",  // 26
+		"",
+		"",
+		"",
+		"",
+	};
+	int found(-1);
+	if (-1 != (found = strData.indexOf(strKeys[0]))) {
+		st_NetInfo net1;
+		int i = 0;
+		net1.ip = mid(strData, strKeys[i++]);
+		net1.submask = mid(strData, strKeys[i++]);
+		net1.gateway = mid(strData, strKeys[i++]);
+		QString workport = mid(strData, strKeys[i++]);
+		int pos = workport.indexOf(SepCharComma);
+		net1.worklocal = workport.mid(0, pos).toUShort();
+		net1.worktarget = workport.mid(pos + 1).toUShort();
+		net1.remoteip = mid(strData, strKeys[i++]);
+		net1.groupip = mid(strData, strKeys[i++]);
+		net1.grouplocal = mid(strData, strKeys[i++]).toUShort();
+		net1.broadcastip = mid(strData, strKeys[i++]);
+		net1.broadcastport = mid(strData, strKeys[i++]).toUShort();
+		QString debugport = mid(strData, strKeys[i++]);
+		pos = debugport.indexOf(SepCharComma);
+		net1.debugrecv = debugport.mid(0, pos).toUShort();
+		net1.debugsend = debugport.mid(pos + 1).toUShort();
+		net1.delay = mid(strData, strKeys[i++]).toInt();
+		net1.macaddr = mid(strData, strKeys[i]);
+
+		emit net1InfoSignal(net1);
+		return;
+	}
+	if (-1 != (found = strData.indexOf(strKeys[12]))) {
+		st_NetInfo net2;
+		int i = 12;
+		net2.ip = mid(strData, strKeys[i++]);
+		net2.submask = mid(strData, strKeys[i++]);
+		net2.gateway = mid(strData, strKeys[i++]);
+		QString workport = mid(strData, strKeys[i++]);
+		int pos = workport.indexOf(SepCharComma);
+		net2.worklocal = workport.mid(0, pos).toUShort();
+		net2.worktarget = workport.mid(pos + 1).toUShort();
+		net2.remoteip = mid(strData, strKeys[i++]);
+		net2.groupip = mid(strData, strKeys[i++]);
+		net2.grouplocal = mid(strData, strKeys[i++]).toUShort();
+		net2.broadcastip = mid(strData, strKeys[i++]);
+		net2.broadcastport = mid(strData, strKeys[i++]).toUShort();
+		QString debugport = mid(strData, strKeys[i++]);
+		pos = debugport.indexOf(SepCharComma);
+		net2.debugrecv = debugport.mid(0, pos).toUShort();
+		net2.debugsend = debugport.mid(pos + 1).toUShort();
+		net2.delay = mid(strData, strKeys[i++]).toInt();
+		net2.macaddr = mid(strData, strKeys[i]);
+
+		emit net2InfoSignal(net2);
+		return;
+	}
+	if (-1 != (found = strData.indexOf(strKeys[24]))) {
+		QString ports = mid(strData, strKeys[24]);
+		QString rcv = mid(ports, "rcv:", 0, ",");
+		QString snd = mid(ports, "snd:");
+		int netNum = strData.contains("[81,00]") ? 1 : 2;
+		QString ret = QString("groupport,%1,%2,%3")
+			.arg(netNum).arg(rcv).arg(snd);
+
+		emit netResultSignal(ret);
+		return;
+	}
+	if (strData.contains(strKeys[25])) {
+		QString ver("net1,");
+		ver.append(mid(strData, strKeys[25], 2));
+		emit netVerSignal(ver);
+		return;
+	}
+	if (strData.contains(strKeys[26])) {
+		QString ver("net2,");
+		ver.append(mid(strData, strKeys[26], 2));
+		emit netVerSignal(ver);
+		return;
+	}
 }
 
 void TransportThread::HandleFrameFromDisplayBoardEx(const st_FrameData *pFrameData)
 {
 	QString strData(pFrameData->m_pFrameDataBuf);
+	if (m_isMultiFrame) {
+		strData = m_multiFrameBuffer;
+		m_multiFrameBuffer.clear();
+		m_isMultiFrame = false;
+	}
 	TRACE_INFO(tr("---READ---%1").arg(strData));
 	strData = strData.toLower();
 
@@ -638,6 +761,21 @@ void TransportThread::HandleFrameFromDisplayBoardEx(const st_FrameData *pFrameDa
 		m_counterMutex.lock();
 		m_counter = 0;
 		m_counterMutex.unlock();
+	}
+
+	const char *strKeys[] = {
+		"sn",
+		"",
+		"",
+		"",
+		"",
+	};
+
+	int found(-1);
+	if (-1 != (found = strData.indexOf(strKeys[0]))) {
+		QString ret = mid(strData, strKeys[0], 1);
+		emit snResultSignal(ret);
+		return;
 	}
 }
 
@@ -657,20 +795,22 @@ void TransportThread::run()
 			if (g_BoardAddr[PCAddr][0] != pFrame->m_chTargetAddr
 				&& g_BoardAddr[GeneralAddr][0] != pFrame->m_chTargetAddr) continue;
 			// 处理多帧
-			if (0x11 == pFrame->m_chTargetUse) {
+			//if (0x11 == pFrame->m_chTargetUse) {
+			//	m_multiFrameBuffer.append(pFrame->m_pFrameDataBuf);
+			//	if (260 == pFrame->m_iFrameDataLength) {									
+			//		continue;
+			//	}
+			//	else {					
+			//		m_isMultiFrame = true;
+			//	}
+			//}
+			if (260 == pFrame->m_iFrameDataLength) {
 				m_multiFrameBuffer.append(pFrame->m_pFrameDataBuf);
-				if (260 == pFrame->m_iFrameDataLength) {
-					/*if (!m_multiFrameBuffer.isEmpty()) {
-						m_multiFrameBuffer.append(pFrame->m_pFrameDataBuf);
-					}
-					else {
-						m_multiFrameBuffer = pFrame->m_pFrameDataBuf;
-					}*/					
-					continue;
-				}
-				else {					
-					m_isMultiFrame = true;
-				}
+				m_isMultiFrame = true;
+				continue;
+			}
+			if (m_isMultiFrame) {
+				m_multiFrameBuffer.append(pFrame->m_pFrameDataBuf);
 			}
 
 			if (g_BoardAddr[PCAddr][0] == pFrame->m_chTargetAddr) {
@@ -685,12 +825,12 @@ void TransportThread::run()
 			}
 
 			if (pFrame->m_chSourceAddr == g_BoardAddr[Net1Addr][0]) {
-				HandleFrameFromNetBoard(pFrame);
+				HandleFrameFromNetBoardEx(pFrame);
 				continue;
 			}
 
 			if (pFrame->m_chSourceAddr == g_BoardAddr[Net2Addr][0]) {
-				HandleFrameFromNetBoard(pFrame);
+				HandleFrameFromNetBoardEx(pFrame);
 				continue;
 			}
 
@@ -700,7 +840,7 @@ void TransportThread::run()
 			}
 			
 			if (pFrame->m_chSourceAddr == g_BoardAddr[DisplayAddr][0]) {
-				HandleFrameFromDisplayBoard(pFrame);
+				HandleFrameFromDisplayBoardEx(pFrame);
 				continue;				
 			}
 						
@@ -749,7 +889,7 @@ void TransportThread::SetFrameDataFormat(bool bSendIs16Hex, bool bRecvIs16Hex, b
 	m_pMyComBasic->SetDataHasFrame(bHasFrame);
 }
 
-void TransportThread::SendComNetData(unsigned char chCommand, const char* pszDataBuf, int iDataLength)
+void TransportThread::SendComNetData(unsigned char chCommand, const char* pszDataBuf, int iDataLength, bool bResend/* = false*/)
 {
 	if (0 != m_counter) {
 		emit exceptionSignal(BlockException);
@@ -758,8 +898,10 @@ void TransportThread::SendComNetData(unsigned char chCommand, const char* pszDat
 	
 	m_pMyComBasic->SendComNetData(chCommand, pszDataBuf, iDataLength);
 	m_sendingData = QString::fromLatin1(pszDataBuf, iDataLength);
-	m_counterTimer->start();
-	++m_counter;
+	if (bResend) {
+		m_counterTimer->start();
+		++m_counter;
+	}	
 
 	TRACE_INFO(tr("---WRITE---%1").arg(m_sendingData));
 }

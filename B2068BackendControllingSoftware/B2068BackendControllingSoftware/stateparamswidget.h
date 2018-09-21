@@ -398,6 +398,11 @@ protected:
 private:
 	void setChildrenGeometry(int w = 0, int h = 0);
 
+private slots:
+	void slotOnMasterVer(const st_MasterVer&ret);
+	void slotOnSnResult(const QString &ret);	
+	void slotOnNetVer(const QString &ver);
+
 private:
 	QLabel *m_softVerLabel;
 	QLabel *m_softVer;
@@ -410,6 +415,12 @@ private:
 
 	const int m_lblWidth;
 	const int m_lblHeight;
+
+	float m_masterVer;
+	float m_net1Ver;
+	float m_net2Ver;
+	float m_refVer;
+	float m_viewVer;
 };
 
 // ×´Ì¬²ÎÊý

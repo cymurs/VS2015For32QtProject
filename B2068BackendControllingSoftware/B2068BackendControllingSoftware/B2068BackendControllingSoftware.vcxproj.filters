@@ -87,6 +87,9 @@
     <ClCompile Include="commwidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="timepositiondatabase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="qss.h">
@@ -158,6 +161,9 @@
       <Filter>Common</Filter>
     </QtMoc>
     <QtMoc Include="commwidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="timepositiondatabase.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

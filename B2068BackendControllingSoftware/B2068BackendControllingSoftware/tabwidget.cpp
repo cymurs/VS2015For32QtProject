@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "tabwidget.h"
 #include "stateparamswidget.h"
+#include "transportthread.h"
+#include "timepositiondatabase.h"
 
 /****************************************************************************************/
 //const int LoginInterval = 5 * 60 * 1000;
@@ -816,43 +818,50 @@ UnicastWidget::UnicastWidget(QWidget *parent /*= 0*/)
 	: QWidget(parent)
 {
 	auto localIPLabel = new QLabel(tr("本机IP"), this);
-	m_localIP = new QLineEdit(tr("192.168.59.180"), this);
+	//m_localIP = new QLineEdit(tr("192.168.59.180"), this);
+	m_localIP = new QLineEdit(this);
 	m_localIP->setAlignment(Qt::AlignCenter);
 	m_localIP->setMaximumWidth(LeWidth);
 	m_ipConfirm = new QPushButton(tr("确认设置"), this);	
 
 	auto localPortLabel = new QLabel(tr("本机端口"), this);
-	m_localPort = new QLineEdit(tr("6666"), this);
+	//m_localPort = new QLineEdit(tr("6666"), this);
+	m_localPort = new QLineEdit(this);
 	m_localPort->setAlignment(Qt::AlignCenter);
 	m_localPort->setMaximumWidth(LeWidth);
 	m_portConfirm = new QPushButton(tr("确认设置"), this);
 
 	auto submaskLabel = new QLabel(tr("本机掩码"), this);
-	m_submask = new QLineEdit(tr("255.255.255.0"), this);
+	//m_submask = new QLineEdit(tr("255.255.255.0"), this);
+	m_submask = new QLineEdit(this);
 	m_submask->setAlignment(Qt::AlignCenter);
 	m_submask->setMaximumWidth(LeWidth);
 	m_maskConfirm = new QPushButton(tr("确认设置"), this);
 
 	auto gatewayLabel = new QLabel(tr("本机网关"), this);
-	m_gateway = new QLineEdit(tr("192.168.59.1"), this);
+	//m_gateway = new QLineEdit(tr("192.168.59.1"), this);
+	m_gateway = new QLineEdit(this);
 	m_gateway->setAlignment(Qt::AlignCenter);
 	m_gateway->setMaximumWidth(LeWidth);
 	m_gatewayConfirm = new QPushButton(tr("确认设置"), this);
 
 	auto remoteIPLabel = new QLabel(tr("目标IP"), this);
-	m_remoteIP = new QLineEdit(tr("192.168.59.117"), this);
+	//m_remoteIP = new QLineEdit(tr("192.168.59.117"), this);
+	m_remoteIP = new QLineEdit(this);
 	m_remoteIP->setAlignment(Qt::AlignCenter);
 	m_remoteIP->setMaximumWidth(LeWidth);
 	m_remoteIPConfirm = new QPushButton(tr("确认设置"), this);
 
 	auto remotePortLabel = new QLabel(tr("目标端口"), this);
-	m_remotePort = new QLineEdit(tr("8888"), this);
+	//m_remotePort = new QLineEdit(tr("8888"), this);
+	m_remotePort = new QLineEdit(this);
 	m_remotePort->setAlignment(Qt::AlignCenter);
 	m_remotePort->setMaximumWidth(LeWidth);
 	m_remotePortConfirm = new QPushButton(tr("确认设置"), this);
 
 	auto delayLabel = new QLabel(tr("网络延时"), this);
-	m_delay = new QLineEdit(tr("33"), this);
+	//m_delay = new QLineEdit(tr("33"), this);
+	m_delay = new QLineEdit(this);
 	m_delay->setAlignment(Qt::AlignCenter);
 	m_delay->setMaximumWidth(LeWidth * 3 / 4);
 	auto delayUnit = new QLabel(tr("ms"), this);
@@ -895,6 +904,40 @@ UnicastWidget::UnicastWidget(QWidget *parent /*= 0*/)
 	setLayout(baseLayout);
 }
 
+void UnicastWidget::setLocalIP(const QString &ip)
+{
+	m_localIP->setText(ip);
+}
+
+void UnicastWidget::setRemoteIP(const QString &ip)
+{
+	m_remoteIP->setText(ip);
+}
+
+void UnicastWidget::setPorts(ushort local, ushort target)
+{
+	if (0 != local)
+		m_localPort->setText(QString::number(local));
+	if (0 != target)
+		m_remotePort->setText(QString::number(target));
+}
+
+void UnicastWidget::setSubmask(const QString &mask)
+{
+	m_submask->setText(mask);
+}
+
+void UnicastWidget::setGateway(const QString &gateway)
+{
+	m_gateway->setText(gateway);
+}
+
+void UnicastWidget::setDelay(int delay)
+{
+	if (0 != delay)
+		m_delay->setText(QString::number(delay));
+}
+
 void UnicastWidget::paintEvent(QPaintEvent *event)
 {
 	// 使主窗口中设置的qss生效
@@ -908,31 +951,36 @@ MulticastWidget::MulticastWidget(QWidget *parent /*= 0*/)
 	: QWidget(parent)
 {
 	auto localIPLabel = new QLabel(tr("组播本机IP"), this);
-	m_localIP = new QLineEdit(tr("192.168.59.180"), this);
+	//m_localIP = new QLineEdit(tr("192.168.59.180"), this);
+	m_localIP = new QLineEdit(this);
 	m_localIP->setAlignment(Qt::AlignCenter);
 	m_localIP->setMaximumWidth(LeWidth);
 	m_ipConfirm = new QPushButton(tr("确认设置"), this);
 
 	auto localPortLabel = new QLabel(tr("组播本机端口"), this);
-	m_localPort = new QLineEdit(tr("6666"), this);
+	//m_localPort = new QLineEdit(tr("6666"), this);
+	m_localPort = new QLineEdit(this);
 	m_localPort->setAlignment(Qt::AlignCenter);
 	m_localPort->setMaximumWidth(LeWidth);
 	m_portConfirm = new QPushButton(tr("确认设置"), this);
 
 	auto remoteIPLabel = new QLabel(tr("组播目标IP"), this);
-	m_remoteIP = new QLineEdit(tr("192.168.59.117"), this);
+	//m_remoteIP = new QLineEdit(tr("192.168.59.117"), this);
+	m_remoteIP = new QLineEdit(this);
 	m_remoteIP->setAlignment(Qt::AlignCenter);
 	m_remoteIP->setMaximumWidth(LeWidth);
 	m_remoteIPConfirm = new QPushButton(tr("确认设置"), this);
 
 	auto remotePortLabel = new QLabel(tr("组播目标端口"), this);
-	m_remotePort = new QLineEdit(tr("8888"), this);
+	//m_remotePort = new QLineEdit(tr("8888"), this);
+	m_remotePort = new QLineEdit(this);
 	m_remotePort->setAlignment(Qt::AlignCenter);
 	m_remotePort->setMaximumWidth(LeWidth);
 	m_remotePortConfirm = new QPushButton(tr("确认设置"), this);
 
 	auto delayLabel = new QLabel(tr("网络延时"), this);
-	m_delay = new QLineEdit(tr("33"), this);
+	//m_delay = new QLineEdit(tr("33"), this);
+	m_delay = new QLineEdit(this);
 	m_delay->setAlignment(Qt::AlignCenter);
 	m_delay->setMaximumWidth(LeWidth * 3 / 4);
 	auto delayUnit = new QLabel(tr("ms"), this);
@@ -969,6 +1017,30 @@ MulticastWidget::MulticastWidget(QWidget *parent /*= 0*/)
 	setLayout(baseLayout);
 }
 
+void MulticastWidget::setLocalIP(const QString &ip)
+{
+	m_localIP->setText(ip);
+}
+
+void MulticastWidget::setRemoteIP(const QString &ip)
+{
+	m_remoteIP->setText(ip);
+}
+
+void MulticastWidget::setPorts(ushort local, ushort remote)
+{
+	if (0 != local)
+		m_localPort->setText(QString::number(local));
+	if (0 != remote)
+		m_remotePort->setText(QString::number(remote));
+}
+
+void MulticastWidget::setDelay(int delay)
+{
+	if (0 != delay)
+		m_delay->setText(QString::number(delay));
+}
+
 void MulticastWidget::paintEvent(QPaintEvent *event)
 {
 	// 使主窗口中设置的qss生效
@@ -982,19 +1054,22 @@ BroadcastWidget::BroadcastWidget(QWidget *parent /*= 0*/)
 	: QWidget(parent)
 {
 	auto broadcastIPLabel = new QLabel(tr("广播IP"), this);
-	m_broadcastIP = new QLineEdit(tr("192.168.59.180"), this);
+	//m_broadcastIP = new QLineEdit(tr("192.168.59.180"), this);
+	m_broadcastIP = new QLineEdit(this);
 	m_broadcastIP->setAlignment(Qt::AlignCenter);
 	m_broadcastIP->setMaximumWidth(LeWidth);
 	m_ipConfirm = new QPushButton(tr("确认设置"), this);
 
 	auto broadcastPortLabel = new QLabel(tr("广播端口"), this);
-	m_broadcastPort = new QLineEdit(tr("6666"), this);
+	//m_broadcastPort = new QLineEdit(tr("6666"), this);
+	m_broadcastPort = new QLineEdit(this);
 	m_broadcastPort->setAlignment(Qt::AlignCenter);
 	m_broadcastPort->setMaximumWidth(LeWidth);
 	m_portConfirm = new QPushButton(tr("确认设置"), this);
 
 	auto delayLabel = new QLabel(tr("网络延时"), this);
-	m_delay = new QLineEdit(tr("33"), this);
+	//m_delay = new QLineEdit(tr("33"), this);
+	m_delay = new QLineEdit(this);
 	m_delay->setAlignment(Qt::AlignCenter);
 	m_delay->setMaximumWidth(LeWidth * 3 / 4);
 	auto delayUnit = new QLabel(tr("ms"), this);
@@ -1025,6 +1100,21 @@ BroadcastWidget::BroadcastWidget(QWidget *parent /*= 0*/)
 	setLayout(baseLayout);
 }
 
+void BroadcastWidget::setIP(const QString &ip)
+{
+	m_broadcastIP->setText(ip);
+}
+
+void BroadcastWidget::setPort(ushort port)
+{
+	m_broadcastPort->setText(QString::number(port));
+}
+
+void BroadcastWidget::setDelay(int delay)
+{
+	m_delay->setText(QString::number(delay));
+}
+
 void BroadcastWidget::paintEvent(QPaintEvent *event)
 {
 	// 使主窗口中设置的qss生效
@@ -1038,27 +1128,32 @@ MonitorWidget::MonitorWidget(QWidget *parent /*= 0*/)
 	: QWidget(parent)
 {
 	auto localIPLabel = new QLabel(tr("本机IP"), this);
-	m_localIP = new QLineEdit(tr("192.168.59.180"), this);
+	//m_localIP = new QLineEdit(tr("192.168.59.180"), this);
+	m_localIP = new QLineEdit(this);
 	m_localIP->setAlignment(Qt::AlignCenter);
 	m_localIP->setMaximumWidth(LeWidth);
 
 	auto submaskLabel = new QLabel(tr("本机掩码"), this);
-	m_submask = new QLineEdit(tr("255.255.255.0"), this);
+	//m_submask = new QLineEdit(tr("255.255.255.0"), this);
+	m_submask = new QLineEdit(this);
 	m_submask->setAlignment(Qt::AlignCenter);
 	m_submask->setMaximumWidth(LeWidth);
 
 	auto gatewayLabel = new QLabel(tr("本机网关"), this);
-	m_gateway = new QLineEdit(tr("192.168.59.1"), this);
+	//m_gateway = new QLineEdit(tr("192.168.59.1"), this);
+	m_gateway = new QLineEdit(this);
 	m_gateway->setAlignment(Qt::AlignCenter);
 	m_gateway->setMaximumWidth(LeWidth);
 
 	auto recvPortLabel = new QLabel(tr("监控接收端口"), this);
-	m_recvPort = new QLineEdit(tr("20212"), this);
+	//m_recvPort = new QLineEdit(tr("20212"), this);
+	m_recvPort = new QLineEdit(this);
 	m_recvPort->setAlignment(Qt::AlignCenter);
 	m_recvPort->setMaximumWidth(LeWidth);
 
 	auto sendPortLabel = new QLabel(tr("监控发送端口"), this);
-	m_sendPort = new QLineEdit(tr("10212"), this);
+	//m_sendPort = new QLineEdit(tr("10212"), this);
+	m_sendPort = new QLineEdit(this);
 	m_sendPort->setAlignment(Qt::AlignCenter);
 	m_sendPort->setMaximumWidth(LeWidth);
 	m_sendPortConfirm = new QPushButton(tr("确认设置"), this);
@@ -1084,6 +1179,29 @@ MonitorWidget::MonitorWidget(QWidget *parent /*= 0*/)
 	baseLayout->setColumnStretch(4, 1);
 	baseLayout->setColumnStretch(5, 2);
 	setLayout(baseLayout);
+}
+
+void MonitorWidget::setIP(const QString &ip)
+{
+	m_localIP->setText(ip);
+}
+
+void MonitorWidget::setSubmask(const QString &mask)
+{
+	m_submask->setText(mask);
+}
+
+void MonitorWidget::setGateway(const QString &gateway)
+{
+	m_gateway->setText(gateway);
+}
+
+void MonitorWidget::setPorts(ushort recv, ushort send)
+{
+	if (0 != recv)
+		m_recvPort->setText(QString::number(recv));
+	if (0 != send)
+		m_sendPort->setText(QString::number(send));
 }
 
 void MonitorWidget::paintEvent(QPaintEvent *event)
@@ -1198,18 +1316,95 @@ QGroupBox * NetSettingsTab::createCommExclusiveGroup()
 
 void NetSettingsTab::connectSlots()
 {
+	TransportThread *pTransport = TransportThread::Get();
 	connect(m_commGroup, SIGNAL(buttonClicked(int)), this, SLOT(slotOnCommButtonClicked(int)));
 	connect(m_netGroup, SIGNAL(buttonClicked(int)), this, SLOT(slotOnNetButtonClicked(int)));
+	connect(pTransport, SIGNAL(net1InfoSignal(st_NetInfo)), this, SLOT(slotOnNet1InfoReceived(st_NetInfo)));
+	connect(pTransport, SIGNAL(net2InfoSignal(st_NetInfo)), this, SLOT(slotOnNet2InfoReceived(st_NetInfo)));
+	connect(pTransport, SIGNAL(netResultSignal(QString)), this, SLOT(slotOnNetResultReceived(QString)));
+}
+
+void NetSettingsTab::setNetInfo(const st_NetInfo &info)
+{
+	m_unicastWgt->setLocalIP(info.ip);
+	m_unicastWgt->setPorts(info.worklocal, info.worktarget);
+	m_unicastWgt->setSubmask(info.submask);
+	m_unicastWgt->setGateway(info.gateway);
+	m_unicastWgt->setRemoteIP(info.remoteip);
+	m_unicastWgt->setDelay(info.delay);
+
+	m_multicastWgt->setLocalIP(info.groupip);
+	m_multicastWgt->setPorts(info.grouplocal, info.grouptarget);
+	m_multicastWgt->setRemoteIP(info.remotegroupip);
+	m_multicastWgt->setDelay(info.delay);
+
+	m_broadcastWgt->setIP(info.broadcastip);
+	m_broadcastWgt->setPort(info.broadcastport);
+	m_broadcastWgt->setDelay(info.delay);
+
+	m_monitorWgt->setIP(info.ip);
+	m_monitorWgt->setSubmask(info.submask);
+	m_monitorWgt->setGateway(info.gateway);
+	m_monitorWgt->setPorts(info.debugrecv, info.debugsend);
 }
 
 void NetSettingsTab::slotOnNetButtonClicked(int id)
 {
 	m_curNetNum = QString::number(id + 1);
+	if (1 == m_curNetNum) {
+		if (m_net1Info.ip.isEmpty()) return;		
+		setNetInfo(m_net1Info);
+	}
+	else {
+		if (m_net2Info.ip.isEmpty()) return;
+		setNetInfo(m_net2Info);		
+	}
 }
 
 void NetSettingsTab::slotOnCommButtonClicked(int id)
 {
 	m_settingsLayout->setCurrentIndex(id);
+}
+
+void NetSettingsTab::slotOnNet1InfoReceived(const st_NetInfo &info)
+{
+	m_net1Info = info;
+	if (0 == m_net1Info.grouptarget) {
+		TimePositionDatabase db;
+		db.selectFromNetBoard(COMMAND_IS_AT, "groupport,1", Net1Addr);
+	}
+}
+
+void NetSettingsTab::slotOnNet2InfoReceived(const st_NetInfo &info)
+{
+	m_net2Info = info;
+	if (0 == m_net2Info.grouptarget) {
+		TimePositionDatabase db;
+		db.selectFromNetBoard(COMMAND_IS_AT, "groupport,2", Net2Addr);
+	}
+}
+
+void NetSettingsTab::slotOnNetResultReceived(const QString &res)
+{
+	if (res.startsWith("groupport")) {
+		QStringList ports = res.split(",");
+		ushort grouplocal = ports.at(2).toUShort();
+		ushort grouptarget = ports.at(3).toUShort();
+		if (1 == ports.at(1).toInt()) {
+			m_net1Info.grouplocal = grouplocal;
+			m_net1Info.grouptarget = grouptarget;
+			if (1 == m_curNetNum) {
+				m_multicastWgt->setPorts(grouplocal, grouptarget);
+			}
+		}
+		else {
+			m_net2Info.grouplocal = grouplocal;
+			m_net2Info.grouptarget = grouptarget;
+			if (2 == m_curNetNum) {
+				m_multicastWgt->setPorts(grouplocal, grouptarget);
+			}
+		}
+	}
 }
 
 /****************************************************************************************

@@ -202,6 +202,13 @@ class UnicastWidget : public QWidget
 public:
 	explicit UnicastWidget(QWidget *parent = 0);
 
+	void setLocalIP(const QString &ip);
+	void setRemoteIP(const QString &ip);
+	void setPorts(ushort local, ushort target);
+	void setSubmask(const QString &mask);
+	void setGateway(const QString &gateway);
+	void setDelay(int delay);
+
 protected:
 	void paintEvent(QPaintEvent *event) override;
 
@@ -230,6 +237,11 @@ class MulticastWidget : public QWidget
 public:
 	explicit MulticastWidget(QWidget *parent = 0);
 
+	void setLocalIP(const QString &ip);
+	void setRemoteIP(const QString &ip);
+	void setPorts(ushort local, ushort remote);
+	void setDelay(int delay);
+
 protected:
 	void paintEvent(QPaintEvent *event) override;
 
@@ -254,6 +266,10 @@ class BroadcastWidget : public QWidget
 public:
 	explicit BroadcastWidget(QWidget *parent = 0);
 
+	void setIP(const QString &ip);
+	void setPort(ushort port);
+	void setDelay(int delay);
+
 protected:
 	void paintEvent(QPaintEvent *event) override;
 
@@ -273,6 +289,11 @@ class MonitorWidget : public QWidget
 
 public:
 	explicit MonitorWidget(QWidget *parent = 0);
+
+	void setIP(const QString &ip);
+	void setSubmask(const QString &mask);
+	void setGateway(const QString &gateway);
+	void setPorts(ushort recv, ushort send);
 
 protected:
 	void paintEvent(QPaintEvent *event) override;
@@ -304,11 +325,14 @@ private:
 	QGroupBox *createNetExclusiveGroup();
 	QGroupBox *createCommExclusiveGroup();
 	void connectSlots();
+	void setNetInfo(const st_NetInfo &info);
 
 private Q_SLOTS:
 	void slotOnNetButtonClicked(int id);
 	void slotOnCommButtonClicked(int id);
-	
+	void slotOnNet1InfoReceived(const st_NetInfo &info);
+	void slotOnNet2InfoReceived(const st_NetInfo &info);
+	void slotOnNetResultReceived(const QString &res);
 
 private:
 	QRadioButton *m_firstNet;
@@ -330,6 +354,8 @@ private:
 	QStackedLayout *m_settingsLayout;
 
 	QString m_curNetNum;
+	st_NetInfo m_net1Info;
+	st_NetInfo m_net2Info;
 };
 
 // ×´Ì¬²ÎÊý
