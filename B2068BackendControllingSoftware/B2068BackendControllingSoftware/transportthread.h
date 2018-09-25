@@ -47,6 +47,9 @@ protected:
 	virtual void run() override;
 	virtual QString mid(const QString &str, const QString &head, int offset = 0, const QString &tail = "\r\n");
 
+private:
+	void registerMetaType();
+
 private slots:
 	void ResendData();
 

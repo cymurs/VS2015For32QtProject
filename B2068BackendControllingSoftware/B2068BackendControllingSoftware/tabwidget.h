@@ -82,6 +82,7 @@ private:
 private Q_SLOTS:
 	// 想要在connect中使用SLOT, 必须将槽函数声明为Q_SLOTS
 	void slotOnRefSrcTimeOut();
+	void slotOnGnsstimeReached(const st_Gnsstime &gnsstime);
 
 signals:
 	void fadeOut();
@@ -121,6 +122,7 @@ private:
 private Q_SLOTS:
 	void slotOnSwitchAutoManual(bool checked);
 	void slotOnCurrentIndexChanged(const QString& text);
+	void slotOnGnsstimeReached(const st_Gnsstime &gnsstime);
 
 private:
 	QRadioButton *m_manual;

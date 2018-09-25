@@ -1137,9 +1137,18 @@ VersionInfoTab::VersionInfoTab(QWidget *parent /*= 0*/)
 	int h = height();
 	setChildrenGeometry(w, h);
 
+	m_masterVer = 0.0;
+	m_net1Ver = 0.0;
+	m_net2Ver = 0.0;
+	m_refVer = 0.0;
+	m_viewVer = 0.0;
+
 	TransportThread *pTrans = TransportThread::Get();
 	connect(pTrans, SIGNAL(verSignal(const st_MasterVer)), this, SLOT(slotOnMasterVer(const st_MasterVer)));
 	connect(pTrans, SIGNAL(snResultSignal(QString)), this, SLOT(slotOnSnResult(QString)));
+	connect(pTrans, SIGNAL(netVerSignal(QString)), this, SLOT(slotOnNetVer(QString)));
+	connect(pTrans, SIGNAL(receiverVerSignal(QString)), this, SLOT(slotOnReceiverVer(QString)));
+	connect(pTrans, SIGNAL(displayVerSignal(QString)), this, SLOT(slotOnDisplayVer(QString)));
 }
 
 void VersionInfoTab::resizeEvent(QResizeEvent *event)
@@ -1174,8 +1183,18 @@ void VersionInfoTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
 
 void VersionInfoTab::slotOnMasterVer(const st_MasterVer&ret)
 {
+	const float EPSILON = 0.0001;
+	m_masterVer = ret.mainv;
+	if (fabs(ret.net1v - 0.0) > EPSILON)
+		m_net1Ver = ret.net1v;
+	if (fabs(ret.net2v - 0.0) > EPSILON)
+		m_net2Ver = ret.net2v;
+	if (fabs(ret.refv - 0.0) > EPSILON)
+		m_refVer = ret.refv;
+	if (fabs(ret.viewv - 0.0) > EPSILON)
+		m_viewVer = ret.viewv;
 	QString softVer = QString("A%1-B%2-C%3-D%4-E%5")
-		.arg(ret.mainv).arg(ret.net1v).arg(ret.net2v).arg(ret.refv).arg(ret.viewv);
+		.arg(m_masterVer).arg(m_net1Ver).arg(m_net2Ver).arg(m_refVer).arg(m_viewVer);
 	m_softVer->setText(softVer);
 	m_firmVer->setText(ret.firmware);
 	m_hardVer->setText(ret.hardware.toUpper());
@@ -1196,6 +1215,26 @@ void VersionInfoTab::slotOnNetVer(const QString &ver)
 	else {
 		m_net2Ver = lst.at(1).toFloat();
 	}
+
+	QString softVer = QString("A%1-B%2-C%3-D%4-E%5")
+		.arg(m_masterVer).arg(m_net1Ver).arg(m_net2Ver).arg(m_refVer).arg(m_viewVer);
+	m_softVer->setText(softVer);
+}
+
+void VersionInfoTab::slotOnReceiverVer(const QString &ver)
+{
+	m_refVer = ver.toFloat();
+	QString softVer = QString("A%1-B%2-C%3-D%4-E%5")
+		.arg(m_masterVer).arg(m_net1Ver).arg(m_net2Ver).arg(m_refVer).arg(m_viewVer);
+	m_softVer->setText(softVer);
+}
+
+void VersionInfoTab::slotOnDisplayVer(const QString &ver)
+{
+	m_viewVer = ver.toFloat();
+	QString softVer = QString("A%1-B%2-C%3-D%4-E%5")
+		.arg(m_masterVer).arg(m_net1Ver).arg(m_net2Ver).arg(m_refVer).arg(m_viewVer);
+	m_softVer->setText(softVer);
 }
 
 /****************************************************************************************

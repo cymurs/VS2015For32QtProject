@@ -1,6 +1,7 @@
 #pragma once
 #include <QString>
 #include <QMap>
+#include <QVariant>
 // 解决界面显示中文乱码
 #pragma execution_character_set("utf-8")  
 
@@ -74,6 +75,7 @@ struct st_Status
 	int minute;
 	int second;
 };
+Q_DECLARE_METATYPE(st_Status)
 
 struct st_Gnsstime
 {
@@ -83,6 +85,7 @@ struct st_Gnsstime
 	QString dcbTime;
 	QString inputTime;
 };
+Q_DECLARE_METATYPE(st_Gnsstime)  // 记得在最前面加 #include <QVariant>
 
 struct st_RefAvailInfo
 {
@@ -92,6 +95,7 @@ struct st_RefAvailInfo
 	bool acbuse{ false };
 	bool dcbuse{ false };
 };
+Q_DECLARE_METATYPE(st_RefAvailInfo)
 
 struct st_MasterVer
 {
@@ -103,6 +107,7 @@ struct st_MasterVer
 	QString firmware;
 	QString hardware;
 };
+Q_DECLARE_METATYPE(st_MasterVer)
 
 /****************************************************************************************
 接收机板帧数据
@@ -122,6 +127,7 @@ struct st_Gnsssta
 	float latValue{ 0.0 };				// 纬度值
 	float elevation{ 0.0 };				// 高程
 };
+Q_DECLARE_METATYPE(st_Gnsssta)
 
 struct st_Gnssgsv
 {
@@ -135,6 +141,7 @@ struct st_Gnssgsv
 	int snr[MaxAvlSatellites] = { 0 };						// 信噪比
 	int count{0};														// 可用卫星个数
 };
+Q_DECLARE_METATYPE(st_Gnssgsv)
 
 /****************************************************************************************
 网络板帧数据
@@ -157,6 +164,7 @@ struct st_NetInfo {
 	int delay{ 0 };                           // 网络延时
 	QString macaddr;             // 本机物理地址
 };
+Q_DECLARE_METATYPE(st_NetInfo)
 
 /****************************************************************************************
 显示帧数据

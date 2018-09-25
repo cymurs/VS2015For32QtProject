@@ -342,11 +342,11 @@ MainTab::MainTab(QWidget *parent)
 
 	// 测试	
 	// 设置精度，最精确的一个
-	QString curDate = QDate::currentDate().toString("yyyy 年 MM 月 dd 日");
-	m_refSrcDate->setText(curDate);
+	//QString curDate = QDate::currentDate().toString("yyyy 年 MM 月 dd 日");
+	//m_refSrcDate->setText(curDate);
 	m_refSrcTimer.setTimerType(Qt::PreciseTimer);  
 	connectSlots();
-	m_refSrcTimer.start(100);
+	//m_refSrcTimer.start(100);
 }
 
 MainTab::~MainTab()
@@ -403,13 +403,15 @@ void MainTab::mousePressEvent(QMouseEvent *event)
 
 void MainTab::connectSlots()
 {
+	TransportThread *pTransport = TransportThread::Get();
 	connect(m_animation, SIGNAL(finished()), this, SIGNAL(fadeOut()));
+	connect(pTransport, SIGNAL(gnsstimeSignal(st_Gnsstime)), this, SLOT(slotOnGnsstimeReached(st_Gnsstime)));
 	
 	//connect(&m_refSrcTimer, &QTimer::timeout, this, &MainTab::slotOnRefSrcTimeOut);	
-	QMetaObject::Connection result = connect(&m_refSrcTimer, SIGNAL(timeout()), this, SLOT(slotOnRefSrcTimeOut()));
-	if (Q_NULLPTR == result) {
-		QMessageBox::warning(this, "failed", "connect timer's timeout failed.");
-	}
+	//QMetaObject::Connection result = connect(&m_refSrcTimer, SIGNAL(timeout()), this, SLOT(slotOnRefSrcTimeOut()));
+	//if (Q_NULLPTR == result) {
+	//	QMessageBox::warning(this, "failed", "connect timer's timeout failed.");
+	//}
 }
 
 void MainTab::slotOnRefSrcTimeOut()
@@ -420,6 +422,17 @@ void MainTab::slotOnRefSrcTimeOut()
 		m_refSrcTime->setText(curTime);
 		lastTime.swap(curTime);
 	}
+}
+
+void MainTab::slotOnGnsstimeReached(const st_Gnsstime &gnsstime)
+{
+	char szText[128] = { '\0' };
+	structTime t = TimeStampToTime(gnsstime.UTCTime.toUInt());
+	sprintf_s(szText, 128, "%02d:%02d:%02d", t.Hour, t.Minute, t.Second);
+	m_refSrcTime->setText(szText);
+	memset(szText, '\0', 128);
+	sprintf_s(szText, 128, ("%04d 年 %02d 月 %02d 日"), t.Year, t.Month, t.Date);
+	m_refSrcDate->setText(tr("%1").arg(szText));
 }
 
 /****************************************************************************************
@@ -679,6 +692,9 @@ void TimeSrcTab::connectSlots()
 	connect(m_gloPriority, SIGNAL(currentIndexChanged(QString)), this, SLOT(slotOnCurrentIndexChanged(QString)));
 	connect(m_dcbPriority, SIGNAL(currentIndexChanged(QString)), this, SLOT(slotOnCurrentIndexChanged(QString)));
 	connect(m_acbPriority, SIGNAL(currentIndexChanged(QString)), this, SLOT(slotOnCurrentIndexChanged(QString)));
+
+	TransportThread *pTransport = TransportThread::Get();
+	connect(pTransport, SIGNAL(gnsstimeSignal(st_Gnsstime)), this, SLOT(slotOnGnsstimeReached(st_Gnsstime)));
 }
 
 void TimeSrcTab::switchAutoManual(bool isAuto, bool isInitial /*= false*/)
@@ -730,6 +746,29 @@ void TimeSrcTab::slotOnCurrentIndexChanged(const QString& text)
 		}
 	}
 	m_priorityValue[idx] = text.toInt();
+}
+
+void TimeSrcTab::slotOnGnsstimeReached(const st_Gnsstime &gnsstime)
+{
+	char szText[128] = { '\0' };
+
+	structTime t = TimeStampToTime(gnsstime.UTCTime.toUInt());
+	sprintf_s(szText, 128, "%04d/%02d/%02d %02d:%02d:%02d", t.Year, t.Month, t.Date, t.Hour, t.Minute, t.Second);
+	m_bdsDateTime->setText(szText);
+	m_gpsDateTime->setText(szText);
+	m_gloDateTime->setText(szText);
+
+	t = TimeStampToTime(gnsstime.dcbTime.toUInt());
+	sprintf_s(szText, 128, "%04d/%02d/%02d %02d:%02d:%02d", t.Year, t.Month, t.Date, t.Hour, t.Minute, t.Second);
+	m_dcbDateTime->setText(szText);
+
+	t = TimeStampToTime(gnsstime.acbTime.toUInt());
+	sprintf_s(szText, 128, "%04d/%02d/%02d %02d:%02d:%02d", t.Year, t.Month, t.Date, t.Hour, t.Minute, t.Second);
+	m_acbDateTime->setText(szText);
+
+	t = TimeStampToTime(gnsstime.inputTime.toUInt());
+	sprintf_s(szText, 128, "%04d/%02d/%02d %02d:%02d:%02d", t.Year, t.Month, t.Date, t.Hour, t.Minute, t.Second);
+	m_inputDateTime->setText(szText);
 }
 
 /****************************************************************************************

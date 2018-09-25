@@ -402,6 +402,8 @@ private slots:
 	void slotOnMasterVer(const st_MasterVer&ret);
 	void slotOnSnResult(const QString &ret);	
 	void slotOnNetVer(const QString &ver);
+	void slotOnReceiverVer(const QString &ver);
+	void slotOnDisplayVer(const QString &ver);
 
 private:
 	QLabel *m_softVerLabel;

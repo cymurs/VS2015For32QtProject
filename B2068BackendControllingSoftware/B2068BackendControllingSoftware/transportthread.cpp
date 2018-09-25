@@ -87,6 +87,8 @@ TransportThread::TransportThread(QObject *parent)
 	TamingState.insert("0x11", QObject::tr("π¿À„∆µ∆´"));
 	TamingState.insert("0x12", QObject::tr("±£≥÷"));
 
+	registerMetaType();
+
 	SingleLogger::instance().start();
 }
 
@@ -576,20 +578,49 @@ void TransportThread::HandleFrameFromMasterBoardEx(const st_FrameData *pFrameDat
 	}
 
 	int found(-1);
+	if (strData.contains("gnsstime,")) {
+		st_Gnsstime gnsstime;
+		QStringList dataLst = strData.split(SepCharComma);		
+		gnsstime.receiverTime = dataLst.at(3);
+		for (int i = 5; i < dataLst.length() - 1; ++i) {
+			if (0 == dataLst.at(i).compare("utc_time_stamp")) {
+				gnsstime.UTCTime = dataLst.at(i + 1);
+				++i;
+				continue;
+			}
+			if (0 == dataLst.at(i).compare("dcb_time_stamp")) {
+				gnsstime.dcbTime = dataLst.at(i + 1);
+				++i;
+				continue;
+			}
+			if (0 == dataLst.at(i).compare("acb_time_stamp")) {
+				gnsstime.acbTime = dataLst.at(i + 1);
+				++i;
+				continue;
+			}
+			if (0 == dataLst.at(i).compare("intput_time_stamp")) {
+				gnsstime.inputTime = dataLst.at(i + 1);
+				++i;
+				continue;
+			}
+		}
+		emit gnsstimeSignal(gnsstime);
+		return;
+	}
 	if (strData.contains("B2068 Main_Control", Qt::CaseInsensitive) || 
 		strData.contains("- look input or output message", Qt::CaseInsensitive)) {
 		emit qumarkSignal(strData);
 		return;
 	}
 	if (-1 != (found = strData.indexOf(g_CmdKeywords[Main], Qt::CaseInsensitive))) {
-		st_MasterVer masterver;		
+		st_MasterVer masterver;	
 		masterver.mainv = mid(strData, g_CmdKeywords[Main], 2, g_CmdKeywords[RN]).toFloat();
 		masterver.net1v = mid(strData, g_CmdKeywords[Net1], 2, g_CmdKeywords[RN]).toFloat();
 		masterver.net2v = mid(strData, g_CmdKeywords[Net2], 2, g_CmdKeywords[RN]).toFloat();
 		masterver.refv = mid(strData, g_CmdKeywords[Ref_], 2, g_CmdKeywords[RN]).toFloat();
 		masterver.viewv = mid(strData, g_CmdKeywords[View], 2, g_CmdKeywords[RN]).toFloat();
 		masterver.firmware = mid(strData, g_CmdKeywords[FPGA], 1, g_CmdKeywords[RN]);
-		masterver.hardware = mid(strData, g_CmdKeywords[Hard], 2, g_CmdKeywords[RN]);
+		masterver.hardware = mid(strData, g_CmdKeywords[Hard], 1, g_CmdKeywords[RN]);
 		emit verSignal(masterver);
 		return;
 	}
@@ -617,6 +648,17 @@ void TransportThread::HandleFrameFromReceiverBoardEx(const st_FrameData *pFrameD
 		m_counterMutex.lock();
 		m_counter = 0;
 		m_counterMutex.unlock();
+	}
+
+	const char *strKeys[] = {
+		"b20682d-ref:",
+	};
+
+	int found(-1);
+	if (strData.contains(strKeys[0])) {
+		QString ret = mid(strData, strKeys[0], 2);
+		emit receiverVerSignal(ret);
+		return;
 	}
 }
 
@@ -765,7 +807,7 @@ void TransportThread::HandleFrameFromDisplayBoardEx(const st_FrameData *pFrameDa
 
 	const char *strKeys[] = {
 		"sn",
-		"",
+		"b20682d-view:",
 		"",
 		"",
 		"",
@@ -775,6 +817,11 @@ void TransportThread::HandleFrameFromDisplayBoardEx(const st_FrameData *pFrameDa
 	if (-1 != (found = strData.indexOf(strKeys[0]))) {
 		QString ret = mid(strData, strKeys[0], 1);
 		emit snResultSignal(ret);
+		return;
+	}
+	if (strData.contains(strKeys[1])) {
+		QString ret = mid(strData, strKeys[1], 2);
+		emit displayVerSignal(ret);
 		return;
 	}
 }
@@ -835,7 +882,7 @@ void TransportThread::run()
 			}
 
 			if (pFrame->m_chSourceAddr == g_BoardAddr[ReceiverAddr][0]) {
-				HandleFrameFromReceiverBoard(pFrame);
+				HandleFrameFromReceiverBoardEx(pFrame);
 				continue;
 			}
 			
@@ -864,6 +911,17 @@ QString TransportThread::mid(const QString &str, const QString &head, int offset
 		ret = str.mid(found);
 
 	return ret;
+}
+
+void TransportThread::registerMetaType()
+{
+	qRegisterMetaType<st_Status>();
+	qRegisterMetaType<st_Gnsstime>();
+	qRegisterMetaType<st_RefAvailInfo>();
+	qRegisterMetaType<st_MasterVer>();
+	qRegisterMetaType<st_Gnsssta>();
+	qRegisterMetaType<st_Gnssgsv>();
+	qRegisterMetaType<st_NetInfo>();
 }
 
 void TransportThread::SetSourceAddr(int iAddr, int iPort, int iResv)
