@@ -23,6 +23,20 @@ class PasswordChangeTab;
 class VersionInfoTab;
 class StateMainTab;
 
+// 需要继承的父界面
+class BaseWidget : public QWidget
+{
+	Q_OBJECT
+
+public:
+	BaseWidget(QWidget *parent = 0);
+
+	virtual void changeStartup();
+
+signals:
+	void changeParams();
+};
+
 // 登录界面
 class SignInWidget : public QWidget
 {
@@ -83,6 +97,7 @@ private Q_SLOTS:
 	// 想要在connect中使用SLOT, 必须将槽函数声明为Q_SLOTS
 	void slotOnRefSrcTimeOut();
 	void slotOnGnsstimeReached(const st_Gnsstime &gnsstime);
+	
 
 signals:
 	void fadeOut();
@@ -105,12 +120,14 @@ private:
 };
 
 // 时间源
-class TimeSrcTab : public QWidget
+class TimeSrcTab : public BaseWidget
 {
 	Q_OBJECT
 
 public:
 	explicit TimeSrcTab(QWidget *parent = 0);
+
+	void changeStartup() override;
 
 protected:
 	void setTextAlignCenter(QComboBox *comboBox);
@@ -168,20 +185,31 @@ private:
 };
 
 // 串口设置
-class ComSettingsTab : public QWidget
+class ComSettingsTab : public BaseWidget
 {
 	Q_OBJECT
 
 public:
 	explicit ComSettingsTab(QWidget *parent = 0);
 
+	void changeStartup() override;
+
 protected:
 	void resizeEvent(QResizeEvent *event) override;
 
 	void setTextAlignCenter(QComboBox *comboBox);
+	int indexByText(const QString &text);
 
 private:
 	void setChildrenGeometry(int w, int h);
+	void connectSlots();
+
+signals:
+	void changeParams();
+
+private slots:
+	void slotOnBaudReceived(const QString &ret);
+	void slotOnConfirmClicked();
 
 private:
 	QLabel *m_debugLabel;
@@ -194,10 +222,16 @@ private:
 
 	const int m_lblWidth;
 	const int m_lblHeight;
+
+	QStringList m_cmdList;
+	uint m_debug;
+	uint m_first;
+	uint m_second;
+	int m_resultSuccess;
 };
 
 // 单播
-class UnicastWidget : public QWidget
+class UnicastWidget : public BaseWidget
 {
 	Q_OBJECT
 
@@ -210,9 +244,21 @@ public:
 	void setSubmask(const QString &mask);
 	void setGateway(const QString &gateway);
 	void setDelay(int delay);
+	void setCurNetNum(uint num);
+	void changeStartup() override;
+	QString currentCmdStr() const;
 
 protected:
 	void paintEvent(QPaintEvent *event) override;
+
+private:
+	void connectSlots();
+
+signals:
+	void changeParams();
+
+private slots:
+	void slotOnButtonsClicked();
 
 private:
 	QLineEdit *m_localIP;
@@ -229,6 +275,16 @@ private:
 	QPushButton *m_remotePortConfirm;
 	QLineEdit *m_delay;
 	QPushButton *m_delayConfirm;
+
+	QString m_strLocalIP;
+	QString m_strRemoteIP;
+	ushort m_uLocalPort;
+	ushort m_uRemotePort;
+	QString m_strSubmask;
+	QString m_strGateway;
+	int m_iDelay;
+	uint m_curNetNum;
+	QString m_curCmdStr;
 };
 
 // 组播
@@ -243,9 +299,20 @@ public:
 	void setRemoteIP(const QString &ip);
 	void setPorts(ushort local, ushort remote);
 	void setDelay(int delay);
+	void setCurNetNum(uint num);
+	QString currentCmdStr() const;
 
 protected:
 	void paintEvent(QPaintEvent *event) override;
+
+private:
+	void connectSlots();
+
+signals:
+	void changeParams();
+
+private slots:
+	void slotOnButtonsClicked();
 
 private:
 	QLineEdit *m_localIP;
@@ -258,6 +325,14 @@ private:
 	QPushButton *m_remotePortConfirm;
 	QLineEdit *m_delay;
 	QPushButton *m_delayConfirm;
+
+	QString m_strLocalIP;
+	ushort m_uLocalPort;
+	ushort m_uRemotePort;
+	QString m_strRemoteIP;
+	int m_iDelay;
+	uint m_curNetNum;
+	QString m_curCmdStr;
 };
 
 // 广播
@@ -271,9 +346,20 @@ public:
 	void setIP(const QString &ip);
 	void setPort(ushort port);
 	void setDelay(int delay);
+	void setCurNetNum(uint num);
+	QString currentCmdStr() const;
 
 protected:
 	void paintEvent(QPaintEvent *event) override;
+
+private:
+	void connectSlots();
+
+signals:
+	void changeParams();
+
+private slots:
+	void slotOnButtonsClicked();
 
 private:
 	QLineEdit *m_broadcastIP;
@@ -282,6 +368,12 @@ private:
 	QPushButton *m_portConfirm;
 	QLineEdit *m_delay;
 	QPushButton *m_delayConfirm;
+
+	QString m_strBroadcastIP;
+	ushort m_uBroadcastPort;
+	int m_iDelay;
+	uint m_curNetNum;
+	QString m_curCmdStr;
 };
 
 // 监控
@@ -296,9 +388,20 @@ public:
 	void setSubmask(const QString &mask);
 	void setGateway(const QString &gateway);
 	void setPorts(ushort recv, ushort send);
+	void setCurNetNum(uint num);
+	QString currentCmdStr() const;
 
 protected:
 	void paintEvent(QPaintEvent *event) override;
+
+private:
+	void connectSlots();
+
+signals:
+	void changeParams();
+
+private slots:
+	void slotOnButtonsClicked();
 
 private:
 	QLineEdit *m_localIP;
@@ -310,15 +413,22 @@ private:
 	QLineEdit *m_recvPort;
 	QLineEdit *m_sendPort;
 	QPushButton *m_sendPortConfirm;
+
+	ushort m_uRecvPort;
+	ushort m_uSendPort;
+	uint m_curNetNum;
+	QString m_curCmdStr;
 };
 
 // 网口设置
-class NetSettingsTab : public QWidget
+class NetSettingsTab : public BaseWidget
 {
 	Q_OBJECT
 
 public:
 	explicit NetSettingsTab(QWidget *parent = 0);
+
+	void changeStartup() override;
 
 protected:
 	//void resizeEvent(QResizeEvent *event) override;
@@ -328,6 +438,9 @@ private:
 	QGroupBox *createCommExclusiveGroup();
 	void connectSlots();
 	void setNetInfo(const st_NetInfo &info);
+
+signals:
+	void changeParams();
 
 private Q_SLOTS:
 	void slotOnNetButtonClicked(int id);
@@ -355,9 +468,10 @@ private:
 	MonitorWidget *m_monitorWgt;
 	QStackedLayout *m_settingsLayout;
 
-	QString m_curNetNum;
+	uint m_curNetNum;
 	st_NetInfo m_net1Info;
 	st_NetInfo m_net2Info;
+	QString m_curCmdStr;
 };
 
 // 状态参数
@@ -366,7 +480,7 @@ class StateParamsTab : public QWidget
 	Q_OBJECT
 
 public:
-	explicit StateParamsTab(QWidget *parent = 0);
+	explicit StateParamsTab(QWidget *parent = 0);	
 
 private:
 	void initTest();  // 仅做测试

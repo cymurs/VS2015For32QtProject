@@ -9,6 +9,15 @@
 const char *ConfigFile = "config.ini";
 st_UserPwd userPwd;
 
+/****************************************************************************************
+需继承的父类
+*****************************************************************************************/
+BaseWidget::BaseWidget(QWidget *parent /* = 0 */)
+	: QWidget(parent)
+{}
+
+void BaseWidget::changeStartup()
+{}
 
 /****************************************************************************************
 主窗口
@@ -439,7 +448,7 @@ void MainTab::slotOnGnsstimeReached(const st_Gnsstime &gnsstime)
 时间源
 *****************************************************************************************/
 TimeSrcTab::TimeSrcTab(QWidget *parent)
-	: QWidget(parent)
+	: BaseWidget(parent)
 {		
 	const QSize LockSize(20, 20);
 	const int RowSpan(1), MinRowHeight(40);	
@@ -674,6 +683,11 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	switchAutoManual(false, true);
 }
 
+void TimeSrcTab::changeStartup()
+{
+
+}
+
 void TimeSrcTab::setTextAlignCenter(QComboBox *comboBox)
 {
 	int items = comboBox->count();
@@ -775,9 +789,10 @@ void TimeSrcTab::slotOnGnsstimeReached(const st_Gnsstime &gnsstime)
 串口设置
 *****************************************************************************************/
 ComSettingsTab::ComSettingsTab(QWidget *parent /*= 0*/)
-	: QWidget(parent)
+	: BaseWidget(parent)
 	, m_lblWidth(LblWidth * 1.5)
 	, m_lblHeight(LblHeight * 1.5)
+	, m_cmdList()
 {
 	int w = width();
 	int h = height();
@@ -791,17 +806,19 @@ ComSettingsTab::ComSettingsTab(QWidget *parent /*= 0*/)
 
 	m_debugCom = new QComboBox(this);
 	m_debugCom->addItems(baud);
-	m_debugCom->setCurrentIndex(2);
+	m_debugCom->setCurrentIndex(0);
 
 	m_firstLabel = new QLabel(tr("定时/串口1"), this);
 
 	m_timingFirst = new QComboBox(this);
 	m_timingFirst->addItems(baud);
+	m_timingFirst->setCurrentIndex(0);
 
 	m_secondLabel = new QLabel(tr("定时/串口2"), this);
 
 	m_timingSecond = new QComboBox(this);
 	m_timingSecond->addItems(baud);
+	m_timingSecond->setCurrentIndex(0);
 
 	m_confirm = new QPushButton(tr("确认设置"), this);
 	setChildrenGeometry(w, h);
@@ -811,6 +828,24 @@ ComSettingsTab::ComSettingsTab(QWidget *parent /*= 0*/)
 	setTextAlignCenter(m_debugCom);
 	setTextAlignCenter(m_timingFirst);
 	setTextAlignCenter(m_timingSecond);
+
+	m_debug = QSerialPort::Baud9600;
+	m_first = QSerialPort::Baud9600;
+	m_second = QSerialPort::Baud9600;
+	m_resultSuccess = 0;
+
+	connectSlots();
+}
+
+void ComSettingsTab::changeStartup()
+{
+	if (0 == m_cmdList.size())  return;
+	
+	TimePositionDatabase db;
+	unsigned char chCmd = COMMAND_IS_AT;
+	for (int i = 0; i < m_cmdList.size(); ++i) {
+		db.selectFromMasterBoard(chCmd, m_cmdList.at(i));
+	}
 }
 
 void ComSettingsTab::resizeEvent(QResizeEvent *event)
@@ -836,6 +871,21 @@ void ComSettingsTab::setTextAlignCenter(QComboBox *comboBox)
 	}
 }
 
+int ComSettingsTab::indexByText(const QString &text)
+{
+	int baud = text.toInt();
+	switch (baud) {
+	case QSerialPort::Baud9600:
+		return 0;
+	case QSerialPort::Baud19200:
+		return 1;
+	case QSerialPort::Baud57600:
+		return 2;
+	default:
+		return -1;
+	}
+}
+
 void ComSettingsTab::setChildrenGeometry(int w, int h)
 {
 	if (0 == w && 0 == h) return;
@@ -850,11 +900,86 @@ void ComSettingsTab::setChildrenGeometry(int w, int h)
 	m_confirm->setGeometry(w / 2 + wdth / 2, h * 3 / 4 - m_lblHeight, m_lblWidth, m_lblHeight);
 }
 
+void ComSettingsTab::connectSlots()
+{
+	TransportThread *pTrans = TransportThread::Get();
+	connect(pTrans, SIGNAL(baudSignal(QString)), this, SLOT(slotOnBaudReceived(QString)));
+	connect(m_confirm, SIGNAL(clicked()), this, SLOT(slotOnConfirmClicked()));
+}
+
+void ComSettingsTab::slotOnBaudReceived(const QString &ret)
+{
+	QStringList retLst = ret.split(",");
+	if (4 == retLst.size()) {
+		//m_debugCom->setCurrentText(retLst.at(1));  // 默认uneditable, 所以无效
+		int idx = indexByText(retLst.at(1));
+		m_debugCom->setCurrentIndex(idx);		
+		idx = indexByText(retLst.at(2));
+		m_timingFirst->setCurrentIndex(idx);		
+		idx = indexByText(retLst.at(3));
+		m_timingSecond->setCurrentIndex(idx);
+
+		m_debug = retLst.at(1).toUInt();
+		m_first = retLst.at(2).toUInt();
+		m_second = retLst.at(3).toUInt();
+		return;
+	}
+	if (3 == retLst.size()) {		
+		if (0 == m_resultSuccess) {
+			++m_resultSuccess;
+
+			QMessageBox msgBox(QMessageBox::Information, tr("提示"), tr("参数修改成功!"), QMessageBox::NoButton);
+			msgBox.addButton(tr("确认"), QMessageBox::AcceptRole);
+			msgBox.setStyleSheet(QSS_MsgBox + QSS_PushButton);
+			msgBox.exec();			
+		}		
+
+		if (0 == retLst.at(1).toUInt()) {
+			m_debugCom->setCurrentIndex(indexByText(retLst.at(2)));
+		}
+		else if(1 == retLst.at(1).toUInt()) {		
+			m_timingFirst->setCurrentIndex(indexByText(retLst.at(2)));
+		}
+		else if (2 == retLst.at(1).toUInt()) {
+			m_timingSecond->setCurrentIndex(indexByText(retLst.at(2)));
+		}
+		return;
+	}	
+}
+
+void ComSettingsTab::slotOnConfirmClicked()
+{
+	uint debug = m_debugCom->currentText().toUInt();
+	uint first = m_timingFirst->currentText().toUInt();
+	uint second = m_timingSecond->currentText().toUInt();
+
+	int changes = 0;	
+	if (m_debug != debug) {
+		QString strCmd = QString("baud,0,%1").arg(debug);
+		m_cmdList << strCmd;		
+		++changes;
+	}
+	if (m_first != first) {
+		QString strCmd = QString("baud,1,%1").arg(first);
+		m_cmdList << strCmd;		
+		++changes;
+	}
+	if (m_second != second) {
+		QString strCmd = QString("baud,2,%1").arg(second);
+		m_cmdList << strCmd;		
+		++changes;
+	}
+	m_resultSuccess = 0;
+
+	if (0 != changes)
+		emit changeParams();
+}
+
 /****************************************************************************************
 网口设置
 *****************************************************************************************/
 UnicastWidget::UnicastWidget(QWidget *parent /*= 0*/)
-	: QWidget(parent)
+	: BaseWidget(parent)
 {
 	auto localIPLabel = new QLabel(tr("本机IP"), this);
 	//m_localIP = new QLineEdit(tr("192.168.59.180"), this);
@@ -941,40 +1066,82 @@ UnicastWidget::UnicastWidget(QWidget *parent /*= 0*/)
 	baseLayout->setColumnStretch(4, 1);
 	baseLayout->setColumnStretch(5, 2);
 	setLayout(baseLayout);
+
+	connectSlots();
+
+	m_strLocalIP = QString();
+	m_strRemoteIP = QString();
+	m_uLocalPort = 0;
+	m_uRemotePort = 0;
+	m_strSubmask = QString();
+	m_strGateway = QString();
+	m_iDelay = 0;
+	m_curNetNum = 0;
+	m_curCmdStr = QString();
 }
 
 void UnicastWidget::setLocalIP(const QString &ip)
 {
 	m_localIP->setText(ip);
+	m_strLocalIP = ip;
 }
 
 void UnicastWidget::setRemoteIP(const QString &ip)
 {
 	m_remoteIP->setText(ip);
+	m_strRemoteIP = ip;
 }
 
 void UnicastWidget::setPorts(ushort local, ushort target)
 {
-	if (0 != local)
+	if (0 != local) {
 		m_localPort->setText(QString::number(local));
-	if (0 != target)
+		m_uLocalPort = local;
+	}
+	if (0 != target) {
 		m_remotePort->setText(QString::number(target));
+		m_uRemotePort = target;
+	}
 }
 
 void UnicastWidget::setSubmask(const QString &mask)
 {
 	m_submask->setText(mask);
+	m_strSubmask = mask;
 }
 
 void UnicastWidget::setGateway(const QString &gateway)
 {
 	m_gateway->setText(gateway);
+	m_strGateway = gateway;
 }
 
 void UnicastWidget::setDelay(int delay)
 {
-	if (0 != delay)
+	if (0 != delay) {
 		m_delay->setText(QString::number(delay));
+		m_iDelay = delay;
+	}
+}
+
+void UnicastWidget::setCurNetNum(uint num)
+{
+	m_curNetNum = num;
+}
+
+void UnicastWidget::changeStartup()
+{
+	TimePositionDatabase db;
+	unsigned char chCmd = COMMAND_IS_AT;
+	BoardAddrFlag boardAddr = (m_curNetNum == 1) ? Net1Addr : Net2Addr;
+	if (!m_curCmdStr.isEmpty()) {
+		db.selectFromNetBoard(chCmd, m_curCmdStr, boardAddr);
+	}
+}
+
+QString UnicastWidget::currentCmdStr() const
+{
+	return m_curCmdStr;
 }
 
 void UnicastWidget::paintEvent(QPaintEvent *event)
@@ -984,6 +1151,70 @@ void UnicastWidget::paintEvent(QPaintEvent *event)
 	opt.init(this);
 	QPainter p(this);
 	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
+}
+
+void UnicastWidget::connectSlots()
+{
+	connect(m_ipConfirm, SIGNAL(clicked()), this, SLOT(slotOnButtonsClicked()));
+	connect(m_portConfirm, SIGNAL(clicked()), this, SLOT(slotOnButtonsClicked()));
+	connect(m_maskConfirm, SIGNAL(clicked()), this, SLOT(slotOnButtonsClicked()));
+	connect(m_gatewayConfirm, SIGNAL(clicked()), this, SLOT(slotOnButtonsClicked()));
+	connect(m_remoteIPConfirm, SIGNAL(clicked()), this, SLOT(slotOnButtonsClicked()));
+	connect(m_remotePortConfirm, SIGNAL(clicked()), this, SLOT(slotOnButtonsClicked()));
+	connect(m_delayConfirm, SIGNAL(clicked()), this, SLOT(slotOnButtonsClicked()));
+}
+
+void UnicastWidget::slotOnButtonsClicked()
+{
+	bool changed(false);
+	do 
+	{
+		QString localIP = m_localIP->text();
+		if (0 != m_strLocalIP.compare(localIP)) {
+			changed = true;
+			m_curCmdStr = QString("addrip,%1,%2").arg(m_curNetNum).arg(localIP);
+			break;
+		}
+
+		ushort localPort = m_localPort->text().toUInt();
+		ushort remotePort = m_remotePort->text().toUInt();
+		if (m_uLocalPort != localPort || m_uRemotePort != remotePort) {
+			changed = true;
+			m_curCmdStr = QString("workport,%1,%2,%3").arg(m_curNetNum).arg(localPort).arg(remotePort);
+			break;
+		}
+
+		QString submask = m_submask->text();
+		if (0 != m_strSubmask.compare(submask)) {
+			changed = true;
+			m_curCmdStr = QString("submask,%1,%2").arg(m_curNetNum).arg(submask);
+			break;
+		}
+
+		QString gateway = m_gateway->text();
+		if (0 != m_strGateway.compare(gateway)) {
+			changed = true;
+			m_curCmdStr = QString("gateway,%1,%2").arg(m_curNetNum).arg(gateway);
+			break;
+		}
+
+		QString remoteIP = m_remoteIP->text();
+		if (0 != m_strRemoteIP.compare(remoteIP)) {
+			changed = true;
+			m_curCmdStr = QString("remoteip,%1,%2").arg(m_curNetNum).arg(remoteIP);
+			break;
+		}
+
+		int delay = m_delay->text().toInt();
+		if (m_iDelay != delay) {
+			changed = true;
+			m_curCmdStr = QString("delay,%1,%2").arg(m_curNetNum).arg(delay);
+			break;
+		}
+	} while (false);
+
+	if (changed)
+		emit changeParams();
 }
 
 MulticastWidget::MulticastWidget(QWidget *parent /*= 0*/)
@@ -1054,30 +1285,58 @@ MulticastWidget::MulticastWidget(QWidget *parent /*= 0*/)
 	baseLayout->setColumnStretch(4, 1);
 	baseLayout->setColumnStretch(5, 2);
 	setLayout(baseLayout);
+
+	connectSlots();
+
+	m_strLocalIP = QString();
+	m_strRemoteIP = QString();
+	m_uLocalPort = 0;
+	m_uRemotePort = 0;
+	m_iDelay = 0;
+	m_curNetNum = 0;
+	m_curCmdStr = QString();
 }
 
 void MulticastWidget::setLocalIP(const QString &ip)
 {
 	m_localIP->setText(ip);
+	m_strLocalIP = ip;
 }
 
 void MulticastWidget::setRemoteIP(const QString &ip)
 {
 	m_remoteIP->setText(ip);
+	m_strRemoteIP = ip;
 }
 
 void MulticastWidget::setPorts(ushort local, ushort remote)
 {
-	if (0 != local)
+	if (0 != local) {
 		m_localPort->setText(QString::number(local));
-	if (0 != remote)
+		m_uLocalPort = local;
+	}
+	if (0 != remote) {
 		m_remotePort->setText(QString::number(remote));
+		m_uRemotePort = remote;
+	}
 }
 
 void MulticastWidget::setDelay(int delay)
 {
-	if (0 != delay)
+	if (0 != delay) {
 		m_delay->setText(QString::number(delay));
+		m_iDelay = delay;
+	}
+}
+
+void MulticastWidget::setCurNetNum(uint num)
+{
+	m_curNetNum = num;
+}
+
+QString MulticastWidget::currentCmdStr() const
+{
+	return m_curCmdStr;
 }
 
 void MulticastWidget::paintEvent(QPaintEvent *event)
@@ -1087,6 +1346,54 @@ void MulticastWidget::paintEvent(QPaintEvent *event)
 	opt.init(this);
 	QPainter p(this);
 	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
+}
+
+void MulticastWidget::connectSlots()
+{
+	connect(m_ipConfirm, SIGNAL(clicked()), this, SLOT(slotOnButtonsClicked()));
+	connect(m_portConfirm, SIGNAL(clicked()), this, SLOT(slotOnButtonsClicked()));
+	connect(m_remoteIPConfirm, SIGNAL(clicked()), this, SLOT(slotOnButtonsClicked()));
+	connect(m_remotePortConfirm, SIGNAL(clicked()), this, SLOT(slotOnButtonsClicked()));
+	connect(m_delayConfirm, SIGNAL(clicked()), this, SLOT(slotOnButtonsClicked()));
+}
+
+void MulticastWidget::slotOnButtonsClicked()
+{
+	bool changed(false);
+	do
+	{
+		QString localIP = m_localIP->text();
+		if (0 != m_strLocalIP.compare(localIP)) {
+			changed = true;
+			m_curCmdStr = QString("groupipaddr,%1,%2").arg(m_curNetNum).arg(localIP);
+			break;
+		}
+
+		ushort localPort = m_localPort->text().toUInt();
+		ushort remotePort = m_remotePort->text().toUInt();
+		if (m_uLocalPort != localPort || m_uRemotePort != remotePort) {
+			changed = true;
+			m_curCmdStr = QString("groupport,%1,%2,%3").arg(m_curNetNum).arg(localPort).arg(remotePort);
+			break;
+		}
+
+		QString remoteIP = m_remoteIP->text();
+		if (0 != m_strRemoteIP.compare(remoteIP)) {
+			changed = true;
+			m_curCmdStr = QString("remotegroupipaddr,%1,%2").arg(m_curNetNum).arg(remoteIP);
+			break;
+		}
+
+		int delay = m_delay->text().toInt();
+		if (m_iDelay != delay) {
+			changed = true;
+			m_curCmdStr = QString("delay,%1,%2").arg(m_curNetNum).arg(delay);
+			break;
+		}
+	} while (false);
+
+	if (changed)
+		emit changeParams();
 }
 
 BroadcastWidget::BroadcastWidget(QWidget *parent /*= 0*/)
@@ -1137,21 +1444,42 @@ BroadcastWidget::BroadcastWidget(QWidget *parent /*= 0*/)
 	baseLayout->setColumnStretch(4, 1);
 	baseLayout->setColumnStretch(5, 2);
 	setLayout(baseLayout);
+
+	connectSlots();
+
+	m_strBroadcastIP = QString();
+	m_uBroadcastPort = 0;
+	m_iDelay = 0;
+	m_curNetNum = 0;
+	m_curCmdStr = QString();
 }
 
 void BroadcastWidget::setIP(const QString &ip)
 {
 	m_broadcastIP->setText(ip);
+	m_strBroadcastIP = ip;
 }
 
 void BroadcastWidget::setPort(ushort port)
 {
 	m_broadcastPort->setText(QString::number(port));
+	m_uBroadcastPort = port;
 }
 
 void BroadcastWidget::setDelay(int delay)
 {
 	m_delay->setText(QString::number(delay));
+	m_iDelay = delay;
+}
+
+void BroadcastWidget::setCurNetNum(uint num)
+{
+	m_curNetNum = num;
+}
+
+QString BroadcastWidget::currentCmdStr() const
+{
+	return m_curCmdStr;
 }
 
 void BroadcastWidget::paintEvent(QPaintEvent *event)
@@ -1161,6 +1489,44 @@ void BroadcastWidget::paintEvent(QPaintEvent *event)
 	opt.init(this);
 	QPainter p(this);
 	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
+}
+
+void BroadcastWidget::connectSlots()
+{
+	connect(m_ipConfirm, SIGNAL(clicked()), this, SLOT(slotOnButtonsClicked()));
+	connect(m_portConfirm, SIGNAL(clicked()), this, SLOT(slotOnButtonsClicked()));
+	connect(m_delayConfirm, SIGNAL(clicked()), this, SLOT(slotOnButtonsClicked()));
+}
+
+void BroadcastWidget::slotOnButtonsClicked()
+{
+	bool changed(false);
+	do
+	{
+		QString broadcastIP = m_broadcastIP->text();
+		if (0 != m_strBroadcastIP.compare(broadcastIP)) {
+			changed = true;
+			m_curCmdStr = QString("broadcastipaddr,%1,%2").arg(m_curNetNum).arg(broadcastIP);
+			break;
+		}
+
+		ushort broadcastPort = m_broadcastPort->text().toUInt();		
+		if (m_uBroadcastPort != broadcastPort) {
+			changed = true;
+			m_curCmdStr = QString("broadcastport,%1,%2,%3").arg(m_curNetNum).arg(broadcastPort);
+			break;
+		}
+
+		int delay = m_delay->text().toInt();
+		if (m_iDelay != delay) {
+			changed = true;
+			m_curCmdStr = QString("delay,%1,%2").arg(m_curNetNum).arg(delay);
+			break;
+		}
+	} while (false);
+
+	if (changed)
+		emit changeParams();
 }
 
 MonitorWidget::MonitorWidget(QWidget *parent /*= 0*/)
@@ -1218,6 +1584,11 @@ MonitorWidget::MonitorWidget(QWidget *parent /*= 0*/)
 	baseLayout->setColumnStretch(4, 1);
 	baseLayout->setColumnStretch(5, 2);
 	setLayout(baseLayout);
+
+	connectSlots();
+
+	m_uRecvPort = 0;
+	m_uSendPort = 0;
 }
 
 void MonitorWidget::setIP(const QString &ip)
@@ -1237,10 +1608,24 @@ void MonitorWidget::setGateway(const QString &gateway)
 
 void MonitorWidget::setPorts(ushort recv, ushort send)
 {
-	if (0 != recv)
+	if (0 != recv) {
 		m_recvPort->setText(QString::number(recv));
-	if (0 != send)
+		m_uRecvPort = recv;
+	}
+	if (0 != send) {
 		m_sendPort->setText(QString::number(send));
+		m_uSendPort = send;
+	}
+}
+
+void MonitorWidget::setCurNetNum(uint num)
+{
+	m_curNetNum = num;
+}
+
+QString MonitorWidget::currentCmdStr() const
+{
+	return m_curCmdStr;
 }
 
 void MonitorWidget::paintEvent(QPaintEvent *event)
@@ -1252,8 +1637,33 @@ void MonitorWidget::paintEvent(QPaintEvent *event)
 	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
 
+void MonitorWidget::connectSlots()
+{
+	connect(m_sendPortConfirm, SIGNAL(clicked()), this, SLOT(slotOnButtonsClicked()));
+}
+
+void MonitorWidget::slotOnButtonsClicked()
+{
+	bool changed(false);
+	do
+	{
+		ushort recvPort = m_recvPort->text().toUShort();
+		ushort sendPort = m_sendPort->text().toUShort();
+		if (m_uRecvPort != recvPort || m_uSendPort != sendPort) {
+			changed = true;
+			m_curCmdStr = QString("debugport,%1,%2,%3")
+				.arg(m_curNetNum).arg(recvPort).arg(sendPort);
+			break;
+		}
+	} while (false);
+
+	if (changed)
+		emit changeParams();
+}
+
 NetSettingsTab::NetSettingsTab(QWidget *parent)
-	: QWidget(parent)
+	: BaseWidget(parent)
+	, m_curCmdStr()
 {
 	int w = width();
 	int h = height();
@@ -1289,6 +1699,30 @@ NetSettingsTab::NetSettingsTab(QWidget *parent)
 	connectSlots();
 }
 
+void NetSettingsTab::changeStartup()
+{
+	QString strCmd;
+	switch (m_commGroup->checkedId()) {
+	case 0:
+		strCmd = m_unicastWgt->currentCmdStr();
+		break;
+	case 1:
+		strCmd = m_multicastWgt->currentCmdStr();
+		break;
+	case 2:
+		strCmd = m_broadcastWgt->currentCmdStr();
+		break;
+	case 3:
+		strCmd = m_monitorWgt->currentCmdStr();
+		break;
+	}
+	m_curCmdStr = strCmd;
+
+	TimePositionDatabase db;
+	BoardAddrFlag boardAddr = (m_curNetNum == 1) ? Net1Addr : Net2Addr;
+	db.selectFromNetBoard(COMMAND_IS_AT, strCmd, boardAddr);
+}
+
 //void NetSettingsTab::resizeEvent(QResizeEvent *event)
 //{
 //	QSize s = event->size();
@@ -1313,7 +1747,7 @@ QGroupBox * NetSettingsTab::createNetExclusiveGroup()
 	m_netGroup->addButton(m_firstNet, 0);
 	m_netGroup->addButton(m_secondNet, 1);	
 	m_firstNet->setChecked(true);
-	m_curNetNum = QString::number(1);
+	m_curNetNum = 1;
 
 	QGroupBox *netBox = new QGroupBox(this);
 	auto netLayout = new QHBoxLayout;	
@@ -1361,6 +1795,10 @@ void NetSettingsTab::connectSlots()
 	connect(pTransport, SIGNAL(net1InfoSignal(st_NetInfo)), this, SLOT(slotOnNet1InfoReceived(st_NetInfo)));
 	connect(pTransport, SIGNAL(net2InfoSignal(st_NetInfo)), this, SLOT(slotOnNet2InfoReceived(st_NetInfo)));
 	connect(pTransport, SIGNAL(netResultSignal(QString)), this, SLOT(slotOnNetResultReceived(QString)));
+	connect(m_unicastWgt, SIGNAL(changeParams()), this, SIGNAL(changeParams()));
+	connect(m_multicastWgt, SIGNAL(changeParams()), this, SIGNAL(changeParams()));
+	connect(m_broadcastWgt, SIGNAL(changeParams()), this, SIGNAL(changeParams()));
+	connect(m_monitorWgt, SIGNAL(changeParams()), this, SIGNAL(changeParams()));
 }
 
 void NetSettingsTab::setNetInfo(const st_NetInfo &info)
@@ -1371,25 +1809,29 @@ void NetSettingsTab::setNetInfo(const st_NetInfo &info)
 	m_unicastWgt->setGateway(info.gateway);
 	m_unicastWgt->setRemoteIP(info.remoteip);
 	m_unicastWgt->setDelay(info.delay);
+	m_unicastWgt->setCurNetNum(m_curNetNum);
 
 	m_multicastWgt->setLocalIP(info.groupip);
 	m_multicastWgt->setPorts(info.grouplocal, info.grouptarget);
 	m_multicastWgt->setRemoteIP(info.remotegroupip);
 	m_multicastWgt->setDelay(info.delay);
+	m_multicastWgt->setCurNetNum(m_curNetNum);
 
 	m_broadcastWgt->setIP(info.broadcastip);
 	m_broadcastWgt->setPort(info.broadcastport);
 	m_broadcastWgt->setDelay(info.delay);
+	m_broadcastWgt->setCurNetNum(m_curNetNum);
 
 	m_monitorWgt->setIP(info.ip);
 	m_monitorWgt->setSubmask(info.submask);
 	m_monitorWgt->setGateway(info.gateway);
 	m_monitorWgt->setPorts(info.debugrecv, info.debugsend);
+	m_monitorWgt->setCurNetNum(m_curNetNum);
 }
 
 void NetSettingsTab::slotOnNetButtonClicked(int id)
 {
-	m_curNetNum = QString::number(id + 1);
+	m_curNetNum = id + 1;
 	if (1 == m_curNetNum) {
 		if (m_net1Info.ip.isEmpty()) return;		
 		setNetInfo(m_net1Info);
@@ -1408,23 +1850,50 @@ void NetSettingsTab::slotOnCommButtonClicked(int id)
 void NetSettingsTab::slotOnNet1InfoReceived(const st_NetInfo &info)
 {
 	m_net1Info = info;
-	if (0 == m_net1Info.grouptarget) {
-		TimePositionDatabase db;
-		db.selectFromNetBoard(COMMAND_IS_AT, "groupport,1", Net1Addr);
+
+	TimePositionDatabase db;
+	unsigned char chCmd = COMMAND_IS_AT;
+	if (0 == m_net1Info.grouptarget) {		
+		db.selectFromNetBoard(chCmd, "groupport,1", Net1Addr);
+	}
+	if (m_net1Info.remotegroupip.isEmpty()) {
+		db.selectFromNetBoard(chCmd, "remotegroupipaddr,1", Net1Addr);
+	}
+
+	if (1 == m_curNetNum) {
+		setNetInfo(m_net1Info);
 	}
 }
 
 void NetSettingsTab::slotOnNet2InfoReceived(const st_NetInfo &info)
 {
 	m_net2Info = info;
-	if (0 == m_net2Info.grouptarget) {
-		TimePositionDatabase db;
-		db.selectFromNetBoard(COMMAND_IS_AT, "groupport,2", Net2Addr);
+
+	TimePositionDatabase db;
+	unsigned char chCmd = COMMAND_IS_AT;
+	if (0 == m_net2Info.grouptarget) {		
+		db.selectFromNetBoard(chCmd, "groupport,2", Net2Addr);
+	}
+	if (m_net2Info.remotegroupip.isEmpty()) {
+		db.selectFromNetBoard(chCmd, "remotegroupipaddr,2", Net2Addr);
+	}
+
+	if (2 == m_curNetNum) {
+		setNetInfo(m_net2Info);
 	}
 }
 
 void NetSettingsTab::slotOnNetResultReceived(const QString &res)
 {
+	if (0 == m_curCmdStr.compare(res)) {
+		m_curCmdStr.clear();
+
+		QMessageBox msgBox(QMessageBox::Information, tr("提示"), tr("参数修改成功!"), QMessageBox::NoButton);
+		msgBox.addButton(tr("确认"), QMessageBox::AcceptRole);
+		msgBox.setStyleSheet(QSS_MsgBox + QSS_PushButton);
+		msgBox.exec();
+	}
+
 	if (res.startsWith("groupport")) {
 		QStringList ports = res.split(",");
 		ushort grouplocal = ports.at(2).toUShort();
@@ -1443,6 +1912,208 @@ void NetSettingsTab::slotOnNetResultReceived(const QString &res)
 				m_multicastWgt->setPorts(grouplocal, grouptarget);
 			}
 		}
+		return;
+	}
+
+	if (res.startsWith("remotegroupipaddr")) {
+		QStringList resLst = res.split(",");
+		if (1 == resLst.at(1).toInt()) {
+			m_net1Info.remotegroupip = resLst.at(2);
+			if (1 == m_curNetNum) {
+				m_multicastWgt->setRemoteIP(m_net1Info.remotegroupip);
+			}
+		}
+		else {
+			m_net2Info.remotegroupip = resLst.at(2);
+			if (2 == m_curNetNum) {
+				m_multicastWgt->setRemoteIP(m_net2Info.remotegroupip);
+			}
+		}
+		return;
+	}
+
+	if (res.startsWith("addrip")) {
+		QStringList resLst = res.split(",");
+		if (1 == resLst.at(1).toInt()) {
+			m_net1Info.ip = resLst.at(2);
+			if (1 == m_curNetNum) {
+				m_unicastWgt->setLocalIP(m_net1Info.ip);
+				m_monitorWgt->setIP(m_net1Info.ip);
+			}
+		}
+		else {
+			m_net2Info.ip = resLst.at(2);
+			if (2 == m_curNetNum) {
+				m_unicastWgt->setLocalIP(m_net2Info.ip);
+				m_monitorWgt->setIP(m_net2Info.ip);
+			}
+		}
+		return;
+	}
+
+	if (res.startsWith("workport")) {
+		QStringList resLst = res.split(",");
+		if (1 == resLst.at(1).toInt()) {
+			m_net1Info.worklocal = resLst.at(2).toUShort();
+			m_net1Info.worktarget = resLst.at(3).toUShort();
+			if (1 == m_curNetNum) {
+				m_unicastWgt->setPorts(m_net1Info.worklocal, m_net1Info.worktarget);
+			}
+		}
+		else {
+			m_net2Info.worklocal = resLst.at(2).toUShort();
+			m_net2Info.worktarget = resLst.at(3).toUShort();
+			if (2 == m_curNetNum) {
+				m_unicastWgt->setPorts(m_net2Info.worklocal, m_net2Info.worktarget);
+			}
+		}
+		return;
+	}
+
+	if (res.startsWith("submask")) {
+		QStringList resLst = res.split(",");
+		if (1 == resLst.at(1).toInt()) {
+			m_net1Info.submask = resLst.at(2);			
+			if (1 == m_curNetNum) {
+				m_unicastWgt->setSubmask(m_net1Info.submask);
+				m_monitorWgt->setSubmask(m_net1Info.submask);
+			}
+		}
+		else {
+			m_net2Info.submask = resLst.at(2);
+			if (2 == m_curNetNum) {
+				m_unicastWgt->setSubmask(m_net2Info.submask);
+				m_monitorWgt->setSubmask(m_net2Info.submask);
+			}
+		}
+		return;
+	}
+
+	if (res.startsWith("gateway")) {
+		QStringList resLst = res.split(",");
+		if (1 == resLst.at(1).toInt()) {
+			m_net1Info.gateway = resLst.at(2);
+			if (1 == m_curNetNum) {
+				m_unicastWgt->setGateway(m_net1Info.gateway);
+				m_monitorWgt->setGateway(m_net1Info.gateway);
+			}
+		}
+		else {
+			m_net2Info.gateway = resLst.at(2);
+			if (2 == m_curNetNum) {
+				m_unicastWgt->setGateway(m_net2Info.gateway);
+				m_monitorWgt->setGateway(m_net2Info.gateway);
+			}
+		}
+		return;
+	}
+
+	if (res.startsWith("remoteip")) {
+		QStringList resLst = res.split(",");
+		if (1 == resLst.at(1).toInt()) {
+			m_net1Info.remoteip = resLst.at(2);
+			if (1 == m_curNetNum) {
+				m_unicastWgt->setRemoteIP(m_net1Info.remoteip);
+			}
+		}
+		else {
+			m_net2Info.remoteip = resLst.at(2);
+			if (2 == m_curNetNum) {
+				m_unicastWgt->setRemoteIP(m_net2Info.remoteip);
+			}
+		}
+		return;
+	}
+
+	if (res.startsWith("delay")) {
+		QStringList resLst = res.split(",");
+		if (1 == resLst.at(1).toInt()) {
+			m_net1Info.delay = resLst.at(2).toInt();
+			if (1 == m_curNetNum) {
+				m_unicastWgt->setDelay(m_net1Info.delay);
+				m_multicastWgt->setDelay(m_net1Info.delay);
+				m_broadcastWgt->setDelay(m_net1Info.delay);
+			}
+		}
+		else {
+			m_net2Info.delay = resLst.at(2).toInt();
+			if (2 == m_curNetNum) {
+				m_unicastWgt->setDelay(m_net2Info.delay);
+				m_multicastWgt->setDelay(m_net2Info.delay);
+				m_broadcastWgt->setDelay(m_net2Info.delay);
+			}
+		}
+		return;
+	}
+
+	if (res.startsWith("groupipaddr")) {
+		QStringList resLst = res.split(",");
+		if (1 == resLst.at(1).toInt()) {
+			m_net1Info.groupip = resLst.at(2);
+			if (1 == m_curNetNum) {
+				m_multicastWgt->setLocalIP(m_net1Info.groupip);
+			}
+		}
+		else {
+			m_net2Info.groupip = resLst.at(2);
+			if (2 == m_curNetNum) {
+				m_multicastWgt->setLocalIP(m_net2Info.groupip);
+			}
+		}
+		return;
+	}
+
+	if (res.startsWith("broadcastipaddr")) {
+		QStringList resLst = res.split(",");
+		if (1 == resLst.at(1).toInt()) {
+			m_net1Info.broadcastip = resLst.at(2);
+			if (1 == m_curNetNum) {
+				m_broadcastWgt->setIP(m_net1Info.broadcastip);
+			}
+		}
+		else {
+			m_net2Info.broadcastip = resLst.at(2);
+			if (2 == m_curNetNum) {
+				m_broadcastWgt->setIP(m_net2Info.broadcastip);
+			}
+		}
+		return;
+	}
+
+	if (res.startsWith("broadcastport")) {
+		QStringList resLst = res.split(",");
+		if (1 == resLst.at(1).toInt()) {
+			m_net1Info.broadcastport = resLst.at(2).toUShort();
+			if (1 == m_curNetNum) {
+				m_broadcastWgt->setPort(m_net1Info.broadcastport);
+			}
+		}
+		else {
+			m_net2Info.broadcastport = resLst.at(2).toUShort();
+			if (2 == m_curNetNum) {
+				m_broadcastWgt->setPort(m_net2Info.broadcastport);
+			}
+		}
+		return;
+	}
+
+	if (res.startsWith("debugport")) {
+		QStringList resLst = res.split(",");
+		if (1 == resLst.at(1).toInt()) {
+			m_net1Info.debugrecv = resLst.at(2).toUShort();
+			m_net1Info.debugsend = resLst.at(3).toUShort();
+			if (1 == m_curNetNum) {
+				m_monitorWgt->setPorts(m_net1Info.debugrecv, m_net1Info.debugsend);
+			}
+		}
+		else {
+			m_net2Info.debugrecv = resLst.at(2).toUShort();
+			m_net2Info.debugsend = resLst.at(3).toUShort();
+			if (2 == m_curNetNum) {
+				m_monitorWgt->setPorts(m_net2Info.debugrecv, m_net2Info.debugsend);
+			}
+		}
+		return;
 	}
 }
 

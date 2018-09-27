@@ -577,6 +577,25 @@ void TransportThread::HandleFrameFromMasterBoardEx(const st_FrameData *pFrameDat
 		m_counterMutex.unlock();
 	}
 
+	const char *strKeys[] = {
+		"b2068",				// 0
+		"-main:",             // 1
+		"-net1:",              // 2
+		"-net2:",              // 3
+		"-ref:",
+		"-view:",
+		"fpga ver:",         // 6
+		"hardware number:",  // 7
+		"current serial port rate is:",  // 8
+		"test com:",
+		"user com1:",
+		"user com2:",
+		"set baud rate to be successful", // 12
+		"",
+		"",
+		"",
+	};
+
 	int found(-1);
 	if (strData.contains("gnsstime,")) {
 		st_Gnsstime gnsstime;
@@ -607,24 +626,39 @@ void TransportThread::HandleFrameFromMasterBoardEx(const st_FrameData *pFrameDat
 		emit gnsstimeSignal(gnsstime);
 		return;
 	}
+	if (strData.contains(strKeys[8])) {
+		QString test = mid(strData, strKeys[9], 2);
+		QString com1 = mid(strData, strKeys[10], 1);
+		QString com2 = mid(strData, strKeys[11], 1);
+		QString ret = QString("baud,%1,%2,%3")
+			.arg(test).arg(com1).arg(com2);
+		emit baudSignal(ret);
+		return;
+	}
+	if (strData.contains(strKeys[12])) {
+		QStringList retLst = strData.split(SepCrLf);
+		emit baudSignal(retLst.at(0));
+		return;
+	}
 	if (strData.contains("B2068 Main_Control", Qt::CaseInsensitive) || 
 		strData.contains("- look input or output message", Qt::CaseInsensitive)) {
 		emit qumarkSignal(strData);
 		return;
 	}
-	if (-1 != (found = strData.indexOf(g_CmdKeywords[Main], Qt::CaseInsensitive))) {
+	if (-1 != (found = strData.indexOf(strKeys[1], Qt::CaseInsensitive))) {
 		st_MasterVer masterver;	
-		masterver.mainv = mid(strData, g_CmdKeywords[Main], 2, g_CmdKeywords[RN]).toFloat();
-		masterver.net1v = mid(strData, g_CmdKeywords[Net1], 2, g_CmdKeywords[RN]).toFloat();
-		masterver.net2v = mid(strData, g_CmdKeywords[Net2], 2, g_CmdKeywords[RN]).toFloat();
-		masterver.refv = mid(strData, g_CmdKeywords[Ref_], 2, g_CmdKeywords[RN]).toFloat();
-		masterver.viewv = mid(strData, g_CmdKeywords[View], 2, g_CmdKeywords[RN]).toFloat();
-		masterver.firmware = mid(strData, g_CmdKeywords[FPGA], 1, g_CmdKeywords[RN]);
-		masterver.hardware = mid(strData, g_CmdKeywords[Hard], 1, g_CmdKeywords[RN]);
+		int i = 1;
+		masterver.mainv = mid(strData, strKeys[i++], 2).toFloat();
+		masterver.net1v = mid(strData, strKeys[i++], 2).toFloat();
+		masterver.net2v = mid(strData, strKeys[i++], 2).toFloat();
+		masterver.refv = mid(strData, strKeys[i++], 2).toFloat();
+		masterver.viewv = mid(strData, strKeys[i++], 2).toFloat();
+		masterver.firmware = mid(strData, strKeys[i++], 1);
+		masterver.hardware = mid(strData, strKeys[i], 1);
 		emit verSignal(masterver);
 		return;
 	}
-	if (-1 != (found = strData.indexOf(g_CmdKeywords[B2068], Qt::CaseInsensitive))) {
+	if (-1 != (found = strData.indexOf(strKeys[0], Qt::CaseInsensitive))) {
 		if (strData.contains("2d", Qt::CaseInsensitive))
 			emit b2068Signal(2);
 		if (strData.contains("-3"))
@@ -652,9 +686,48 @@ void TransportThread::HandleFrameFromReceiverBoardEx(const st_FrameData *pFrameD
 
 	const char *strKeys[] = {
 		"b20682d-ref:",
+		"gnssgsv,",
+		"gnsssta,",
+		"",
+		"",
 	};
 
 	int found(-1);
+	if (strData.contains(strKeys[2])) {
+		st_Gnsssta gnsssta;
+		QStringList dataLst = strData.split(SepCharComma);
+		strcpy_s(gnsssta.satelliteType, 4, qPrintable(dataLst.at(3)));
+		gnsssta.visSatellites = dataLst.at(4).toInt();
+		gnsssta.avlSatellites = dataLst.at(5).toInt();
+		gnsssta.d3PosFlag = dataLst.at(6).toInt();
+		gnsssta.lngValue = dataLst.at(8).toFloat();
+		gnsssta.longitude = dataLst.at(9);
+		gnsssta.latValue = dataLst.at(10).toFloat();
+		gnsssta.latitude = dataLst.at(11);
+		gnsssta.elevation = dataLst.at(12).toFloat();
+		gnsssta.pdop = dataLst.at(13).toFloat();
+		gnsssta.rmcStateFlag = dataLst.at(14).toInt();
+		gnsssta.snrFlag = dataLst.at(15).toInt();
+		emit gnssstaSignal(gnsssta);
+		return;
+	}
+	if (strData.contains(strKeys[1])) {
+		st_Gnssgsv gnssgsv;
+		QStringList dataLst = strData.split(SepCharComma);
+		strcpy_s(gnssgsv.satelliteType, 4, qPrintable(dataLst.at(3)));
+		gnssgsv.frameTotal = dataLst.at(4).toInt();
+		gnssgsv.frameNo = dataLst.at(5).toInt();
+		gnssgsv.satellitesTotal = dataLst.at(6).toInt();
+		gnssgsv.count = (dataLst.size() - 7) / 4;
+		for (int i = 0; i < gnssgsv.count; ++i) {
+			gnssgsv.satelliteNo[i] = dataLst.at(7+i * gnssgsv.count).toInt();
+			gnssgsv.elevation[i] = dataLst.at(8+i * gnssgsv.count).toInt();
+			gnssgsv.azimuth[i] = dataLst.at(9 + i * gnssgsv.count).toInt();
+			gnssgsv.snr[i] = dataLst.at(10 + i * gnssgsv.count).toInt();
+		}	
+		emit gnssgsvSignal(gnssgsv);
+		return;
+	}	
 	if (strData.contains(strKeys[0])) {
 		QString ret = mid(strData, strKeys[0], 2);
 		emit receiverVerSignal(ret);
@@ -707,13 +780,18 @@ void TransportThread::HandleFrameFromNetBoardEx(const st_FrameData *pFrameData)
 		"current groupport is:",  // 24
 		"b20682d-net1:",  // 25
 		"b20682d-net2:",  // 26
+		"current group remote ip is:", // 27
+		"remotegroupipaddr,1,", // 28
+		"remotegroupipaddr,2,",
+		"addrip,1,",
+		"addrip,2,",
 		"",
 		"",
 		"",
 		"",
 	};
 	int found(-1);
-	if (-1 != (found = strData.indexOf(strKeys[0]))) {
+	if (strData.startsWith(strKeys[0])) {
 		st_NetInfo net1;
 		int i = 0;
 		net1.ip = mid(strData, strKeys[i++]);
@@ -738,7 +816,7 @@ void TransportThread::HandleFrameFromNetBoardEx(const st_FrameData *pFrameData)
 		emit net1InfoSignal(net1);
 		return;
 	}
-	if (-1 != (found = strData.indexOf(strKeys[12]))) {
+	if (strData.startsWith(strKeys[12])) {
 		st_NetInfo net2;
 		int i = 12;
 		net2.ip = mid(strData, strKeys[i++]);
@@ -767,12 +845,55 @@ void TransportThread::HandleFrameFromNetBoardEx(const st_FrameData *pFrameData)
 		QString ports = mid(strData, strKeys[24]);
 		QString rcv = mid(ports, "rcv:", 0, ",");
 		QString snd = mid(ports, "snd:");
-		int netNum = strData.contains("[81,00]") ? 1 : 2;
+		int netNum = strData.contains(strKeys[18]) ? 2 : 1;
 		QString ret = QString("groupport,%1,%2,%3")
 			.arg(netNum).arg(rcv).arg(snd);
 
 		emit netResultSignal(ret);
 		return;
+	}
+	if (strData.contains(strKeys[27])) {
+		QString remoteIP = mid(strData, strKeys[27]);
+		int netNum = strData.contains(strKeys[28]) ? 1 : 2;
+		QString ret = QString("remotegroupipaddr,%1,%2")
+			.arg(netNum).arg(remoteIP);
+
+		emit netResultSignal(ret);
+		return;
+	}
+	{
+		do 
+		{
+			bool quit(false);
+			for (int i = 1; i < 11; ++i) {
+				if (strData.startsWith(strKeys[i])) {
+					QString value = mid(strData, strKeys[i]);
+					QString ret = QString("%1%2").arg(strKeys[i]).arg(value);
+					emit netResultSignal(ret);
+					quit = true;
+					break;
+				}
+			}
+			if (quit) break;
+			for (int i = 13; i < 23; ++i) {
+				if (strData.startsWith(strKeys[i])) {
+					QString value = mid(strData, strKeys[i]);
+					QString ret = QString("%1%2").arg(strKeys[i]).arg(value);
+					emit netResultSignal(ret);
+					quit = true;
+					break;
+				}
+			}
+			if (quit) break;
+			for (int i = 28; i < 32; ++i) {
+				if (strData.startsWith(strKeys[i])) {
+					QString value = mid(strData, strKeys[i]);
+					QString ret = QString("%1%2").arg(strKeys[i]).arg(value);
+					emit netResultSignal(ret);
+					break;
+				}
+			}
+		} while (false);		
 	}
 	if (strData.contains(strKeys[25])) {
 		QString ver("net1,");

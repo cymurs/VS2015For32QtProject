@@ -1,8 +1,10 @@
 #pragma once
 
 #include <QWidget>
+#include <tabwidget.h>
 
 class CRadar;
+//class BaseWidget;
 extern const int MaxAvlSatellites;
 
 // 仰角和方位角结构体
@@ -13,12 +15,12 @@ struct ElevationAzimuthParams {
 };
 
 // 设备总览
-class DeviceOverviewTab : public QWidget
+class DeviceOverviewTab : public BaseWidget
 {
 	Q_OBJECT
 
 public:
-	DeviceOverviewTab(QWidget *parent = 0);	
+	DeviceOverviewTab(QWidget *parent = 0);		
 
 private:
 	QLabel *m_runTime;
@@ -31,7 +33,7 @@ private:
 };
 
 // 北斗状态、GPS状态、GLONASS状态
-class SatTypeStateTab : public QWidget
+class SatTypeStateTab : public BaseWidget
 {
 	Q_OBJECT
 
@@ -39,7 +41,7 @@ public:
 	SatTypeStateTab(QWidget *parent = 0);
 
 	void setGnssstaInfo(const st_Gnsssta &gnsssta);
-	void setGnssgsvInfo(const st_Gnssgsv &gnssgsv);
+	void setGnssgsvInfo(const st_Gnssgsv &gnssgsv);	
 
 private:
 	QPointF angleToCoordinate(double elev, double azim);
@@ -56,12 +58,14 @@ private:
 };
 
 // 直流B码状态
-class DCBStateTab : public QWidget
+class DCBStateTab : public BaseWidget
 {
 	Q_OBJECT
 
 public:
 	DCBStateTab(QWidget *parent = 0);
+
+	void changeStartup() override;
 
 protected:
 	void resizeEvent(QResizeEvent *event) override;
@@ -87,12 +91,14 @@ private:
 };
 
 // 交流B码状态
-class ACBStateTab : public QWidget
+class ACBStateTab : public BaseWidget
 {
 	Q_OBJECT
 
 public:
 	ACBStateTab(QWidget *parent = 0);
+
+	void changeStartup() override;
 
 protected:
 	void resizeEvent(QResizeEvent *event) override;
@@ -123,12 +129,14 @@ private:
 };
 
 // 延时补偿
-class DelayCompensationTab : public QWidget
+class DelayCompensationTab : public BaseWidget
 {
 	Q_OBJECT
 
 public:
 	DelayCompensationTab(QWidget *parent = 0);
+
+	void changeStartup() override;
 
 protected:
 	void resizeEvent(QResizeEvent *event) override;
@@ -159,12 +167,14 @@ private:
 };
 
 // 脉冲配置
-class PulseSettingsTab : public QWidget
+class PulseSettingsTab : public BaseWidget
 {
 	Q_OBJECT
 
 public:
 	PulseSettingsTab(QWidget *parent = 0);
+
+	void changeStartup() override;
 
 protected:
 	void resizeEvent(QResizeEvent *event) override;
@@ -196,12 +206,14 @@ private:
 };
 
 // 时区设置
-class TimezoneTab : public QWidget
+class TimezoneTab : public BaseWidget
 {
 	Q_OBJECT
 
 public:
 	TimezoneTab(QWidget *parent = 0);
+
+	void changeStartup() override;
 
 protected:
 	void resizeEvent(QResizeEvent *event) override;
@@ -219,7 +231,7 @@ private:
 };
 
 // 日志信息
-class LogInfoTab : public QWidget
+class LogInfoTab : public BaseWidget
 {
 	Q_OBJECT
 
@@ -228,6 +240,7 @@ public:
 
 	void prepend(const QString &info);
 	void append(const QString &info);
+
 protected:
 	//void resizeEvent(QResizeEvent *event) override;
 
@@ -263,12 +276,14 @@ private:
 //};
 
 // 屏幕设置
-class ScreenSettingTab : public QWidget
+class ScreenSettingTab : public BaseWidget
 {
 	Q_OBJECT
 
 public:
 	ScreenSettingTab(QWidget *parent = 0);
+
+	void changeStartup() override;
 
 protected:
 	void resizeEvent(QResizeEvent *event) override;
@@ -285,12 +300,14 @@ private:
 };
 
 // 出厂设置
-class FactorySettingTab : public QWidget
+class FactorySettingTab : public BaseWidget
 {
 	Q_OBJECT
 
 public:
 	FactorySettingTab(QWidget *parent = 0);
+
+	void changeStartup() override;
 
 protected:
 	void resizeEvent(QResizeEvent *event) override;
@@ -321,12 +338,14 @@ private:
 };
 
 // 密码修改
-class PasswordChangeTab : public QWidget
+class PasswordChangeTab : public BaseWidget
 {
 	Q_OBJECT
 
 public:
 	PasswordChangeTab(QWidget *parent = 0);
+
+	void changeStartup() override;
 
 protected:
 	void resizeEvent(QResizeEvent *event) override;
@@ -355,12 +374,14 @@ private:
 };
 
 // 还原设置
-class RestoreTab : public QWidget
+class RestoreTab : public BaseWidget
 {
 	Q_OBJECT
 
 public:
 	RestoreTab(QWidget *parent = 0);
+
+	void changeStartup() override;
 
 protected:
 	void resizeEvent(QResizeEvent *event) override;
@@ -385,7 +406,7 @@ private:
 };
 
 // 版本信息
-class VersionInfoTab : public QWidget
+class VersionInfoTab : public BaseWidget
 {
 	Q_OBJECT
 
@@ -426,7 +447,7 @@ private:
 };
 
 // 状态参数
-class StateMainTab : public QWidget
+class StateMainTab : public BaseWidget
 {
 	Q_OBJECT
 

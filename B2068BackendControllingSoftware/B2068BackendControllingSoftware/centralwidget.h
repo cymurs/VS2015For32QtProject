@@ -31,6 +31,8 @@ public:
 	CentralWidget(QWidget *parent = Q_NULLPTR);
 	~CentralWidget();
 
+	void changeStartup();
+
 protected:
 	void resizeEvent(QResizeEvent *event) override;
 	void setChildrenGeometry(int w, int h);
@@ -47,6 +49,7 @@ private slots:
 signals:
 	void home();
 	void back();
+	void changeParams();
 
 private:
 	TopWidget *m_top;

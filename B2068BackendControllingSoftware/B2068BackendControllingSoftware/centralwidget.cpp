@@ -78,6 +78,11 @@ CentralWidget::~CentralWidget()
 {
 }
 
+void CentralWidget::changeStartup()
+{
+	dynamic_cast<BaseWidget *>(m_centerLayout->currentWidget())->changeStartup();
+}
+
 void CentralWidget::resizeEvent(QResizeEvent *event)
 {
 	QSize s = event->size();
@@ -150,6 +155,9 @@ void CentralWidget::connectSlots()
 	connect(m_top, SIGNAL(backBtn()), this, SLOT(slotOnBackBtnClicked()));
 	connect(m_left, SIGNAL(leftButtonClicked(int)), this, SLOT(slotOnLeftBtnClicked(int)));
 	connect(m_stateMain, SIGNAL(stateParamsButtonClicked(int)), this, SLOT(slotOnStateParamsBtnClicked(int)));
+
+	connect(m_comSettings, SIGNAL(changeParams()), this, SIGNAL(changeParams()));
+	connect(m_netSettings, SIGNAL(changeParams()), this, SIGNAL(changeParams()));
 }
 
 void CentralWidget::slotOnLeftBtnClicked(int id)

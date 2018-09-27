@@ -32,6 +32,7 @@ private slots:
 	void slotOnMainFadeOut();
 	void slotOnAnimationFinished();
 	void slotOnGoHome();
+	void slotOnChangeParams();
 
 private:
 	CommWidget *m_comm;
@@ -42,4 +43,5 @@ private:
 	QPropertyAnimation *m_animation;
 
 	bool m_firstTime;
+	bool m_loginChange;  // 更改参数 确认
 };

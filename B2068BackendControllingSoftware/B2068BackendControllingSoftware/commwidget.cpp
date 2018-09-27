@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "commwidget.h"
 #include "transportthread.h"
+#include "timepositiondatabase.h"
 #include <QSerialPortInfo>
 
 // --------------------------------------------------------------------------------------
@@ -179,14 +180,17 @@ void CommWidget::checkConnect()
 	m_bConnectFailed = false;
 	m_bHasResult = false;
 	
-	TransportThread *pTransport = TransportThread::Get();
-	pTransport->SetFrameDataFormat(false, false, true);
-	pTransport->SetSourceAddr(g_BoardAddr[PCAddr][0], g_BoardAddr[PCAddr][1], 0x00);
-	pTransport->SetTargetAddr(g_BoardAddr[MasterControlAddr][0], g_BoardAddr[MasterControlAddr][1], 0x11);
-	pTransport->SetCommand(COMMAND_IS_AT);
+	//TransportThread *pTransport = TransportThread::Get();
+	//pTransport->SetFrameDataFormat(false, false, true);
+	//pTransport->SetSourceAddr(g_BoardAddr[PCAddr][0], g_BoardAddr[PCAddr][1], 0x00);
+	//pTransport->SetTargetAddr(g_BoardAddr[MasterControlAddr][0], g_BoardAddr[MasterControlAddr][1], 0x11);
+	//pTransport->SetCommand(COMMAND_IS_AT);
 
+	//char chTest[16] = "?";
+	//pTransport->SendComNetData(COMMAND_IS_AT, chTest, strlen(chTest));
+	TimePositionDatabase db;
 	char chTest[16] = "?";
-	pTransport->SendComNetData(COMMAND_IS_AT, chTest, strlen(chTest));
+	db.selectFromMasterBoard(COMMAND_IS_AT, chTest);
 
 	// 串口和网口的反应最快为 400ms
 	QTimer::singleShot(400, this, &CommWidget::slotOnCheckTimeOut);

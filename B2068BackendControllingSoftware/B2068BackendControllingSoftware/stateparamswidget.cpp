@@ -3,12 +3,11 @@
 #include "cradar.h"
 #include "transportthread.h"
 
-
 /****************************************************************************************
 设备总览
 *****************************************************************************************/
 DeviceOverviewTab::DeviceOverviewTab(QWidget *parent)
-	: QWidget(parent)
+	: BaseWidget(parent)
 {
 	
 
@@ -326,7 +325,7 @@ QPointF SatTypeStateTab::angleToCoordinate(double elev, double azim)
 直流B码状态
 *****************************************************************************************/
 DCBStateTab::DCBStateTab(QWidget *parent /*= 0*/)
-	: QWidget(parent)
+	: BaseWidget(parent)
 	, m_lblWidth(LblWidth * 1.5)
 	, m_lblHeight(LblHeight * 1.5)
 {
@@ -362,6 +361,11 @@ DCBStateTab::DCBStateTab(QWidget *parent /*= 0*/)
 
 	setChildrenGeometry(w, h);
 	
+}
+
+void DCBStateTab::changeStartup()
+{
+
 }
 
 void DCBStateTab::resizeEvent(QResizeEvent *event)
@@ -408,7 +412,7 @@ void DCBStateTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
 交流B码状态
 *****************************************************************************************/
 ACBStateTab::ACBStateTab(QWidget *parent /*= 0*/)
-	: QWidget(parent)
+	: BaseWidget(parent)
 	, m_lblWidth(LblWidth)
 	, m_lblHeight(LblHeight)
 {
@@ -464,6 +468,11 @@ ACBStateTab::ACBStateTab(QWidget *parent /*= 0*/)
 
 }
 
+void ACBStateTab::changeStartup()
+{
+
+}
+
 void ACBStateTab::resizeEvent(QResizeEvent *event)
 {
 	QSize s = event->size();
@@ -514,7 +523,7 @@ void ACBStateTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
 延时补偿
 *****************************************************************************************/
 DelayCompensationTab::DelayCompensationTab(QWidget *parent /*= 0*/)
-	: QWidget(parent)
+	: BaseWidget(parent)
 	, m_lblWidth(LblWidth)
 	, m_lblHeight(LblHeight)
 {
@@ -549,6 +558,11 @@ DelayCompensationTab::DelayCompensationTab(QWidget *parent /*= 0*/)
 	m_confirm = new QPushButton(tr("确认设置"), this);
 
 	setChildrenGeometry(w, h);
+}
+
+void DelayCompensationTab::changeStartup()
+{
+
 }
 
 void DelayCompensationTab::resizeEvent(QResizeEvent *event)
@@ -593,7 +607,7 @@ void DelayCompensationTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
 脉冲配置
 *****************************************************************************************/
 PulseSettingsTab::PulseSettingsTab(QWidget *parent /*= 0*/)
-	: QWidget(parent)
+	: BaseWidget(parent)
 	, m_lblWidth(LblWidth * 1.5)
 	, m_lblHeight(LblHeight * 1.5)
 {
@@ -635,6 +649,11 @@ PulseSettingsTab::PulseSettingsTab(QWidget *parent /*= 0*/)
 	int h = height();
 	setChildrenGeometry(w, h);
 	connectSlots();
+}
+
+void PulseSettingsTab::changeStartup()
+{
+
 }
 
 void PulseSettingsTab::resizeEvent(QResizeEvent *event)
@@ -693,7 +712,7 @@ void PulseSettingsTab::slotOnDelayUnitChanged(int index)
 时区设置
 *****************************************************************************************/
 TimezoneTab::TimezoneTab(QWidget *parent /*= 0*/)
-	: QWidget(parent)
+	: BaseWidget(parent)
 	, m_lblWidth(LblWidth * 1.5)
 	, m_lblHeight(LblHeight * 1.5)
 {
@@ -705,6 +724,11 @@ TimezoneTab::TimezoneTab(QWidget *parent /*= 0*/)
 	int w = width();
 	int h = height();
 	setChildrenGeometry(w, h);
+}
+
+void TimezoneTab::changeStartup()
+{
+
 }
 
 void TimezoneTab::resizeEvent(QResizeEvent *event)
@@ -733,7 +757,7 @@ void TimezoneTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
 日志信息 告警信息
 *****************************************************************************************/
 LogInfoTab::LogInfoTab(QWidget *parent /*= 0*/)
-	: QWidget(parent)
+	: BaseWidget(parent)
 	, m_maxCount(2)
 {
 	m_log = new QTextEdit(tr("001:20180827-113045:切换到锁定状态"), this);
@@ -779,11 +803,12 @@ void LogInfoTab::append(const QString &info)
 	m_log->append(info);
 }
 
+
 /****************************************************************************************
 屏幕设置
 *****************************************************************************************/
 ScreenSettingTab::ScreenSettingTab(QWidget *parent /*= 0*/)
-	: QWidget(parent)
+	: BaseWidget(parent)
 	, m_lblWidth(LblWidth * 1.5)
 	, m_lblHeight(LblHeight * 1.5)
 {
@@ -795,6 +820,11 @@ ScreenSettingTab::ScreenSettingTab(QWidget *parent /*= 0*/)
 	int w = width();
 	int h = height();
 	setChildrenGeometry(w, h);
+}
+
+void ScreenSettingTab::changeStartup()
+{
+
 }
 
 void ScreenSettingTab::resizeEvent(QResizeEvent *event)
@@ -822,7 +852,7 @@ void ScreenSettingTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
 出厂设置
 *****************************************************************************************/
 FactorySettingTab::FactorySettingTab(QWidget *parent /*= 0*/)
-	: QWidget(parent)
+	: BaseWidget(parent)
 	, m_lblWidth(LblWidth * 1.5)
 	, m_lblHeight(LblHeight * 1.5)
 {
@@ -850,6 +880,11 @@ FactorySettingTab::FactorySettingTab(QWidget *parent /*= 0*/)
 	int w = width();
 	int h = height();
 	setChildrenGeometry(w, h);
+}
+
+void FactorySettingTab::changeStartup()
+{
+
 }
 
 void FactorySettingTab::resizeEvent(QResizeEvent *event)
@@ -895,7 +930,7 @@ void FactorySettingTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
 密码修改
 *****************************************************************************************/
 PasswordChangeTab::PasswordChangeTab(QWidget *parent /*= 0*/)
-	: QWidget(parent)
+	: BaseWidget(parent)
 	, m_lblWidth(LblWidth * 1.5)
 	, m_lblHeight(LblHeight * 1.5)
 {
@@ -924,6 +959,11 @@ PasswordChangeTab::PasswordChangeTab(QWidget *parent /*= 0*/)
 	setChildrenGeometry(w, h);
 
 	connectSlots();
+}
+
+void PasswordChangeTab::changeStartup()
+{
+
 }
 
 void PasswordChangeTab::resizeEvent(QResizeEvent *event)
@@ -1017,7 +1057,7 @@ void PasswordChangeTab::slotOnConfirmClicked()
 还原设置
 *****************************************************************************************/
 RestoreTab::RestoreTab(QWidget *parent /*= 0*/)
-	: QWidget(parent)
+	: BaseWidget(parent)
 	, m_lblWidth(LblWidth * 1.5)
 	, m_lblHeight(LblHeight * 1.5)
 {
@@ -1035,6 +1075,11 @@ RestoreTab::RestoreTab(QWidget *parent /*= 0*/)
 	setChildrenGeometry(w, h);
 
 	connectSlots();
+}
+
+void RestoreTab::changeStartup()
+{
+
 }
 
 void RestoreTab::resizeEvent(QResizeEvent *event)
@@ -1112,7 +1157,7 @@ void RestoreTab::slotOnConfirmClicked()
 版本信息
 *****************************************************************************************/
 VersionInfoTab::VersionInfoTab(QWidget *parent /*= 0*/)
-	: QWidget(parent)
+	: BaseWidget(parent)
 	, m_lblWidth(LblWidth * 1.5)
 	, m_lblHeight(LblHeight * 1.5)
 {

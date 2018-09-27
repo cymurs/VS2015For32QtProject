@@ -4,6 +4,7 @@
 #include "centralwidget.h"
 #include "commwidget.h"
 #include "timepositiondatabase.h"
+#include "transportthread.h"
 
 ChiefWidget::ChiefWidget(QWidget *parent)
 	: QWidget(parent)
@@ -39,6 +40,7 @@ ChiefWidget::ChiefWidget(QWidget *parent)
 	// queryBoardInfo(); // 此处的执行在连接成功之前
 	loadConfig();
 	m_firstTime = true;
+	m_loginChange = false;
 }
 
 ChiefWidget::~ChiefWidget()
@@ -78,6 +80,7 @@ void ChiefWidget::connectSlots()
 	connect(m_main, SIGNAL(fadeOut()), this, SLOT(slotOnAnimationFinished()));
 	connect(m_animation, SIGNAL(finished()), this, SLOT(slotOnAnimationFinished()));
 	connect(m_center, SIGNAL(home()), this, SLOT(slotOnGoHome()));
+	connect(m_center, SIGNAL(changeParams()), this, SLOT(slotOnChangeParams()));	
 }
 
 void ChiefWidget::queryBoardInfo()
@@ -91,11 +94,16 @@ void ChiefWidget::queryBoardInfo()
 	data = "ver";
 	timePositionDB.selectFromMasterBoard(chCmd, data);
 
+	data = "baud";
+	timePositionDB.selectFromMasterBoard(chCmd, data);
+
 	data = "ip,1";
 	timePositionDB.selectFromNetBoard(chCmd, data, Net1Addr);
 
 	data = "ip,2";
 	timePositionDB.selectFromNetBoard(chCmd, data, Net2Addr);
+
+	
 }
 
 void ChiefWidget::loadConfig()
@@ -131,7 +139,13 @@ void ChiefWidget::slotOnConnect()
 void ChiefWidget::slotOnSignIn(bool signin)
 {
 	if (signin) {
-		m_baseLayout->setCurrentIndex(2);
+		if (m_loginChange) {
+			m_loginChange = false;
+			m_center->changeStartup();
+			m_baseLayout->setCurrentIndex(3);			
+		}
+		else
+			m_baseLayout->setCurrentIndex(2);
 		if (m_firstTime) {
 			//m_tabWidget->setCurrentIndex(0);
 			m_firstTime = false;
@@ -141,6 +155,8 @@ void ChiefWidget::slotOnSignIn(bool signin)
 	else {
 		if (isQuit())
 		{
+			// 结束之前, 先退出线程, 否则会引起崩溃
+			TransportThread::Get()->stop();  
 			storeConfig();
 			exit(0);
 		}		
@@ -170,4 +186,10 @@ void ChiefWidget::slotOnAnimationFinished()
 void ChiefWidget::slotOnGoHome()
 {
 	m_baseLayout->setCurrentIndex(2);
+}
+
+void ChiefWidget::slotOnChangeParams()
+{
+	m_baseLayout->setCurrentIndex(1);
+	m_loginChange = true;
 }
