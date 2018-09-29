@@ -178,7 +178,7 @@ void TransportThread::HandleFrameFromMasterBoard(const st_FrameData *pFrameData)
 	case "status"_hash:
 	{
 		st_Status status;
-		status.lockState = dataLst[1];
+		status.lockState = dataLst[1].toInt();
 		for (int i = 2; i < dataLst.length(); ++i) {
 			if (0 == dataLst[i].compare("osc")) {
 				status.oscType = dataLst[i + 1];
@@ -591,13 +591,26 @@ void TransportThread::HandleFrameFromMasterBoardEx(const st_FrameData *pFrameDat
 		"user com1:",
 		"user com2:",
 		"set baud rate to be successful", // 12
+		"status,",  // 13
+		"gnsstime,", // 14
+		"current priority is:",
+		"refuseok,",
 		"",
 		"",
 		"",
 	};
 
 	int found(-1);
-	if (strData.contains("gnsstime,")) {
+	if (strData.startsWith(strKeys[13])) {
+		st_Status status;
+		QStringList dataLst = strData.split(SepCharComma);
+		status.lockState = dataLst.at(1).toInt();
+		status.curRef = dataLst.at(6).toInt();
+
+		emit statusSignal(status);
+		return;
+	}
+	if (strData.contains(strKeys[14])) {
 		st_Gnsstime gnsstime;
 		QStringList dataLst = strData.split(SepCharComma);		
 		gnsstime.receiverTime = dataLst.at(3);
@@ -624,6 +637,44 @@ void TransportThread::HandleFrameFromMasterBoardEx(const st_FrameData *pFrameDat
 			}
 		}
 		emit gnsstimeSignal(gnsstime);
+		return;
+	}
+	if (strData.contains(strKeys[15])) {
+		QString ret = mid(strData, strKeys[15], 1);
+		emit prioritySignal(ret);
+		return;
+	}
+	if (strData.contains(strKeys[16])) {
+		st_RefAvailInfo refAvailInfo;
+		QStringList dataLst = strData.split(SepCharComma);
+		for (int i = 1; i < dataLst.size() - 1; ++i) {
+			if (0 == dataLst.at(i).compare("bdsuse")) {
+				refAvailInfo.bdsuse = dataLst.at(i + 1).toInt();
+				++i;
+				continue;
+			}
+			if (0 == dataLst.at(i).compare("gpsuse")) {
+				refAvailInfo.gpsuse = dataLst.at(i + 1).toInt();
+				++i;
+				continue;
+			}
+			if (0 == dataLst.at(i).compare("glouse")) {
+				refAvailInfo.glouse = dataLst.at(i + 1).toInt();
+				++i;
+				continue;
+			}
+			if (0 == dataLst.at(i).compare("acbuse")) {
+				refAvailInfo.acbuse = dataLst.at(i + 1).toInt();
+				++i;
+				continue;
+			}
+			if (0 == dataLst.at(i).compare("dcbuse")) {
+				refAvailInfo.dcbuse = dataLst.at(i + 1).toInt();
+				++i;
+				continue;
+			}
+		}
+		emit refavailinfoSignal(refAvailInfo);
 		return;
 	}
 	if (strData.contains(strKeys[8])) {
@@ -1057,7 +1108,7 @@ void TransportThread::SetTargetAddr(int iAddr, int iPort, int iResv)
 
 void TransportThread::SetCommand(int iCmd)
 {
-	int iFrameNo(0x01);
+	int iFrameNo(0x00);
 	m_pMyComBasic->SetCommand(iFrameNo, iCmd);
 }
 

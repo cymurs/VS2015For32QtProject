@@ -40,6 +40,7 @@ protected:
 private:
 	void initTest();  // ½ö×ö²âÊÔ
 	void connectSlots();
+	void queryBoardInfo();
 
 private slots:
 	void slotOnBackBtnClicked();

@@ -275,6 +275,11 @@ MainTab::MainTab(QWidget *parent)
 	QString mediumLabelQss("mediumlabel");
 	QString largeLabelQss("largelabel");	
 
+	m_signNormal = QPixmap(":/BackendControlling/images/antenna3.png", "PNG");
+	m_signAbnormal = QPixmap(":/BackendControlling/images/antenna0.png", "PNG");
+	m_lockClose = QPixmap(":/BackendControlling/images/lock_white_close.png", "PNG");
+	m_lockOpen = QPixmap(":/BackendControlling/images/lock_white_open.png", "PNG");
+
 	m_deviceModel = new QLabel(tr("B2068-2D"), this);	
 	m_deviceModel->setObjectName(smallLabelQss);	// 特定文字样式的标签名称
 	m_deviceModel->setFrameStyle(frameStyle);		// 标签样式
@@ -295,13 +300,15 @@ MainTab::MainTab(QWidget *parent)
 	m_avlSatellites->setGeometry(w - LeftMargin * 6, TopMargin, LblWidth, LblHeight);
 
 	m_signalState = new QLabel(this);
-	m_signalState->setPixmap(QPixmap(":/BackendControlling/images/antenna3.png", "PNG"));
+	//m_signalState->setPixmap(QPixmap(":/BackendControlling/images/antenna3.png", "PNG"));
+	m_signalState->setPixmap(m_signNormal);
 	m_signalState->setFrameStyle(frameStyle);
 	m_signalState->setScaledContents(true);
 	m_signalState->setGeometry(w - LeftMargin * 4, TopMargin, LblHeight, LblHeight);
 
 	m_lockedState = new QLabel(this);	
-	m_lockedState->setPixmap(QPixmap(":/BackendControlling/images/lock_white_close.png", "PNG"));
+	//m_lockedState->setPixmap(QPixmap(":/BackendControlling/images/lock_white_close.png", "PNG"));
+	m_lockedState->setPixmap(m_lockClose);
 	m_lockedState->setFrameStyle(frameStyle);
 	m_lockedState->setScaledContents(true);
 	m_lockedState->setGeometry(w - LeftMargin * 2, TopMargin, LblHeight, LblHeight);
@@ -356,6 +363,8 @@ MainTab::MainTab(QWidget *parent)
 	m_refSrcTimer.setTimerType(Qt::PreciseTimer);  
 	connectSlots();
 	//m_refSrcTimer.start(100);
+
+	m_iRefSrc = NOTPOS;
 }
 
 MainTab::~MainTab()
@@ -407,20 +416,65 @@ void MainTab::mousePressEvent(QMouseEvent *event)
 	//animation->start(QAbstractAnimation::DeleteWhenStopped);
 	//connect(animation, SIGNAL(finished()), this, SIGNAL(fadeOut()));
 
+	queryBoardInfo();
 	m_animation->start();			
+}
+
+QString MainTab::LonLatConvert(float value)
+{
+	int t1 = value / 100.0;
+	float t2 = (value - t1 * 100.0) / 60.0;
+	float t = t1 + t2;
+	int degree = t;
+	int minute = (t - degree) * 60.0;
+	int second = (t - degree - minute / 60.0) * 3600;
+	return QString("%1°%2′%3″  ").arg(degree).arg(minute).arg(second);
 }
 
 void MainTab::connectSlots()
 {
 	TransportThread *pTransport = TransportThread::Get();
 	connect(m_animation, SIGNAL(finished()), this, SIGNAL(fadeOut()));
+	connect(pTransport, SIGNAL(statusSignal(st_Status)), this, SLOT(slotOnStatusReached(st_Status)));
 	connect(pTransport, SIGNAL(gnsstimeSignal(st_Gnsstime)), this, SLOT(slotOnGnsstimeReached(st_Gnsstime)));
-	
+	connect(pTransport, SIGNAL(gnssstaSignal(st_Gnsssta)), this, SLOT(slotOnGnssstaReached(st_Gnsssta)));
+	connect(pTransport, SIGNAL(b2068Signal(int)), this, SLOT(slotOnB2068Reached(int)));
+
 	//connect(&m_refSrcTimer, &QTimer::timeout, this, &MainTab::slotOnRefSrcTimeOut);	
 	//QMetaObject::Connection result = connect(&m_refSrcTimer, SIGNAL(timeout()), this, SLOT(slotOnRefSrcTimeOut()));
 	//if (Q_NULLPTR == result) {
 	//	QMessageBox::warning(this, "failed", "connect timer's timeout failed.");
 	//}
+}
+
+void MainTab::queryBoardInfo()
+{
+	TimePositionDatabase timePositionDB;
+	unsigned char chCmd = COMMAND_IS_AT;
+
+	QString data("priority");
+	timePositionDB.selectFromMasterBoard(chCmd, data);
+
+	data = "timezone";
+	timePositionDB.selectFromMasterBoard(chCmd, data);
+
+	data = "IRIG_BACiF"; // 交流B码输入
+	timePositionDB.selectFromMasterBoard(chCmd, data);
+
+	data = "IRIG_BACoF"; // 交流B码输出
+	timePositionDB.selectFromMasterBoard(chCmd, data);
+
+	data = "IRIG_BACV"; // 交流B码输出幅值
+	timePositionDB.selectFromMasterBoard(chCmd, data);
+
+	data = "IRIG_BACM"; // 交流B码输出调制比
+	timePositionDB.selectFromMasterBoard(chCmd, data);
+
+	data = "IRIG_BDCiF"; // 直流B码输入
+	timePositionDB.selectFromMasterBoard(chCmd, data);
+
+	data = "IRIG_BDCoF"; // 直流B码输出
+	timePositionDB.selectFromMasterBoard(chCmd, data);
 }
 
 void MainTab::slotOnRefSrcTimeOut()
@@ -433,15 +487,131 @@ void MainTab::slotOnRefSrcTimeOut()
 	}
 }
 
+void MainTab::slotOnStatusReached(const st_Status &status)
+{
+	m_iRefSrc = status.curRef;
+	switch (m_iRefSrc) {
+	case GPS:
+		m_refSrc->setText("GPS");
+		break;
+	case GLONASS:
+		m_refSrc->setText("GLONASS");
+		break;
+	case BDS:
+		m_refSrc->setText(tr("北斗"));
+		break;
+	case BAC:
+		m_refSrc->setText(tr("BAC码"));
+		break;
+	case BDC:
+		m_refSrc->setText(tr("BDC码"));
+		break;
+	case SETTIME:
+		m_refSrc->setText(tr("置时"));
+		break;
+	default:
+		m_refSrc->setText("未定位");
+		break;
+	}
+	if (0x02 == status.lockState) {
+		m_lockedState->setPixmap(m_lockClose);
+	}
+	else {
+		m_lockedState->setPixmap(m_lockOpen);
+	}
+}
+
 void MainTab::slotOnGnsstimeReached(const st_Gnsstime &gnsstime)
 {
+	uint curTime(0);
+	bool hasTimezone(false);
+	if (m_iRefSrc == GPS
+		|| m_iRefSrc == GLONASS
+		|| m_iRefSrc == BDS) {		
+		m_timeName->setText(tr("北京时间"));
+		curTime = gnsstime.UTCTime.toUInt();	
+		hasTimezone = true;
+	} else if (m_iRefSrc == BDC) {
+		m_timeName->setText(tr("直流B码时间"));
+		curTime = gnsstime.dcbTime.toUInt();
+		hasTimezone = false;
+	} else if (m_iRefSrc == BAC) {
+		m_timeName->setText(tr("交流B码时间"));
+		curTime = gnsstime.acbTime.toUInt();
+		hasTimezone = false;
+	} else if (m_iRefSrc == SETTIME) {
+		m_timeName->setText(tr("输入时间"));
+		curTime = gnsstime.inputTime.toUInt();
+		hasTimezone = false;
+	} else {
+		m_timeName->clear();
+		m_refSrcTime->clear();
+		m_refSrcDate->clear();
+		return;
+	}
+
 	char szText[128] = { '\0' };
-	structTime t = TimeStampToTime(gnsstime.UTCTime.toUInt());
+	structTime t = TimeStampToTime(curTime, hasTimezone);
 	sprintf_s(szText, 128, "%02d:%02d:%02d", t.Hour, t.Minute, t.Second);
 	m_refSrcTime->setText(szText);
 	memset(szText, '\0', 128);
 	sprintf_s(szText, 128, ("%04d 年 %02d 月 %02d 日"), t.Year, t.Month, t.Date);
 	m_refSrcDate->setText(tr("%1").arg(szText));
+}
+
+void MainTab::slotOnGnssstaReached(const st_Gnsssta &gnsssta)
+{
+	if ( (m_iRefSrc == GPS && 0 == strcmp(gnsssta.satelliteType, "gps"))
+		|| (m_iRefSrc == GLONASS && 0 == strcmp(gnsssta.satelliteType, "glo"))
+		|| (m_iRefSrc == BDS && 0 == strcmp(gnsssta.satelliteType, "bds")) ) {
+		m_iAvlSatellites = gnsssta.avlSatellites;
+		m_avlSatellites->setText(QString::number(m_iAvlSatellites));
+		if (gnsssta.visSatellites > 3 && 1 == gnsssta.snrFlag) {
+			m_bSignNormal = true;
+			m_signalState->setPixmap(m_signNormal);
+		}
+		else {
+			m_bSignNormal = false;
+			m_signalState->setPixmap(m_signAbnormal);
+		}
+		QString position;
+		if (0 == gnsssta.longitude.compare("e")) {
+			position = tr("东经 ");
+		}
+		else {
+			position = tr("西经 ");
+		}
+		position.append(LonLatConvert(gnsssta.lngValue));
+		if (0 == gnsssta.latitude.compare("s")) {
+			position.append(tr("南纬 "));
+		}
+		else {
+			position.append(tr("北纬"));
+		}
+		position.append(LonLatConvert(gnsssta.latValue));
+		position.append(tr("高程 %1 米").arg(gnsssta.elevation));
+		m_position->setText(position);
+		return;
+	}
+	if (NOTPOS == m_iRefSrc
+		|| BAC == m_iRefSrc
+		|| BDC == m_iRefSrc
+		|| SETTIME == m_iRefSrc) {
+		m_avlSatellites->clear();
+		m_signalState->clear();
+		m_position->clear();	
+	}
+
+}
+
+void MainTab::slotOnB2068Reached(int mark)
+{
+	if (2 == mark) {
+		m_deviceModel->setText("B20682D");
+	}
+	else {
+		m_deviceModel->setText("B2068-3");
+	}
 }
 
 /****************************************************************************************
@@ -477,11 +647,13 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	m_bds = new QRadioButton(tr("    北斗"), this);
 	m_bds->setObjectName(smallRadioQss);
 
-	m_bdsDateTime = new QLabel(tr("2018/08/17 11:35:10"), this);
+	//m_bdsDateTime = new QLabel(tr("2018/08/17 11:35:10"), this);
+	m_bdsDateTime = new QLabel(this);
 	m_bdsDateTime->setObjectName(normalLabelQss);
 	m_bdsDateTime->setScaledContents(true);
 
-	m_bdsAvlSatellites = new QLabel(tr("12 颗"), this);
+	//m_bdsAvlSatellites = new QLabel(tr("12 颗"), this);
+	m_bdsAvlSatellites = new QLabel(this);
 	m_bdsAvlSatellites->setAlignment(Qt::AlignCenter);
 	m_bdsAvlSatellites->setObjectName(normalLabelQss);
 
@@ -497,11 +669,13 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	m_gps = new QRadioButton(tr("    GPS"), this);
 	m_gps->setObjectName(smallRadioQss);
 
-	m_gpsDateTime = new QLabel(tr("2018/08/17 11:35:10"), this);
+	//m_gpsDateTime = new QLabel(tr("2018/08/17 11:35:10"), this);
+	m_gpsDateTime = new QLabel(this);
 	m_gpsDateTime->setObjectName(normalLabelQss);
 	m_gpsDateTime->setScaledContents(true);
 
-	m_gpsAvlSatellites = new QLabel(tr("10 颗"), this); 
+	//m_gpsAvlSatellites = new QLabel(tr("10 颗"), this); 
+	m_gpsAvlSatellites = new QLabel(this);
 	m_gpsAvlSatellites->setAlignment(Qt::AlignCenter);
 	m_gpsAvlSatellites->setObjectName(normalLabelQss);
 
@@ -516,11 +690,13 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	m_glo = new QRadioButton(tr("    GLO"), this);
 	m_glo->setObjectName(smallRadioQss);
 
-	m_gloDateTime = new QLabel(tr("2018/08/17 11:35:10"), this);
+	//m_gloDateTime = new QLabel(tr("2018/08/17 11:35:10"), this);
+	m_gloDateTime = new QLabel(this);
 	m_gloDateTime->setObjectName(normalLabelQss);
 	m_gloDateTime->setScaledContents(true);
 
-	m_gloAvlSatellites = new QLabel(tr("11 颗"), this); 
+	//m_gloAvlSatellites = new QLabel(tr("11 颗"), this); 
+	m_gloAvlSatellites = new QLabel(this);
 	m_gloAvlSatellites->setAlignment(Qt::AlignCenter);
 	m_gloAvlSatellites->setObjectName(normalLabelQss);
 
@@ -535,7 +711,8 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	m_dcb = new QRadioButton(tr("直流B码"), this);
 	m_dcb->setObjectName(smallRadioQss);
 
-	m_dcbDateTime = new QLabel(tr("2018/08/17 11:35:10"), this);
+	//m_dcbDateTime = new QLabel(tr("2018/08/17 11:35:10"), this);
+	m_dcbDateTime = new QLabel(this);
 	m_dcbDateTime->setObjectName(normalLabelQss);
 	m_dcbDateTime->setScaledContents(true);
 
@@ -550,7 +727,8 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	m_acb = new QRadioButton(tr("交流B码"), this);
 	m_acb->setObjectName(smallRadioQss);
 
-	m_acbDateTime = new QLabel(tr("2018/08/17 11:35:10"), this);
+	//m_acbDateTime = new QLabel(tr("2018/08/17 11:35:10"), this);
+	m_acbDateTime = new QLabel(this);
 	m_acbDateTime->setObjectName(normalLabelQss);
 	m_acbDateTime->setScaledContents(true);
 
@@ -561,7 +739,8 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	m_input = new QRadioButton(tr("输入时间"), this);
 	m_input->setObjectName(smallRadioQss);
 
-	m_inputDateTime = new QLabel(tr("2018/08/17 11:35:10"), this);
+	//m_inputDateTime = new QLabel(tr("2018/08/17 11:35:10"), this);
+	m_inputDateTime = new QLabel(this);
 	m_inputDateTime->setObjectName(normalLabelQss);
 	m_inputDateTime->setScaledContents(true);
 
@@ -569,7 +748,8 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	QLabel *inputLabel = new QLabel(tr("输入时间设置"), this);
 	inputLabel->setObjectName(boldLabelQss);
 
-	m_inputSetting = new QLineEdit(tr("20180817113510"), this);
+	//m_inputSetting = new QLineEdit(tr("20180817113510"), this);
+	m_inputSetting = new QLineEdit(this);
 	m_inputSetting->setAlignment(Qt::AlignCenter);
 	m_inputSetting->setPlaceholderText("YYYYMMDDhhmmss");
 	QRegExp rx("2\\d{3}(0[1-9]|1[0-2])(0[1-9]|[12]\\d|3[01])([01]\\d|2[0-3])([0-5]\\d){2}");
@@ -590,26 +770,26 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	m_manual->setChecked(true);
 
 	m_refSrcGroup = new QButtonGroup(this);
-	m_refSrcGroup->addButton(m_bds);
-	m_refSrcGroup->addButton(m_gps);
-	m_refSrcGroup->addButton(m_glo);
-	m_refSrcGroup->addButton(m_dcb);
-	m_refSrcGroup->addButton(m_acb);
-	m_refSrcGroup->addButton(m_input);
+	m_refSrcGroup->addButton(m_gps, 1);
+	m_refSrcGroup->addButton(m_glo, 2);
+	m_refSrcGroup->addButton(m_bds, 3);
+	m_refSrcGroup->addButton(m_acb, 4);
+	m_refSrcGroup->addButton(m_dcb, 5);
+	m_refSrcGroup->addButton(m_input, 8);
 	m_bds->setChecked(true);
 
-	m_priorityGroup[0] = m_bdsPriority;
-	m_priorityGroup[1] = m_gpsPriority;
-	m_priorityGroup[2] = m_gloPriority;
-	m_priorityGroup[3] = m_dcbPriority;
-	m_priorityGroup[4] = m_acbPriority;
+	m_priorityGroup[0] = m_gpsPriority;
+	m_priorityGroup[1] = m_gloPriority;
+	m_priorityGroup[2] = m_bdsPriority;
+	m_priorityGroup[3] = m_acbPriority;
+	m_priorityGroup[4] = m_dcbPriority;	
 
-	setTextAlignCenter(m_bdsPriority);
 	setTextAlignCenter(m_gpsPriority);
 	setTextAlignCenter(m_gloPriority);
-	setTextAlignCenter(m_dcbPriority);
+	setTextAlignCenter(m_bdsPriority);
 	setTextAlignCenter(m_acbPriority);
-
+	setTextAlignCenter(m_dcbPriority);
+	
 	auto topLayout = new QHBoxLayout;
 	topLayout->addStretch(1);
 	topLayout->addWidget(m_manual, 1);
@@ -709,6 +889,9 @@ void TimeSrcTab::connectSlots()
 
 	TransportThread *pTransport = TransportThread::Get();
 	connect(pTransport, SIGNAL(gnsstimeSignal(st_Gnsstime)), this, SLOT(slotOnGnsstimeReached(st_Gnsstime)));
+	connect(pTransport, SIGNAL(prioritySignal(QString)), this, SLOT(slotOnPriorityReached(QString)));
+	connect(pTransport, SIGNAL(refavailinfoSignal(st_RefAvailInfo)), this, SLOT(slotOnRefUseokReached(st_RefAvailInfo)));
+	connect(pTransport, SIGNAL(gnssstaSignal(st_Gnsssta)), this, SLOT(slotOnGnssstaReached(st_Gnsssta)));
 }
 
 void TimeSrcTab::switchAutoManual(bool isAuto, bool isInitial /*= false*/)
@@ -772,17 +955,138 @@ void TimeSrcTab::slotOnGnsstimeReached(const st_Gnsstime &gnsstime)
 	m_gpsDateTime->setText(szText);
 	m_gloDateTime->setText(szText);
 
-	t = TimeStampToTime(gnsstime.dcbTime.toUInt());
+	t = TimeStampToTime(gnsstime.dcbTime.toUInt(), false);
 	sprintf_s(szText, 128, "%04d/%02d/%02d %02d:%02d:%02d", t.Year, t.Month, t.Date, t.Hour, t.Minute, t.Second);
 	m_dcbDateTime->setText(szText);
 
-	t = TimeStampToTime(gnsstime.acbTime.toUInt());
+	t = TimeStampToTime(gnsstime.acbTime.toUInt(), false);
 	sprintf_s(szText, 128, "%04d/%02d/%02d %02d:%02d:%02d", t.Year, t.Month, t.Date, t.Hour, t.Minute, t.Second);
 	m_acbDateTime->setText(szText);
 
-	t = TimeStampToTime(gnsstime.inputTime.toUInt());
+	t = TimeStampToTime(gnsstime.inputTime.toUInt(), false);
 	sprintf_s(szText, 128, "%04d/%02d/%02d %02d:%02d:%02d", t.Year, t.Month, t.Date, t.Hour, t.Minute, t.Second);
 	m_inputDateTime->setText(szText);
+
+	if (m_inputSetting->text().isEmpty()) {
+		sprintf_s(szText, 128, "%04d%02d%02d%02d%02d%02d", t.Year, t.Month, t.Date, t.Hour, t.Minute, t.Second);
+		m_inputSetting->setText(szText);
+	}
+}
+
+void TimeSrcTab::slotOnPriorityReached(const QString &priority)
+{
+	switch (priority.at(0).toLatin1()) {
+	case 'a':
+		m_auto->setChecked(true);
+		break;
+	case 'b':
+	case 'c':
+		m_manual->setChecked(true);
+		break;
+	default:
+		break;
+	}
+
+	for (int i = 1; i < 6; ++i) {
+		int d = priority.at(i).digitValue();
+		m_priorityGroup[d - 1]->setCurrentIndex(i - 1);
+		m_priorityValue[d - 1] = i;
+	}
+
+	switch (priority.at(6).digitValue()) {
+	case 0:
+		m_input->setChecked(true);
+		break;
+	case 1:
+		m_gps->setChecked(true);
+		break;
+	case 2:
+		m_glo->setChecked(true);
+		break;
+	case 3:
+		m_bds->setChecked(true);
+		break;
+	case 4:
+		m_acb->setChecked(true);
+		break;
+	case 5:
+		m_dcb->setChecked(true);
+		break;
+	default:
+		break;
+	}	
+}
+
+void TimeSrcTab::slotOnRefUseokReached(const st_RefAvailInfo &refAvail)
+{
+	QString QssNormalLabel("font: bold normal 16px \"arial\";");
+	QString QssBlueLabel("font: bold normal 16px \"arial\"; color: #0306A8;");
+	QString QssAbnormalLabel("font: bold normal 16px \"arial\"; color: lightgray;");
+	
+	if (refAvail.gpsuse) {
+		m_gps->setStyleSheet(QssNormalLabel);
+		m_gpsDateTime->setStyleSheet(QssBlueLabel);
+		m_gpsAvlSatellites->setStyleSheet(QssBlueLabel);
+	}
+	else {
+		m_gps->setStyleSheet(QssAbnormalLabel);
+		m_gpsDateTime->setStyleSheet(QssAbnormalLabel);
+		m_gpsAvlSatellites->setStyleSheet(QssAbnormalLabel);
+	}
+
+	if (refAvail.glouse) {
+		m_glo->setStyleSheet(QssNormalLabel);
+		m_gloDateTime->setStyleSheet(QssBlueLabel);
+		m_gloAvlSatellites->setStyleSheet(QssBlueLabel);
+	}
+	else {
+		m_glo->setStyleSheet(QssAbnormalLabel);
+		m_gloDateTime->setStyleSheet(QssAbnormalLabel);
+		m_gloAvlSatellites->setStyleSheet(QssAbnormalLabel);
+	}
+
+	if (refAvail.bdsuse) {
+		m_bds->setStyleSheet(QssNormalLabel);
+		m_bdsDateTime->setStyleSheet(QssBlueLabel);
+		m_bdsAvlSatellites->setStyleSheet(QssBlueLabel);
+	}
+	else {
+		m_bds->setStyleSheet(QssAbnormalLabel);
+		m_bdsDateTime->setStyleSheet(QssAbnormalLabel);
+		m_bdsAvlSatellites->setStyleSheet(QssAbnormalLabel);
+	}
+
+	if (refAvail.acbuse) {
+		m_acb->setStyleSheet(QssNormalLabel);
+		m_acbDateTime->setStyleSheet(QssBlueLabel);
+	}
+	else {
+		m_acb->setStyleSheet(QssAbnormalLabel);
+		m_acbDateTime->setStyleSheet(QssAbnormalLabel);
+	}
+
+	if (refAvail.dcbuse) {
+		m_dcb->setStyleSheet(QssNormalLabel);
+		m_dcbDateTime->setStyleSheet(QssBlueLabel);
+	}
+	else {				
+		m_dcb->setStyleSheet(QssAbnormalLabel);
+		m_dcbDateTime->setStyleSheet(QssAbnormalLabel);
+	}
+}
+
+void TimeSrcTab::slotOnGnssstaReached(const st_Gnsssta &gnsssta)
+{
+	QString contents = tr("%1 颗").arg(gnsssta.avlSatellites);
+	if (0 == strcmp(gnsssta.satelliteType, "gps")) {		
+		m_gpsAvlSatellites->setText(contents);
+	}
+	else if (0 == strcmp(gnsssta.satelliteType, "glo")) {		
+		m_gloAvlSatellites->setText(contents);
+	}
+	else if (0 == strcmp(gnsssta.satelliteType, "bds")) {		
+		m_bdsAvlSatellites->setText(contents);
+	}
 }
 
 /****************************************************************************************

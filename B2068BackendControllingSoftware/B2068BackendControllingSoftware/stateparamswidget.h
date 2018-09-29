@@ -391,8 +391,12 @@ private:
 	void connectSlots();
 	void generateRandomValue();
 
+signals:
+	void changeParams();
+
 private slots:
 	void slotOnConfirmClicked();
+	void slotOnResetReached(const QString &ret);
 
 private:
 	QLabel *m_pwdLabel;	

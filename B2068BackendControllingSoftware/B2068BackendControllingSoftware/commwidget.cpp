@@ -183,17 +183,17 @@ void CommWidget::checkConnect()
 	//TransportThread *pTransport = TransportThread::Get();
 	//pTransport->SetFrameDataFormat(false, false, true);
 	//pTransport->SetSourceAddr(g_BoardAddr[PCAddr][0], g_BoardAddr[PCAddr][1], 0x00);
-	//pTransport->SetTargetAddr(g_BoardAddr[MasterControlAddr][0], g_BoardAddr[MasterControlAddr][1], 0x11);
-	//pTransport->SetCommand(COMMAND_IS_AT);
+	//pTransport->SetTargetAddr(g_BoardAddr[DisplayAddr][0], g_BoardAddr[DisplayAddr][1], 0x00);
+	//pTransport->SetCommand(COMMAND_IS_AT);	
 
-	//char chTest[16] = "?";
+	//char chTest[16] = "rt";
 	//pTransport->SendComNetData(COMMAND_IS_AT, chTest, strlen(chTest));
 	TimePositionDatabase db;
-	char chTest[16] = "?";
-	db.selectFromMasterBoard(COMMAND_IS_AT, chTest);
+	char chTest[16] = "?";//"navtf2000";//"rt";
+	db.selectFromMasterBoard(COMMAND_IS_AT, chTest, true);
 
 	// 串口和网口的反应最快为 400ms
-	QTimer::singleShot(400, this, &CommWidget::slotOnCheckTimeOut);
+	QTimer::singleShot(1000, this, &CommWidget::slotOnCheckTimeOut);
 }
 
 void CommWidget::slotOnSelectCom()
@@ -240,7 +240,7 @@ void CommWidget::slotOnConnectCom()
 	int baud = m_comBaud->currentText().toInt();
 		
 	m_connCom->setEnabled(false);
-	pTransport->SetComPort(comName, baud, 8, 1, 0);
+	pTransport->SetComPort(comName, baud, 8, 0, 0);  // 停止位必须是0, 否则第一次一直收到乱码
 	if (!pTransport->OpenCom()) {
 		m_statusLabel->setText(tr("连接串口失败!"));
 		m_connCom->setEnabled(true);

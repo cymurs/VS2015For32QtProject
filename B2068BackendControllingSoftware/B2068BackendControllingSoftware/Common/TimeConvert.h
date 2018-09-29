@@ -13,5 +13,5 @@ typedef struct{
 	unsigned short Year;
 }structTime;
 
-structTime TimeStampToTime(uint32_t TimeStamp);//整形转年月日
+structTime TimeStampToTime(uint32_t TimeStamp, bool hasTimezone = true);//整形转年月日
 uint32_t TimeToTimeStamp(structTime TIME);//年月日转整形

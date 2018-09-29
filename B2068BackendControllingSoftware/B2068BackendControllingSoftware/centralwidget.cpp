@@ -4,6 +4,7 @@
 #include "leftwidget.h"
 #include "tabwidget.h"
 #include "stateparamswidget.h"
+#include "timepositiondatabase.h"
 
 CentralWidget::CentralWidget(QWidget *parent)
 	: QWidget(parent)
@@ -158,6 +159,20 @@ void CentralWidget::connectSlots()
 
 	connect(m_comSettings, SIGNAL(changeParams()), this, SIGNAL(changeParams()));
 	connect(m_netSettings, SIGNAL(changeParams()), this, SIGNAL(changeParams()));
+
+	connect(m_restore, SIGNAL(changeParams()), this, SIGNAL(changeParams()));
+}
+
+void CentralWidget::queryBoardInfo()
+{
+	TimePositionDatabase timePositionDB;
+	unsigned char chCmd = COMMAND_IS_AT;
+
+	QString data("ppswidth");
+	timePositionDB.selectFromMasterBoard(chCmd, data);
+
+	data = "ppsdelay";
+	timePositionDB.selectFromMasterBoard(chCmd, data);
 }
 
 void CentralWidget::slotOnLeftBtnClicked(int id)
@@ -184,6 +199,10 @@ void CentralWidget::slotOnLeftBtnClicked(int id)
 
 void CentralWidget::slotOnStateParamsBtnClicked(int id)
 {
+	if (11 == id) {
+		queryBoardInfo();
+	}
+	
 	m_centerLayout->setCurrentIndex(id + 4);
 }
 

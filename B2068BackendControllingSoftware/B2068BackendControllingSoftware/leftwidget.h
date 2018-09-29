@@ -22,6 +22,7 @@ protected:
 
 private:
 	void connectSlots();
+	void queryBoardInfo();
 
 signals:
 	void leftButtonClicked(int id);
@@ -37,4 +38,5 @@ private:
 	QButtonGroup *m_btnGroup;
 	QPushButton *m_curBtn;
 
+	bool m_queryOver;
 };

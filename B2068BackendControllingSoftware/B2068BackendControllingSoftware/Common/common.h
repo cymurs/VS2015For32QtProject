@@ -60,12 +60,24 @@ struct st_UserPwd
 };
 extern st_UserPwd userPwd;
 
+// 参考源
+enum RSFlag 
+{
+	NOTPOS = 0,
+	GPS,
+	GLONASS,
+	BDS,
+	BAC,
+	BDC = 5,
+	SETTIME = 8
+};
+
 /****************************************************************************************
 主板帧数据
 *****************************************************************************************/
 struct st_Status
 {
-	QString lockState;
+	int lockState;
 	QString oscType;
 	int oscLock;
 	int curRef;
@@ -89,9 +101,9 @@ Q_DECLARE_METATYPE(st_Gnsstime)  // 记得在最前面加 #include <QVariant>
 
 struct st_RefAvailInfo
 {
-	bool bdsuse{ false };
 	bool gpsuse{ false };
 	bool glouse{ false };
+	bool bdsuse{ false };	
 	bool acbuse{ false };
 	bool dcbuse{ false };
 };

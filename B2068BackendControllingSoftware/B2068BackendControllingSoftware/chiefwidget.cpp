@@ -94,6 +94,9 @@ void ChiefWidget::queryBoardInfo()
 	data = "ver";
 	timePositionDB.selectFromMasterBoard(chCmd, data);
 
+	data = "b2068";
+	timePositionDB.selectFromMasterBoard(chCmd, data);
+
 	data = "baud";
 	timePositionDB.selectFromMasterBoard(chCmd, data);
 

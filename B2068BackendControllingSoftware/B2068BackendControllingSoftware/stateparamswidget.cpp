@@ -2,6 +2,7 @@
 #include "stateparamswidget.h"
 #include "cradar.h"
 #include "transportthread.h"
+#include "timepositiondatabase.h"
 
 /****************************************************************************************
 设备总览
@@ -1079,7 +1080,11 @@ RestoreTab::RestoreTab(QWidget *parent /*= 0*/)
 
 void RestoreTab::changeStartup()
 {
+	TimePositionDatabase timePositionDB;
+	unsigned char chCmd = COMMAND_IS_AT;
 
+	QString data("reset");
+	timePositionDB.selectFromMasterBoard(chCmd, data);
 }
 
 void RestoreTab::resizeEvent(QResizeEvent *event)
@@ -1107,7 +1112,9 @@ void RestoreTab::setChildrenGeometry(int w /*= 0*/, int h /*= 0*/)
 
 void RestoreTab::connectSlots()
 {
+	TransportThread *pTrans = TransportThread::Get();
 	connect(m_confirm, SIGNAL(clicked(bool)), this, SLOT(slotOnConfirmClicked()));
+	connect(pTrans, SIGNAL(resetSignal(QString)), this, SLOT(slotOnResetReached(QString)));
 }
 
 void RestoreTab::generateRandomValue()
@@ -1151,6 +1158,18 @@ void RestoreTab::slotOnConfirmClicked()
 		return;
 	}
 
+	emit changeParams();
+}
+
+void RestoreTab::slotOnResetReached(const QString &ret)
+{
+	if (0 == ret.compare("reset")) {
+		QMessageBox msgBox(QMessageBox::Information, tr("提示"), tr("参数修改成功!"), QMessageBox::NoButton);
+		msgBox.addButton(tr("确认"), QMessageBox::AcceptRole);
+		msgBox.setStyleSheet(QSS_MsgBox + QSS_PushButton);
+		msgBox.exec();
+		// 需要重新连接
+	}
 }
 
 /****************************************************************************************

@@ -1,13 +1,16 @@
 #include "TimeConvert.h"
 
-structTime	TimeStampToTime(uint32_t TimeStamp)
+structTime	TimeStampToTime(uint32_t TimeStamp, bool hasTimezone)
 {
 	structTime	Time;
 	struct tm 	*tm_time;
 	time_t      t;
 	
 	t = TimeStamp;
-	tm_time = localtime(&t);
+	if (hasTimezone)
+		tm_time = localtime(&t);  // 带时区
+	else
+		tm_time = gmtime(&t);    // 不带时区
 	Time.Year   = tm_time->tm_year+1900;
 	Time.Month  = tm_time->tm_mon+1;
 	Time.Date   = tm_time->tm_mday;

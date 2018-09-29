@@ -89,15 +89,20 @@ protected:
 	void resizeEvent(QResizeEvent *event) override;
 	void	paintEvent(QPaintEvent *event) override;
 	void mousePressEvent(QMouseEvent *event) override;
+	QString LonLatConvert(float value);
 
 private:
 	void connectSlots();
+	void queryBoardInfo();
 
 private Q_SLOTS:
 	// 想要在connect中使用SLOT, 必须将槽函数声明为Q_SLOTS
 	void slotOnRefSrcTimeOut();
+
+	void slotOnStatusReached(const st_Status &status);
 	void slotOnGnsstimeReached(const st_Gnsstime &gnsstime);
-	
+	void slotOnGnssstaReached(const st_Gnsssta &gnsssta);
+	void slotOnB2068Reached(int mark);
 
 signals:
 	void fadeOut();
@@ -113,10 +118,19 @@ private:
 	QLabel *m_refSrcDate;
 	QLabel *m_position;	
 	QPropertyAnimation *m_animation;
+	QPixmap m_signNormal;
+	QPixmap m_signAbnormal;
+	QPixmap m_lockClose;
+	QPixmap m_lockOpen;
 
 private:
 	// 测试
 	QTimer m_refSrcTimer;
+
+	int m_iRefSrc;
+	int m_iAvlSatellites;
+	bool m_bSignNormal;
+	bool m_bLockState;
 };
 
 // 时间源
@@ -140,6 +154,9 @@ private Q_SLOTS:
 	void slotOnSwitchAutoManual(bool checked);
 	void slotOnCurrentIndexChanged(const QString& text);
 	void slotOnGnsstimeReached(const st_Gnsstime &gnsstime);
+	void slotOnPriorityReached(const QString &priority);
+	void slotOnRefUseokReached(const st_RefAvailInfo &refAvail);
+	void slotOnGnssstaReached(const st_Gnsssta &gnsssta);
 
 private:
 	QRadioButton *m_manual;

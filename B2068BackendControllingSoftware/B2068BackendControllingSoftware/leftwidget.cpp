@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "leftwidget.h"
+#include "timepositiondatabase.h"
 
 LeftWidget::LeftWidget(QWidget *parent)
 	: QWidget(parent)
@@ -32,6 +33,8 @@ LeftWidget::LeftWidget(QWidget *parent)
 	// 默认按下的button
 	m_curBtn = m_timeSrcBtn;
 	m_curBtn->setStyleSheet(QSS_LeftWidgetToggledButton);
+
+	m_queryOver = false;
 
 	connectSlots();
 }
@@ -85,9 +88,35 @@ void LeftWidget::connectSlots()
 	connect(m_btnGroup, SIGNAL(buttonClicked(int)), this, SLOT(slotOnLeftButtonClicked(int)));
 }
 
+void LeftWidget::queryBoardInfo()
+{
+	TimePositionDatabase timePositionDB;
+	unsigned char chCmd = COMMAND_IS_AT;
+
+	QString data("indelayBD");
+	timePositionDB.selectFromMasterBoard(chCmd, data);
+
+	data = "indelayGPS";
+	timePositionDB.selectFromMasterBoard(chCmd, data);
+
+	data = "indelayGLONASS";
+	timePositionDB.selectFromMasterBoard(chCmd, data);
+
+	data = "indelayBAC";
+	timePositionDB.selectFromMasterBoard(chCmd, data);
+
+	data = "indelayBDC";
+	timePositionDB.selectFromMasterBoard(chCmd, data);
+}
+
 void LeftWidget::slotOnLeftButtonClicked(int id)
 {
 	m_curBtn->setStyleSheet(QSS_LeftWidgetDefaultButton); // 复原
 	m_btnGroup->button(id)->setStyleSheet(QSS_LeftWidgetToggledButton); // 按下
 	m_curBtn = dynamic_cast<QPushButton *>(m_btnGroup->button(id));
+
+	if (3 == id && !m_queryOver) {
+		m_queryOver = true;
+		queryBoardInfo();
+	}
 }
