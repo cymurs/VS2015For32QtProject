@@ -83,6 +83,50 @@ void ChiefWidget::connectSlots()
 	connect(m_center, SIGNAL(changeParams()), this, SLOT(slotOnChangeParams()));	
 }
 
+void ChiefWidget::queryMasterBoardInfo()
+{
+	TimePositionDatabase timePositionDB;
+	unsigned char chCmd = COMMAND_IS_AT;
+
+	QString data("ver");
+	timePositionDB.selectFromMasterBoard(chCmd, data);
+
+	data = "b2068";
+	timePositionDB.selectFromMasterBoard(chCmd, data);
+
+	data = "baud";
+	timePositionDB.selectFromMasterBoard(chCmd, data);
+}
+
+void ChiefWidget::queryNetBoardInfo()
+{
+	TimePositionDatabase timePositionDB;
+	unsigned char chCmd = COMMAND_IS_AT;
+
+	QString data("ip,1");
+	timePositionDB.selectFromNetBoard(chCmd, data, Net1Addr);
+
+	data = "ip,2";
+	timePositionDB.selectFromNetBoard(chCmd, data, Net2Addr);
+}
+
+void ChiefWidget::queryDisplayBoardInfo()
+{
+	TimePositionDatabase timePositionDB;
+	unsigned char chCmd = COMMAND_IS_AT;
+
+	QString data("sn");
+	timePositionDB.selectFromDisplayBoard(chCmd, data);
+}
+
+void ChiefWidget::queryReceiverBoardInfo()
+{
+	TimePositionDatabase timePositionDB;
+	unsigned char chCmd = COMMAND_IS_AT;
+
+	
+}
+
 void ChiefWidget::queryBoardInfo()
 {
 	TimePositionDatabase timePositionDB;
@@ -147,8 +191,11 @@ void ChiefWidget::slotOnSignIn(bool signin)
 			m_center->changeStartup();
 			m_baseLayout->setCurrentIndex(3);			
 		}
-		else
+		else {
+			queryMasterBoardInfo();
+			queryNetBoardInfo();
 			m_baseLayout->setCurrentIndex(2);
+		}
 		if (m_firstTime) {
 			//m_tabWidget->setCurrentIndex(0);
 			m_firstTime = false;

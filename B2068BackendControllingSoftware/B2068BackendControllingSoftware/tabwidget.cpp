@@ -513,11 +513,16 @@ void MainTab::slotOnStatusReached(const st_Status &status)
 		m_refSrc->setText("未定位");
 		break;
 	}
-	if (0x02 == status.lockState) {
-		m_lockedState->setPixmap(m_lockClose);
+	if (m_iRefSrc > 0 && m_iRefSrc < 5) {
+		if (0x02 == status.lockState) {
+			m_lockedState->setPixmap(m_lockClose);	
+		}
+		else {
+			m_lockedState->setPixmap(m_lockOpen);			
+		}
 	}
 	else {
-		m_lockedState->setPixmap(m_lockOpen);
+		m_lockedState->clear();
 	}
 }
 
@@ -632,6 +637,9 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	QString boldLabelQss("boldlabel");
 	QString autoColorQss("autoField");
 
+	m_lockOpen = QPixmap(":/BackendControlling/images/lock_black_open.png", "PNG");
+	m_lockClose = QPixmap(":/BackendControlling/images/lock_black_close.png", "PNG");
+
 	m_manual = new QRadioButton(tr("手动"), this);
 	m_manual->setObjectName(largeRadioQss);
 
@@ -642,7 +650,7 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	m_bdsLock = new QLabel(this);		
 	m_bdsLock->setScaledContents(true);
 	m_bdsLock->setFixedSize(LockSize);
-	m_bdsLock->setPixmap(QPixmap(":/BackendControlling/images/lock_black_close.png", "PNG"));
+	m_bdsLock->setPixmap(m_lockClose);
 		
 	m_bds = new QRadioButton(tr("    北斗"), this);
 	m_bds->setObjectName(smallRadioQss);
@@ -664,7 +672,7 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	m_gpsLock = new QLabel(this);
 	m_gpsLock->setScaledContents(true);
 	m_gpsLock->setFixedSize(LockSize);
-	m_gpsLock->setPixmap(QPixmap(":/BackendControlling/images/lock_black_open.png", "PNG"));
+	//m_gpsLock->setPixmap(QPixmap(":/BackendControlling/images/lock_black_open.png", "PNG"));
 
 	m_gps = new QRadioButton(tr("    GPS"), this);
 	m_gps->setObjectName(smallRadioQss);
@@ -764,9 +772,9 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	priorityLabel->setProperty(qPrintable(autoColorQss), true);
 	
 	// 分组
-	QButtonGroup *operatingGroup = new QButtonGroup(this);
-	operatingGroup->addButton(m_manual);
-	operatingGroup->addButton(m_auto);
+	m_operatingGroup = new QButtonGroup(this);
+	m_operatingGroup->addButton(m_manual, 0);
+	m_operatingGroup->addButton(m_auto, 1);
 	m_manual->setChecked(true);
 
 	m_refSrcGroup = new QButtonGroup(this);
@@ -777,6 +785,8 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 	m_refSrcGroup->addButton(m_dcb, 5);
 	m_refSrcGroup->addButton(m_input, 8);
 	m_bds->setChecked(true);
+	m_curRefSrc = BDS;
+	m_lockCurRefSrc = false;
 
 	m_priorityGroup[0] = m_gpsPriority;
 	m_priorityGroup[1] = m_gloPriority;
@@ -865,7 +875,41 @@ TimeSrcTab::TimeSrcTab(QWidget *parent)
 
 void TimeSrcTab::changeStartup()
 {
+	TimePositionDatabase db;
+	unsigned char chCmd = COMMAND_IS_AT;
+	
+	QString inputSetting = m_inputSetting->text();
+	if (0 != inputSetting.compare(m_strInputSetting)) {
+		QString data = QString("intime,%1").arg(inputSetting);
+		db.selectFromMasterBoard(chCmd, data);
+	}
 
+	int curRefSrc = m_refSrcGroup->checkedId();
+	if (0 == m_operatingGroup->checkedId()) {		
+		if ((m_priority.curRefSrc - '0') != curRefSrc) {
+			QString data = QString("priority,b,%1,%2,%3,%4,%5,%6")
+				.arg(m_priority.priorFirst).arg(m_priority.priorSecond)
+				.arg(m_priority.priorThird).arg(m_priority.priorFourth)
+				.arg(m_priority.priorFifth).arg(curRefSrc);
+			db.selectFromMasterBoard(chCmd, data);
+		}
+	}
+	else {
+		if (m_priorityValue[m_priority.priorFirst - 1] != 1
+			|| m_priorityValue[m_priority.priorSecond - 1] != 2
+			|| m_priorityValue[m_priority.priorThird - 1] != 3
+			|| m_priorityValue[m_priority.priorFourth - 1] != 4
+			|| m_priorityValue[m_priority.priorFifth - 1] != 5) {
+			int priorValue[5] = { 0 };
+			//for (int i = 0; i < 5; ++i) {
+			//	m_priorityValue[i]
+			//}
+			QString data = QString("priority,a,%1,%2,%3,%4,%5,%6")
+				.arg(m_priority.priorFirst).arg(m_priority.priorSecond)
+				.arg(m_priority.priorThird).arg(m_priority.priorFourth)
+				.arg(m_priority.priorFifth).arg(m_priority.curRefSrc);
+		}
+	}
 }
 
 void TimeSrcTab::setTextAlignCenter(QComboBox *comboBox)
@@ -886,12 +930,14 @@ void TimeSrcTab::connectSlots()
 	connect(m_gloPriority, SIGNAL(currentIndexChanged(QString)), this, SLOT(slotOnCurrentIndexChanged(QString)));
 	connect(m_dcbPriority, SIGNAL(currentIndexChanged(QString)), this, SLOT(slotOnCurrentIndexChanged(QString)));
 	connect(m_acbPriority, SIGNAL(currentIndexChanged(QString)), this, SLOT(slotOnCurrentIndexChanged(QString)));
+	connect(m_confirm, SIGNAL(clicked()), this, SLOT(slotOnConfirmButtonClicked()));
 
 	TransportThread *pTransport = TransportThread::Get();
 	connect(pTransport, SIGNAL(gnsstimeSignal(st_Gnsstime)), this, SLOT(slotOnGnsstimeReached(st_Gnsstime)));
 	connect(pTransport, SIGNAL(prioritySignal(QString)), this, SLOT(slotOnPriorityReached(QString)));
 	connect(pTransport, SIGNAL(refavailinfoSignal(st_RefAvailInfo)), this, SLOT(slotOnRefUseokReached(st_RefAvailInfo)));
 	connect(pTransport, SIGNAL(gnssstaSignal(st_Gnsssta)), this, SLOT(slotOnGnssstaReached(st_Gnsssta)));
+	connect(pTransport, SIGNAL(statusSignal(st_Status)), this, SLOT(slotOnStatusReached(st_Status)));
 }
 
 void TimeSrcTab::switchAutoManual(bool isAuto, bool isInitial /*= false*/)
@@ -900,6 +946,48 @@ void TimeSrcTab::switchAutoManual(bool isAuto, bool isInitial /*= false*/)
 	QList<QAbstractButton *> refSrcButtons = m_refSrcGroup->buttons();
 	for (auto &button : refSrcButtons) {
 		button->setEnabled(isManual);
+	}
+	if (m_lockCurRefSrc) {
+		switch (m_curRefSrc) {
+		case GPS:
+			m_gpsLock->setPixmap(m_lockClose);
+			break;
+		case GLONASS:
+			m_gloLock->setPixmap(m_lockClose);
+			break;
+		case BDS:
+			m_bdsLock->setPixmap(m_lockClose);
+			break;
+		case BAC:
+			m_acbLock->setPixmap(m_lockClose);
+			break;
+		case BDC:
+			m_dcbLock->setPixmap(m_lockClose);
+			break;
+		default:
+			break;
+		}
+	}
+	else {
+		switch (m_curRefSrc) {
+		case GPS:
+			m_gpsLock->setPixmap(m_lockOpen);
+			break;
+		case GLONASS:
+			m_gloLock->setPixmap(m_lockOpen);
+			break;
+		case BDS:
+			m_bdsLock->setPixmap(m_lockOpen);
+			break;
+		case BAC:
+			m_acbLock->setPixmap(m_lockOpen);
+			break;
+		case BDC:
+			m_dcbLock->setPixmap(m_lockOpen);
+			break;
+		default:
+			break;
+		}
 	}
 
 	for (int i = 0; i < 5; ++i) {
@@ -945,6 +1033,11 @@ void TimeSrcTab::slotOnCurrentIndexChanged(const QString& text)
 	m_priorityValue[idx] = text.toInt();
 }
 
+void TimeSrcTab::slotOnConfirmButtonClicked()
+{
+	emit changeParams();
+}
+
 void TimeSrcTab::slotOnGnsstimeReached(const st_Gnsstime &gnsstime)
 {
 	char szText[128] = { '\0' };
@@ -970,6 +1063,7 @@ void TimeSrcTab::slotOnGnsstimeReached(const st_Gnsstime &gnsstime)
 	if (m_inputSetting->text().isEmpty()) {
 		sprintf_s(szText, 128, "%04d%02d%02d%02d%02d%02d", t.Year, t.Month, t.Date, t.Hour, t.Minute, t.Second);
 		m_inputSetting->setText(szText);
+		m_strInputSetting = szText;
 	}
 }
 
@@ -996,25 +1090,39 @@ void TimeSrcTab::slotOnPriorityReached(const QString &priority)
 	switch (priority.at(6).digitValue()) {
 	case 0:
 		m_input->setChecked(true);
+		m_curRefSrc = SETTIME;
 		break;
 	case 1:
 		m_gps->setChecked(true);
+		m_curRefSrc = GPS;
 		break;
 	case 2:
 		m_glo->setChecked(true);
+		m_curRefSrc = GLONASS;
 		break;
 	case 3:
 		m_bds->setChecked(true);
+		m_curRefSrc = BDS;
 		break;
 	case 4:
 		m_acb->setChecked(true);
+		m_curRefSrc = BAC;
 		break;
 	case 5:
 		m_dcb->setChecked(true);
+		m_curRefSrc = BDC;
 		break;
 	default:
 		break;
 	}	
+
+	m_priority.model = priority.at(0).toLatin1();
+	m_priority.priorFirst = priority.at(1).toLatin1();
+	m_priority.priorSecond = priority.at(2).toLatin1();
+	m_priority.priorThird = priority.at(3).toLatin1();
+	m_priority.priorFourth = priority.at(4).toLatin1();
+	m_priority.priorFifth = priority.at(5).toLatin1();
+	m_priority.curRefSrc = priority.at(6).toLatin1();
 }
 
 void TimeSrcTab::slotOnRefUseokReached(const st_RefAvailInfo &refAvail)
@@ -1086,6 +1194,61 @@ void TimeSrcTab::slotOnGnssstaReached(const st_Gnsssta &gnsssta)
 	}
 	else if (0 == strcmp(gnsssta.satelliteType, "bds")) {		
 		m_bdsAvlSatellites->setText(contents);
+	}
+}
+
+void TimeSrcTab::slotOnStatusReached(const st_Status &status)
+{
+	switch (m_curRefSrc) {
+	case GPS:
+		m_gpsLock->clear();
+		break;
+	case GLONASS:
+		m_gloLock->clear();
+		break;
+	case BDS:
+		m_bdsLock->clear();
+		break;
+	case BAC:
+		m_acbLock->clear();
+		break;
+	case BDC:
+		m_dcbLock->clear();
+		break;
+	default:
+		break;
+	}
+
+	m_curRefSrc = (RSFlag)status.curRef;
+	QLabel *m_curLockLabel(nullptr);
+	switch (m_curRefSrc) {
+	case GPS:
+		m_curLockLabel = m_gpsLock;
+		break;
+	case GLONASS:
+		m_curLockLabel = m_gloLock;
+		break;
+	case BDS:
+		m_curLockLabel = m_bdsLock;
+		break;
+	case BAC:
+		m_curLockLabel = m_acbLock;
+		break;
+	case BDC:
+		m_curLockLabel = m_dcbLock;
+		break;
+	default:
+		break;
+	}
+	if (nullptr != m_curLockLabel) {
+		if (0x02 == status.lockState) {
+			m_curLockLabel->setPixmap(m_lockClose);
+			m_lockCurRefSrc = true;
+		}
+		else {
+			m_curLockLabel->setPixmap(m_lockOpen);
+			m_lockCurRefSrc = false;
+		}
 	}
 }
 

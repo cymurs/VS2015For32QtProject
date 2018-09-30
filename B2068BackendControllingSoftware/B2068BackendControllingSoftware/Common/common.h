@@ -72,6 +72,17 @@ enum RSFlag
 	SETTIME = 8
 };
 
+// 优先级
+struct st_TimeSrcPriority {
+	char model;
+	char priorFirst;
+	char priorSecond;
+	char priorThird;
+	char priorFourth;
+	char priorFifth;
+	char curRefSrc;
+};
+
 /****************************************************************************************
 主板帧数据
 *****************************************************************************************/

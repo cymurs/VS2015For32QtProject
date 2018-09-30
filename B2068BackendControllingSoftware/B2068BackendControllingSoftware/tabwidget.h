@@ -153,14 +153,17 @@ private:
 private Q_SLOTS:
 	void slotOnSwitchAutoManual(bool checked);
 	void slotOnCurrentIndexChanged(const QString& text);
+	void slotOnConfirmButtonClicked();
 	void slotOnGnsstimeReached(const st_Gnsstime &gnsstime);
 	void slotOnPriorityReached(const QString &priority);
 	void slotOnRefUseokReached(const st_RefAvailInfo &refAvail);
 	void slotOnGnssstaReached(const st_Gnsssta &gnsssta);
+	void slotOnStatusReached(const st_Status &status);
 
 private:
 	QRadioButton *m_manual;
 	QRadioButton *m_auto;
+	QButtonGroup *m_operatingGroup;
 
 	QLabel *m_bdsLock;
 	QRadioButton *m_bds;
@@ -197,8 +200,16 @@ private:
 	QPushButton *m_confirm;
 
 	QButtonGroup *m_refSrcGroup;
+	st_TimeSrcPriority m_priority;
 	QComboBox *m_priorityGroup[5];
 	int m_priorityValue[5];
+
+	QString m_strInputSetting;
+	QPixmap m_lockOpen;
+	QPixmap m_lockClose;
+	RSFlag m_curRefSrc;	
+	bool m_lockCurRefSrc;
+
 };
 
 // ¥Æø⁄…Ë÷√

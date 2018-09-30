@@ -21,7 +21,11 @@ protected:
 
 private:
 	void connectSlots();
-	void queryBoardInfo();
+	void queryMasterBoardInfo();
+	void queryNetBoardInfo();
+	void queryDisplayBoardInfo();
+	void queryReceiverBoardInfo();
+	void queryBoardInfo();	
 	void loadConfig();
 	void storeConfig();
 
